@@ -292,6 +292,24 @@
 			     <0 89 IRQ_TYPE_NONE>;
 		status = "okay";
 	};
+
+	scaler@20410000 {
+		compatible = "nexell,scaler";
+		reg = <0x00000000 0x20410000 0x00000000 0x00001000>;
+		#clock-frequency = <20000000>;
+		interrupts = <56>;
+		interrupt-parent = <&plic>;
+		status = "okay";
+	};
+
+	serial0@208a0000 {
+		compatible = "ns16550a";
+		reg = <0x00000000 0x208a0000 0x00000000 0x00001000>;
+		clock-frequency = <3686400>;
+		interrupts = <58>;
+		interrupt-parent = <&plic>;
+		status = "okay";
+	};
 };
 
 #include "swallow-pinctrl.dtsi"
