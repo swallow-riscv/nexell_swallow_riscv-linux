@@ -69,6 +69,54 @@
 			linux,phandle = <0x00000002>;
 			phandle = <0x00000002>;
 		};
+		pwm0: pwm0@208e0000	{
+			compatible = "nexell,swallow-pwm";
+			reg = <0x00000000 0x208e0000 0x00000000 0x10000>;
+			clocks = <&cmu CLK_2_PWM0_APB>,
+				   <&cmu CLK_0_PWM0_TCLK0>,
+				   <&cmu CLK_0_PWM0_TCLK1>,
+				   <&cmu CLK_0_PWM0_TCLK2>,
+				   <&cmu CLK_0_PWM0_TCLK3>;
+			clock-names = "pwm0_apb", "pwm0_tclk0", "pwm0_tclk1",
+				"pwm0_tclk2", "pwm0_tclk3";
+			tclk_freq = <100000000>, <100000000>, <100000000>, <100000000>;
+			nexell,pwm-outputs = <0>, <1>, <2>, <3>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&pwm0_pin &pwm1_pin &pwm2_pin &pwm3_pin>;
+			#pwm-cells = <3>;
+		};
+		pwm1: pwm1@208f0000	{
+			compatible = "nexell,swallow-pwm";
+			reg = <0x00000000 0x208f0000 0x00000000 0x10000>;
+			clocks = <&cmu CLK_2_PWM1_APB>,
+				   <&cmu CLK_0_PWM1_TCLK0>,
+				   <&cmu CLK_1_PWM1_TCLK1>,
+				   <&cmu CLK_1_PWM1_TCLK2>,
+				   <&cmu CLK_1_PWM1_TCLK3>;
+			clock-names = "pwm1_apb", "pwm1_tclk0", "pwm1_tclk1",
+				"pwm1_tclk2", "pwm1_tclk3";
+			tclk_freq = <100000000>, <100000000>, <100000000>, <100000000>;
+			nexell,pwm-outputs = <0>, <1>, <2>, <3>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&pwm4_pin &pwm5_pin &pwm6_pin &pwm7_pin>;
+			#pwm-cells = <3>;
+		};
+		pwm2: pwm2@20900000	{
+			compatible = "nexell,swallow-pwm";
+			reg = <0x00000000 0x20900000 0x00000000 0x10000>;
+			clocks = <&cmu CLK_2_PWM2_APB>,
+				   <&cmu CLK_1_PWM2_TCLK0>,
+				   <&cmu CLK_1_PWM2_TCLK1>,
+				   <&cmu CLK_1_PWM2_TCLK2>,
+				   <&cmu CLK_1_PWM2_TCLK3>;
+			clock-names = "pwm2_apb", "pwm2_tclk0", "pwm2_tclk1",
+				"pwm2_tclk2", "pwm2_tclk3";
+			tclk_freq = <100000000>, <100000000>, <100000000>, <100000000>;
+			nexell,pwm-outputs = <0>, <1>, <2>, <3>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&pwm8_pin &pwm9_pin &pwm10_pin &pwm11_pin>;
+			#pwm-cells = <3>;
+		 };
 
                 oscclk: xti {
                         compatible = "fixed-clock";
