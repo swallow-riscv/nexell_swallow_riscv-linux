@@ -387,6 +387,12 @@ config PWM_SAMSUNG
 	  To compile this driver as a module, choose M here: the module
 	  will be called pwm-samsung.
 
+config PWM_NEXELL
+	tristate "Nexell PWM support"
+	depends on ARCH_RV64I
+	help
+	  Generic PWM framework driver for Nexell Swallow.
+
 config PWM_SIFIVE
 	tristate "SiFive PWM support"
 	depends on OF
