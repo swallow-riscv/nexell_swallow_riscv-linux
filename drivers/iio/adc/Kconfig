@@ -284,6 +284,11 @@ config EXYNOS_ADC
 	  To compile this driver as a module, choose M here: the module will be
 	  called exynos_adc.
 
+config NEXELL_ADC
+	tristate "NEXELL ADC driver support"
+	help
+	  ADC driver for Nexell Swallow.
+
 config MXS_LRADC_ADC
 	tristate "Freescale i.MX23/i.MX28 LRADC ADC"
 	depends on MFD_MXS_LRADC
