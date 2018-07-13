@@ -46,6 +46,10 @@ config RISCV
 config MMU
 	def_bool y
 
+config ARCH_NEXELL
+        bool "Nexell SoCs"
+	def_bool y
+
 # even on 32-bit, physical (and DMA) addresses are > 32-bits
 config ARCH_PHYS_ADDR_T_64BIT
 	def_bool y

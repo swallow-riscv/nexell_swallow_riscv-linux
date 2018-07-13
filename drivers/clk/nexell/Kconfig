@@ -1,0 +1,12 @@
+config COMMON_CLK_NEXELL
+	bool
+	---help---
+	  Nexell SoC clock support
+
+config COMMON_CLK_SWALLOW
+	bool "Clock driver for Nexell SWALLOW"
+	depends on ARCH_NEXELL || COMPILE_TEST
+	select COMMON_CLK_NEXELL
+	default ARCH_SWALLOW_COMMON
+	---help---
+	  Support for the clock controller on Nexell SWALLOW.
