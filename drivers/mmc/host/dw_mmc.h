@@ -554,6 +554,7 @@ struct dw_mci_slot {
  */
 struct dw_mci_drv_data {
 	unsigned long	*caps;
+	u32		num_caps;
 	int		(*init)(struct dw_mci *host);
 	void		(*set_ios)(struct dw_mci *host, struct mmc_ios *ios);
 	int		(*parse_dt)(struct dw_mci *host);
