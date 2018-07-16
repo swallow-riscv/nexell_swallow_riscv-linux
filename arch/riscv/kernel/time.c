@@ -11,7 +11,7 @@
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *   GNU General Public License for more details.
  */
-
+#include <linux/clk-provider.h>
 #include <linux/clocksource.h>
 #include <linux/clockchips.h>
 #include <linux/delay.h>
@@ -65,5 +65,8 @@ void __init time_init(void)
 {
 	riscv_timebase = timebase_frequency();
 	lpj_fine = riscv_timebase / HZ;
+#ifdef CONFIG_COMMON_CLK
+	of_clk_init(NULL);
+#endif
 	init_clockevent();
 }
