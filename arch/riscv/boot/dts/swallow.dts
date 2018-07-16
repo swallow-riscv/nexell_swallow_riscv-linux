@@ -1,8 +1,9 @@
 /dts-v1/;
+#include <dt-bindings/clock/swallow-clk.h>
 #include <dt-bindings/interrupt-controller/irq.h>
 / {
 	model = "nexell-swallow,qemu";
-	compatible = "nexell-swallow";
+	compatible = "nexell,swallow";
 	#address-cells = <0x00000002>;
 	#size-cells = <0x00000002>;
 
@@ -47,7 +48,7 @@
 	soc {
 		#address-cells = <0x00000002>;
 		#size-cells = <0x00000002>;
-		compatible = "nexell-swallow-soc";
+		compatible = "simple-bus";
 		ranges;
 
 		clint@0x2000000 {
@@ -69,7 +70,41 @@
 			phandle = <0x00000002>;
 		};
 
-	};
+                oscclk: xti {
+                        compatible = "fixed-clock";
+                        #clock-cells = <0>;
+                        clock-output-names = "oscclk";
+                        clock-frequency =  <25000000>;
+	        };
+
+                pll_0: pll0 {
+			compatible = "fixed-clock";
+                        reg = <0x00000000 0x20010000 0x00000000 0x1000>;
+			#clock-cells = <0>;
+			clock-output-names = "pll0";
+                        clock-frequency = <400000000>;
+		};
+
+		pll_1: pll1 {
+			compatible = "fixed-clock";
+                        reg = <0x00000000 0x20020000 0x00000000 0x1000>;
+			#clock-cells = <0>;
+			clock-output-names = "pll1";
+                        clock-frequency = <400000000>;
+		};
+
+                cmu: clock-controller@0x20030000 {
+                        compatible = "nexell,swallow-cmu";
+			reg = <0x00000000 0x20030000 0x00000000 0x1000>;
+			#clock-cells = <1>;
+			clock-names = "oscclk",
+                                      "pll0",
+                                      "pll1";
+			clocks = <&oscclk>,
+                                 <&pll_0>,
+                                 <&pll_1>;
+		};
+        };
 
 	pinctrl_0: pinctrl@0x20700000 {
 		compatible = "nexell,swallow-pinctrl";
