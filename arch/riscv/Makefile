@@ -69,4 +69,19 @@ core-y += arch/riscv/kernel/ arch/riscv/mm/
 
 libs-y += arch/riscv/lib/
 
-all: vmlinux
+boot := arch/riscv/boot
+
+KBUILD_DTBS := dtbs
+
+all: vmlinux $(KBUILD_DTBS)
+
+%.dtb: | scripts
+	$(Q)$(MAKE) $(build)=$(boot)/dts  $(boot)/dts/$@
+
+PHONY += dtbs dtbs_install
+
+dtbs: prepare scripts
+	$(Q)$(MAKE) $(build)=$(boot)/dts
+
+dtbs_install:
+	$(Q)$(MAKE) $(dtbinst)=$(boot)/dts
