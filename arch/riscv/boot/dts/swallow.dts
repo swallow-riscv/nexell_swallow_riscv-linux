@@ -1,9 +1,14 @@
 /dts-v1/;
+#include <dt-bindings/interrupt-controller/irq.h>
 / {
 	model = "nexell-swallow,qemu";
 	compatible = "nexell-swallow";
 	#address-cells = <0x00000002>;
 	#size-cells = <0x00000002>;
+
+	aliases {
+		pinctrl0 = &pinctrl_0;
+	};
 
 	chosen {
 		bootargs = "console=ttyS0,115200";
@@ -62,9 +67,32 @@
 			riscv,ndev = <89>;
 			linux,phandle = <0x00000002>;
 			phandle = <0x00000002>;
-
 		};
 
+	};
+
+	pinctrl_0: pinctrl@0x20700000 {
+		compatible = "nexell,swallow-pinctrl";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		reg = <0x00000000 0x20700000 0x00000000 0x1000
+		       0x00000000 0x20710000 0x00000000 0x1000
+		       0x00000000 0x20720000 0x00000000 0x1000
+		       0x00000000 0x20730000 0x00000000 0x1000
+		       0x00000000 0x20740000 0x00000000 0x1000
+		       0x00000000 0x20750000 0x00000000 0x1000
+		       0x00000000 0x20760000 0x00000000 0x1000
+		       0x00000000 0x20770000 0x00000000 0x1000>;
+		interrupt-parent = <&plic>;
+		interrupts = <0 82 IRQ_TYPE_NONE>,
+			     <0 83 IRQ_TYPE_NONE>,
+			     <0 84 IRQ_TYPE_NONE>,
+			     <0 85 IRQ_TYPE_NONE>,
+			     <0 86 IRQ_TYPE_NONE>,
+			     <0 87 IRQ_TYPE_NONE>,
+			     <0 88 IRQ_TYPE_NONE>,
+			     <0 89 IRQ_TYPE_NONE>;
+		status = "okay";
 	};
 
 	serial0@208a0000 {
@@ -77,3 +105,4 @@
 	};
 };
 
+#include "swallow-pinctrl.dtsi"
