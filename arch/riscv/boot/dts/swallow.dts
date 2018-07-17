@@ -69,6 +69,19 @@
 			linux,phandle = <0x00000002>;
 			phandle = <0x00000002>;
 		};
+
+		adc0: adc0@206c0000 {
+			compatible = "nexell,swallow-adc";
+			reg = <0x00000000 0x206c0000 0x00000000 0x10000>;
+			interrupt-parent = <&plic>;
+			interrupts = <46>;
+			clocks = <&cmu CLK_2_ADC0_APB>;
+			clock-names = "adc0_apb";
+			sample_rate = <200000>;
+			#io-channel-cells = <1>;
+			status = "okay";
+		};
+
 		pwm0: pwm0@208e0000	{
 			compatible = "nexell,swallow-pwm";
 			reg = <0x00000000 0x208e0000 0x00000000 0x10000>;
