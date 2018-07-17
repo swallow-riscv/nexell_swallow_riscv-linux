@@ -1,0 +1,14 @@
+#
+# NEXELL Pin control drivers
+#
+config PINCTRL_NEXELL
+	bool
+	select PINMUX
+	select PINCONF
+
+config PINCTRL_NEXELL_SWALLOW
+	bool "Nexell swallow SoC pinctrl driver"
+	select PINCTRL_NEXELL
+	help
+	  This pinctrl driver provides an interface that allows configuring
+	  of NEXELL swallow pins and using them as GPIOs.
