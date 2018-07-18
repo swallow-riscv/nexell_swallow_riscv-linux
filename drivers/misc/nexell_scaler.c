@@ -1291,7 +1291,7 @@ static int nx_scaler_probe(struct platform_device *pdev)
 	}
 
 	pr_debug("%s - base : 0x%p, phy addr : 0x%lX\n", __func__,
-		-               me->base, (unsigned long)res->start);
+			me->base, (unsigned long)res->start);
 
 	me->command_buffer_vir = NULL;
 	me->command_buffer_phy = 0;
