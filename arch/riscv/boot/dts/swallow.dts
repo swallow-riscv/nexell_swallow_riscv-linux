@@ -9,11 +9,17 @@
 
 	aliases {
 		pinctrl0 = &pinctrl_0;
+		serial0 = &serial0;
+		serial1 = &serial1;
+		serial2 = &serial2;
+		serial3 = &serial3;
+		serial4 = &serial4;
+		serial5 = &serial5;
 	};
 
 	chosen {
 		bootargs = "console=ttyS0,115200";
-		stdout-path = "serial0@208a0000";
+		stdout-path = "serial0@20880000";
 	};
 
 	cpus {
@@ -165,6 +171,102 @@
                                  <&pll_0>,
                                  <&pll_1>;
 		};
+
+		serial0:serial0@20880000 {
+			compatible = "snps,dw-apb-uart";
+			reg = <0x00000000 0x20880000 0x00000000 0x00001000>;
+			clock-frequency = <100000000>;
+			interrupts = <56>;
+			interrupt-parent = <&plic>;
+			reg-shift = <2>;
+			reg-io-width = <4>;
+			clocks = <&cmu 33>,
+				 <&cmu 82>;
+			clock-names = "baudclk", "apb_pclk";
+			pinctrl-names = "default";
+			pinctrl-0 = <&uart0_bus>;
+			status = "okay";
+		};
+
+		serial1:serial1@20880000 {
+			compatible = "snps,dw-apb-uart";
+			reg = <0x00000000 0x20890000 0x00000000 0x00001000>;
+			clock-frequency = <100000000>;
+			interrupts = <57>;
+			interrupt-parent = <&plic>;
+			reg-shift = <2>;
+			reg-io-width = <4>;
+			clocks = <&cmu 34>,
+				 <&cmu 83>;
+			clock-names = "baudclk", "apb_pclk";
+			pinctrl-names = "default";
+			pinctrl-0 = <&uart1_bus>;
+			status = "okay";
+		};
+
+		serial2:serial2@20880000 {
+			compatible = "snps,dw-apb-uart";
+			reg = <0x00000000 0x208a0000 0x00000000 0x00001000>;
+			clock-frequency = <100000000>;
+			interrupts = <58>;
+			interrupt-parent = <&plic>;
+			reg-shift = <2>;
+			reg-io-width = <4>;
+			clocks = <&cmu 35>,
+				 <&cmu 84>;
+			clock-names = "baudclk", "apb_pclk";
+			pinctrl-names = "default";
+			pinctrl-0 = <&usart0_bus>;
+			status = "okay";
+		};
+
+		serial3:serial3@20880000 {
+			compatible = "snps,dw-apb-uart";
+			reg = <0x00000000 0x208b0000 0x00000000 0x00001000>;
+			clock-frequency = <100000000>;
+			interrupts = <59>;
+			interrupt-parent = <&plic>;
+			reg-shift = <2>;
+			reg-io-width = <4>;
+			clocks = <&cmu 36>,
+				 <&cmu 85>;
+			clock-names = "baudclk", "apb_pclk";
+			pinctrl-names = "default";
+			pinctrl-0 = <&usart1_bus>;
+			status = "okay";
+		};
+
+		serial4:serial4@20880000 {
+			compatible = "snps,dw-apb-uart";
+			reg = <0x00000000 0x208c0000 0x00000000 0x00001000>;
+			clock-frequency = <100000000>;
+			interrupts = <60>;
+			interrupt-parent = <&plic>;
+			reg-shift = <2>;
+			reg-io-width = <4>;
+			clocks = <&cmu 37>,
+				 <&cmu 86>;
+			clock-names = "baudclk", "apb_pclk";
+			pinctrl-names = "default";
+			pinctrl-0 = <&usart2_bus>;
+			status = "okay";
+		};
+
+		serial5:serial5@20880000 {
+			compatible = "snps,dw-apb-uart";
+			reg = <0x00000000 0x208d0000 0x00000000 0x00001000>;
+			clock-frequency = <100000000>;
+			interrupts = <61>;
+			interrupt-parent = <&plic>;
+			reg-shift = <2>;
+			reg-io-width = <4>;
+			clocks = <&cmu 38>,
+				 <&cmu 87>;
+			clock-names = "baudclk", "apb_pclk";
+			pinctrl-names = "default";
+			pinctrl-0 = <&usart3_bus>;
+			status = "okay";
+		};
         };
 
 	pinctrl_0: pinctrl@0x20700000 {
@@ -188,15 +290,6 @@
 			     <0 87 IRQ_TYPE_NONE>,
 			     <0 88 IRQ_TYPE_NONE>,
 			     <0 89 IRQ_TYPE_NONE>;
-		status = "okay";
-	};
-
-	serial0@208a0000 {
-		compatible = "ns16550a";
-		reg = <0x00000000 0x208a0000 0x00000000 0x00001000>;
-		clock-frequency = <3686400>;
-		interrupts = <58>;
-		interrupt-parent = <&plic>;
 		status = "okay";
 	};
 };
