@@ -267,6 +267,44 @@
 			pinctrl-0 = <&usart3_bus>;
 			status = "okay";
 		};
+
+		dwmmc_0: dwmmc@20930000 {
+			compatible = "nexell,swallow-dw-mshc";
+			interrupts = <0 27 IRQ_TYPE_NONE>;
+                        interrupt-parent = <&plic>;
+			reg = <0x00000000 0x20930000 0x00000000 0x1000>;
+			assigned-clocks = <&cmu CLK_SYS_DIV_SYS0_CLK400>,
+					  <&pll_0 0>;
+			assigned-clock-parents = <&pll_0 0>;
+			clock-frequency = <400000000>;
+			clock-names = "biu", "ciu";
+			clocks = <&cmu CLK_1_OSDMMC0_AHB>,
+			         <&cmu CLK_0_OSDMMC0_CORE>;
+			bus-width = <4>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&mmc0_clk &mmc0_cmd &mmc0_bus4>;
+			fifo-depth = <0x20>;
+			status = "okay";
+		};
+
+		dwmmc_1: dwmmc@20940000 {
+			compatible = "nexell,swallow-dw-mshc";
+			interrupts = <0 28 IRQ_TYPE_NONE>;
+                        interrupt-parent = <&plic>;
+			reg = <0x00000000 0x20940000 0x00000000 0x1000>;
+			assigned-clocks = <&cmu CLK_SYS_DIV_SYS0_CLK400>,
+					  <&pll_0 0>;
+			assigned-clock-parents = <&pll_0 0>;
+			clock-frequency = <400000000>;
+			clock-names = "biu", "ciu";
+			clocks = <&cmu CLK_1_OSDMMC1_AHB>,
+			         <&cmu CLK_0_OSDMMC1_CORE>;
+			bus-width = <4>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&mmc1_clk &mmc1_cmd &mmc1_bus4>;
+			fifo-depth = <0x20>;
+			status = "okay";
+		};
         };
 
 	pinctrl_0: pinctrl@0x20700000 {
