@@ -24,6 +24,8 @@
 #include <linux/miscdevice.h>
 #include <linux/mutex.h>
 
+#define	NX_SCALER_CLK_NUM 2
+
 struct list_head;
 struct nx_scaler_ioctl_data;
 
@@ -32,7 +34,7 @@ struct nx_scaler {
 	struct platform_device		*pdev;
 
 	void __iomem			*base;
-	struct clk			*clk;
+	struct clk			*clk[NX_SCALER_CLK_NUM];
 	int				irq;
 
 	unsigned int			*command_buffer_vir;

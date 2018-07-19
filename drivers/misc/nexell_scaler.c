@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2016  Nexell Co., Ltd.
- * Author: Jongkeun, Choi <jkchoi@nexell.co.kr>
+ * Author: Hyejung, Kwon <cjscld15@nexell.co.kr>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -28,6 +28,7 @@
 #include <linux/version.h>
 #include <linux/dma-mapping.h>
 #include <linux/dma-buf.h>
+#include <linux/of.h>
 #include <linux/fs.h>
 #include <linux/io.h>
 #include <linux/clk.h>
@@ -865,9 +866,8 @@ static int get_phy_addr_from_fd(struct device *dev, int fd, bool is_src,
 
 static int _hw_init(struct nx_scaler *me)
 {
-	int ret = 0;
-	struct reset_control *rst;
-	unsigned long rate;
+	int ret = 0, i = 0;
+	/*struct reset_control *rst;*/
 
 	if (me->pdev == NULL)
 		return 0;
@@ -875,23 +875,20 @@ static int _hw_init(struct nx_scaler *me)
 	nx_scaler_initialize();
 	nx_scaler_set_base_address(0, me->base);
 	me->irq = platform_get_irq(me->pdev, 0);
-/*
-	me->clk = clk_get(&me->pdev->dev, "scaler");
-	if (IS_ERR(me->clk)) {
-		pr_err("%s: controller clock not found\n",
-			dev_name(&me->pdev->dev));
 
-		return PTR_ERR(me->clk);
+	for(i = 0; i < NX_SCALER_CLK_NUM; i++) {
+		if (!IS_ERR(me->clk[i])) {
+			ret = clk_prepare_enable(me->clk[i]);
+			if (ret) {
+				pr_err("scaler[%d] clk failed to enable:%d\n",
+						i, ret);
+				clk_put(me->clk[i]);
+				return ret;
+			}
+		}
 	}
 
-	ret = clk_prepare_enable(me->clk);
-	if (ret) {
-		pr_err("scaler: clock failed to prepare & enable: %d\n", ret);
-		clk_put(me->clk);
-		return ret;
-	}
-
-	rate = clk_get_rate(me->clk);
+	/*
 	rst = devm_reset_control_get(&me->pdev->dev, "scaler-reset");
 	if (!rst) {
 		dev_err(&me->pdev->dev, "failied to get reset control\n");
@@ -900,7 +897,7 @@ static int _hw_init(struct nx_scaler *me)
 
 	if (reset_control_status(rst))
 		reset_control_reset(rst);
-*/
+	*/
 	nx_scaler_set_interrupt_enable_all(0, false);
 	nx_scaler_clear_interrupt_pending_all(0);
 	nx_scaler_set_filter_enable(0, true);
@@ -911,13 +908,17 @@ static int _hw_init(struct nx_scaler *me)
 
 static void _hw_cleanup(struct nx_scaler *me)
 {
+	int i = 0;
 	free_irq(me->irq, me);
 
 	nx_scaler_stop(0);
 	nx_scaler_set_interrupt_enable_all(0, false);
 	nx_scaler_clear_interrupt_pending_all(0);
 
-	clk_disable_unprepare(me->clk);
+	for(i = 0; i < NX_SCALER_CLK_NUM; i++) {
+		if (!IS_ERR(me->clk[i]))
+			clk_disable_unprepare(me->clk[i]);
+	}
 }
 
 static int _hw_set_format(struct nx_scaler *me)
@@ -1150,6 +1151,8 @@ static int _make_command_buffer(struct nx_scaler *me,
 static int _set_and_run(struct nx_scaler *me,
 	struct nx_scaler_ioctl_data *data)
 {
+	int i = 0;
+
 	_set_running(me);
 
 	_make_command_buffer(me, data);
@@ -1166,7 +1169,10 @@ static int _set_and_run(struct nx_scaler *me,
 		nx_scaler_set_interrupt_enable_all(0, false);
 		nx_scaler_clear_interrupt_pending_all(0);
 
-		clk_disable_unprepare(me->clk);
+		for(i = 0; i < NX_SCALER_CLK_NUM; i++) {
+			if (!IS_ERR(me->clk[i]))
+				clk_disable_unprepare(me->clk[i]);
+		}
 
 		_hw_init(me);
 
@@ -1253,6 +1259,33 @@ END:
 	return ret;
 }
 
+static int nx_scaler_parse_clocks(struct device *dev, struct nx_scaler *me)
+{
+	struct device_node *np = dev->of_node;
+	const char *name;
+	int count = 0, i = 0;
+
+	count = of_property_count_strings(np, "clock-names");
+	if (!count)
+		return -ENODEV;
+	for (i = 0; i < count; i++) {
+		if (of_property_read_string_index(np, "clock-names", i,
+					&name)) {
+			pr_err("[%s] no clock name for %d\n", __func__, i);
+			return -EINVAL;
+		}
+		me->clk[i] = devm_clk_get(dev, name);
+		if (IS_ERR(me->clk[i])) {
+			pr_err("%s: controller clock for %d not found\n",
+				dev_name(dev), i);
+
+			return PTR_ERR(me->clk[i]);
+		}
+	}
+
+	return 0;
+}
+
 static const struct file_operations nx_scaler_ops = {
 	.owner          = THIS_MODULE,
 	.open           = nx_scaler_open,
@@ -1283,6 +1316,12 @@ static int nx_scaler_probe(struct platform_device *pdev)
 
 	platform_set_drvdata(pdev, me);
 
+	ret = nx_scaler_parse_clocks(&pdev->dev, me);
+	if (ret) {
+		pr_err("[%s] failed to get clock info\n", __func__);
+		kfree(me);
+		return -EINVAL;
+	}
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	me->base = devm_ioremap_resource(&pdev->dev, res);
 	if (IS_ERR(me->base)) {
@@ -1354,6 +1393,7 @@ static int nx_scaler_remove(struct platform_device *pdev)
 static int nx_scaler_suspend(struct platform_device *pdev, pm_message_t state)
 {
 	struct nx_scaler *me = platform_get_drvdata(pdev);
+	int i = 0;
 
 	if (atomic_read(&me->open_count) > 0) {
 		mutex_lock(&me->mutex);
@@ -1362,8 +1402,10 @@ static int nx_scaler_suspend(struct platform_device *pdev, pm_message_t state)
 		nx_scaler_set_interrupt_enable_all(0, false);
 		nx_scaler_clear_interrupt_pending_all(0);
 
-		if (!IS_ERR(me->clk))
-			clk_disable_unprepare(me->clk);
+		for(i = 0; i < NX_SCALER_CLK_NUM; i++) {
+			if (!IS_ERR(me->clk[i]))
+				clk_disable_unprepare(me->clk[i]);
+		}
 
 		mutex_unlock(&me->mutex);
 	}
