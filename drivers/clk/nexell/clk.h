@@ -116,7 +116,7 @@ struct nexell_gate_clock {
 	}
 
 #define GATE(_id, cname, pname, o, b, f, gf)			\
-    __GATE(_id, cname, pname, o, b, (f) | CLK_SET_PARENT_GATE, gf)
+    __GATE(_id, cname, pname, o, b, (f) | CLK_SET_RATE_PARENT, gf)
 
 #define PNAME(x) static const char * const x[] __initconst
 
