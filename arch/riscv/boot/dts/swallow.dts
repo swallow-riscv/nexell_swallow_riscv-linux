@@ -270,7 +270,7 @@
 
 		dwmmc_0: dwmmc@20930000 {
 			compatible = "nexell,swallow-dw-mshc";
-			interrupts = <0 27 IRQ_TYPE_NONE>;
+			interrupts = <27>;
                         interrupt-parent = <&plic>;
 			reg = <0x00000000 0x20930000 0x00000000 0x1000>;
 			assigned-clocks = <&cmu CLK_SYS_DIV_SYS0_CLK400>,
@@ -289,7 +289,7 @@
 
 		dwmmc_1: dwmmc@20940000 {
 			compatible = "nexell,swallow-dw-mshc";
-			interrupts = <0 28 IRQ_TYPE_NONE>;
+			interrupts = <28>;
                         interrupt-parent = <&plic>;
 			reg = <0x00000000 0x20940000 0x00000000 0x1000>;
 			assigned-clocks = <&cmu CLK_SYS_DIV_SYS0_CLK400>,
