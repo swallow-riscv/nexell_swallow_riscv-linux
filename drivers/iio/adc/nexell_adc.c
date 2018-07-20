@@ -36,8 +36,8 @@
 #define	ADC_MIN_PRESCALE	20
 
 #define ADC_TIMEOUT		(msecs_to_jiffies(100))
-#define MAX_ADC_V1_CHANNELS	8
-#define MAX_ADC_V2_CHANNELS	8
+#define MAX_ADC_V1_CHANNELS	4
+#define MAX_ADC_V2_CHANNELS	4
 
 /* Register definitions for ADC_V1 */
 #define ADC_V1_CON(x)		((x) + 0x00)
@@ -508,7 +508,7 @@ static int nexell_adc_probe(struct platform_device *pdev)
 	if (IS_ERR(adc->adc_base))
 		return PTR_ERR(adc->adc_base);
 
-	adc->clk = devm_clk_get(&pdev->dev, "adc");
+	adc->clk = devm_clk_get(&pdev->dev, "adc0_apb");
 	if (IS_ERR(adc->clk)) {
 		dev_err(&pdev->dev, "failed getting clock for ADC\n");
 		return PTR_ERR(adc->clk);
@@ -551,10 +551,10 @@ static int nexell_adc_probe(struct platform_device *pdev)
 		dev_err(&pdev->dev, "failed setup iio ADC device\n");
 		goto err_unprepare_clk;
 	}
-
 	platform_set_drvdata(pdev, iio);
 
 	iio->name = dev_name(&pdev->dev);
+	iio->driver_module = THIS_MODULE;
 	iio->dev.parent = &pdev->dev;
 	iio->info = &nexell_adc_iio_info;
 	iio->modes = INDIO_DIRECT_MODE;
