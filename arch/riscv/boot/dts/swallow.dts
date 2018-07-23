@@ -4,8 +4,8 @@
 / {
 	model = "nexell-swallow,qemu";
 	compatible = "nexell,swallow";
-	#address-cells = <0x00000002>;
-	#size-cells = <0x00000002>;
+	#address-cells = <1>;
+	#size-cells = <1>;
 
 	aliases {
 		pinctrl0 = &pinctrl_0;
@@ -23,44 +23,44 @@
 	};
 
 	cpus {
-		#address-cells = <0x00000001>;
-		#size-cells = <0x00000000>;
+		#address-cells = <1>;
+		#size-cells = <0>;
 		timebase-frequency = <10000000>;
 
 		cpu@0 {
 			device_type = "cpu";
-			reg = <0x00000000>;
+			reg = <0>;
 			status = "okay";
 			compatible = "riscv";
 			riscv,isa = "rv64imafdcsu";
 			mmu-type = "riscv,sv48";
-			clock-frequency = <1000000000>;
+			clock-frequency = <2000000000>;
 
 			cpu0_intc: interrupt-controller {
-				#interrupt-cells = <0x00000001>;
+				#interrupt-cells = <1>;
 				interrupt-controller;
 				compatible = "riscv,cpu-intc";
-				linux,phandle = <0x00000001>;
-				phandle = <0x00000001>;
+				linux,phandle = <1>;
+				phandle = <1>;
 			};
 		};
 	};
 
 	memory@80000000 {
 		device_type = "memory";
-		reg = <0x00000000 0x80000000 0x00000000 0x08000000>;
+		reg = <0x80000000 0x08000000>;
 	};
 
 	soc {
-		#address-cells = <0x00000002>;
-		#size-cells = <0x00000002>;
+		#address-cells = <1>;
+		#size-cells = <1>;
 		compatible = "simple-bus";
 		ranges;
 
 		clint@0x2000000 {
 			compatible = "riscv,clint0";
 			interrupts-extended = <&cpu0_intc 3 &cpu0_intc 7>;
-			reg = <0x00000000 0x02000000 0x00000000 0x00010000>;
+			reg = <0x02000000 0x00010000>;
 		};
 
 		plic: interrupt-controller@4000000 {
@@ -68,17 +68,17 @@
 			interrupt-controller;
 			compatible = "riscv,plic0";
 			interrupts-extended = <&cpu0_intc 11 &cpu0_intc 9>;
-			reg = <0x00000000 0x0c000000 0x00000000 0x10000000>;
+			reg = <0x0c000000 0x10000000>;
 			reg-names = "control";
 			riscv,max-priority = <7>;
 			riscv,ndev = <89>;
-			linux,phandle = <0x00000002>;
-			phandle = <0x00000002>;
+			linux,phandle = <2>;
+			phandle = <2>;
 		};
 
 		adc0: adc0@206c0000 {
 			compatible = "nexell,swallow-adc";
-			reg = <0x00000000 0x206c0000 0x00000000 0x10000>;
+			reg = <0x206c0000 0x10000>;
 			interrupt-parent = <&plic>;
 			interrupts = <46>;
 			clocks = <&cmu CLK_2_ADC0_APB>;
@@ -90,7 +90,7 @@
 
 		pwm0: pwm0@208e0000	{
 			compatible = "nexell,swallow-pwm";
-			reg = <0x00000000 0x208e0000 0x00000000 0x10000>;
+			reg = <0x208e0000 0x10000>;
 			clocks = <&cmu CLK_2_PWM0_APB>,
 				   <&cmu CLK_0_PWM0_TCLK0>,
 				   <&cmu CLK_0_PWM0_TCLK1>,
@@ -106,7 +106,7 @@
 		};
 		pwm1: pwm1@208f0000	{
 			compatible = "nexell,swallow-pwm";
-			reg = <0x00000000 0x208f0000 0x00000000 0x10000>;
+			reg = <0x208f0000 0x10000>;
 			clocks = <&cmu CLK_2_PWM1_APB>,
 				   <&cmu CLK_0_PWM1_TCLK0>,
 				   <&cmu CLK_1_PWM1_TCLK1>,
@@ -122,7 +122,7 @@
 		};
 		pwm2: pwm2@20900000	{
 			compatible = "nexell,swallow-pwm";
-			reg = <0x00000000 0x20900000 0x00000000 0x10000>;
+			reg = <0x20900000 0x10000>;
 			clocks = <&cmu CLK_2_PWM2_APB>,
 				   <&cmu CLK_1_PWM2_TCLK0>,
 				   <&cmu CLK_1_PWM2_TCLK1>,
@@ -146,7 +146,7 @@
 
                 pll_0: pll0 {
 			compatible = "fixed-clock";
-                        reg = <0x00000000 0x20010000 0x00000000 0x1000>;
+                        reg = <0x20010000 0x1000>;
 			#clock-cells = <0>;
 			clock-output-names = "pll0";
                         clock-frequency = <400000000>;
@@ -154,7 +154,7 @@
 
 		pll_1: pll1 {
 			compatible = "fixed-clock";
-                        reg = <0x00000000 0x20020000 0x00000000 0x1000>;
+                        reg = <0x20020000 0x1000>;
 			#clock-cells = <0>;
 			clock-output-names = "pll1";
                         clock-frequency = <400000000>;
@@ -162,7 +162,7 @@
 
                 cmu: clock-controller@0x20030000 {
                         compatible = "nexell,swallow-cmu";
-			reg = <0x00000000 0x20030000 0x00000000 0x1000>;
+			reg = <0x20030000 0x1000>;
 			#clock-cells = <1>;
 			clock-names = "oscclk",
                                       "pll0",
@@ -174,7 +174,7 @@
 
 		serial0:serial0@20880000 {
 			compatible = "snps,dw-apb-uart";
-			reg = <0x00000000 0x20880000 0x00000000 0x00001000>;
+			reg = <0x20880000 0x00001000>;
 			clock-frequency = <100000000>;
 			interrupts = <56>;
 			interrupt-parent = <&plic>;
@@ -190,7 +190,7 @@
 
 		serial1:serial1@20880000 {
 			compatible = "snps,dw-apb-uart";
-			reg = <0x00000000 0x20890000 0x00000000 0x00001000>;
+			reg = <0x20890000 0x00001000>;
 			clock-frequency = <100000000>;
 			interrupts = <57>;
 			interrupt-parent = <&plic>;
@@ -206,7 +206,7 @@
 
 		serial2:serial2@20880000 {
 			compatible = "snps,dw-apb-uart";
-			reg = <0x00000000 0x208a0000 0x00000000 0x00001000>;
+			reg = <0x208a0000 0x00001000>;
 			clock-frequency = <100000000>;
 			interrupts = <58>;
 			interrupt-parent = <&plic>;
@@ -222,7 +222,7 @@
 
 		serial3:serial3@20880000 {
 			compatible = "snps,dw-apb-uart";
-			reg = <0x00000000 0x208b0000 0x00000000 0x00001000>;
+			reg = <0x208b0000 0x00001000>;
 			clock-frequency = <100000000>;
 			interrupts = <59>;
 			interrupt-parent = <&plic>;
@@ -238,7 +238,7 @@
 
 		serial4:serial4@20880000 {
 			compatible = "snps,dw-apb-uart";
-			reg = <0x00000000 0x208c0000 0x00000000 0x00001000>;
+			reg = <0x208c0000 0x00001000>;
 			clock-frequency = <100000000>;
 			interrupts = <60>;
 			interrupt-parent = <&plic>;
@@ -254,7 +254,7 @@
 
 		serial5:serial5@20880000 {
 			compatible = "snps,dw-apb-uart";
-			reg = <0x00000000 0x208d0000 0x00000000 0x00001000>;
+			reg = <0x208d0000 0x00001000>;
 			clock-frequency = <100000000>;
 			interrupts = <61>;
 			interrupt-parent = <&plic>;
@@ -272,7 +272,7 @@
 			compatible = "nexell,swallow-dw-mshc";
 			interrupts = <27>;
                         interrupt-parent = <&plic>;
-			reg = <0x00000000 0x20930000 0x00000000 0x1000>;
+			reg = <0x20930000 0x1000>;
 			assigned-clocks = <&cmu CLK_SYS_DIV_SYS0_CLK400>,
 					  <&pll_0 0>;
 			assigned-clock-parents = <&pll_0 0>;
@@ -291,7 +291,7 @@
 			compatible = "nexell,swallow-dw-mshc";
 			interrupts = <28>;
                         interrupt-parent = <&plic>;
-			reg = <0x00000000 0x20940000 0x00000000 0x1000>;
+			reg = <0x20940000 0x1000>;
 			assigned-clocks = <&cmu CLK_SYS_DIV_SYS0_CLK400>,
 					  <&pll_0 0>;
 			assigned-clock-parents = <&pll_0 0>;
@@ -311,23 +311,16 @@
 		compatible = "nexell,swallow-pinctrl";
 		#address-cells = <1>;
 		#size-cells = <1>;
-		reg = <0x00000000 0x20700000 0x00000000 0x1000
-		       0x00000000 0x20710000 0x00000000 0x1000
-		       0x00000000 0x20720000 0x00000000 0x1000
-		       0x00000000 0x20730000 0x00000000 0x1000
-		       0x00000000 0x20740000 0x00000000 0x1000
-		       0x00000000 0x20750000 0x00000000 0x1000
-		       0x00000000 0x20760000 0x00000000 0x1000
-		       0x00000000 0x20770000 0x00000000 0x1000>;
+		reg = <0x20700000 0x1000
+		       0x20710000 0x1000
+		       0x20720000 0x1000
+		       0x20730000 0x1000
+		       0x20740000 0x1000
+		       0x20750000 0x1000
+		       0x20760000 0x1000
+		       0x20770000 0x1000>;
 		interrupt-parent = <&plic>;
-		interrupts = <0 82 IRQ_TYPE_NONE>,
-			     <0 83 IRQ_TYPE_NONE>,
-			     <0 84 IRQ_TYPE_NONE>,
-			     <0 85 IRQ_TYPE_NONE>,
-			     <0 86 IRQ_TYPE_NONE>,
-			     <0 87 IRQ_TYPE_NONE>,
-			     <0 88 IRQ_TYPE_NONE>,
-			     <0 89 IRQ_TYPE_NONE>;
+		interrupts = <82>, <83>, <84>, <85>, <86>, <87>, <88>, <89>;
 		status = "okay";
 	};
 
@@ -349,7 +342,7 @@
 
 	scaler@20410000 {
 		compatible = "nexell,scaler";
-		reg = <0x00000000 0x20410000 0x00000000 0x00001000>;
+		reg = <0x20410000 0x00001000>;
 		clocks = <&cmu CLK_0_SCALER0_APB>,
 			<&cmu CLK_0_SCALER0_AXI>;
 		clock-names = "scaler0_apb", "scaler0_axi";
