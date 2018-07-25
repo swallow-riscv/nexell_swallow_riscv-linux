@@ -305,6 +305,52 @@
 			fifo-depth = <0x20>;
 			status = "okay";
 		};
+
+		vip_0: vip@20400000 {
+			compatible = "nexell,vip";
+			reg = <0x20400000 0x10000>;
+			clocks = <&cmu CLK_0_VIP0_AXI>,
+				<&cmu CLK_1_VIP0_APB>,
+				<&cmu CLK_1_VIP0_PADOUT0>,
+				<&cmu CLK_1_VIP0_PADOUT1>;
+			clock-names = "vip0_axi", "vip0_apb",
+				"vip0_padout0", "vip0_padout1";
+			module = <0>;
+			interrupts = <14>;
+			interrupt-parent = <&plic>;
+			status = "okay";
+		};
+
+		clipper_0: clipper0@20400000 {
+			compatible = "nexell,nx-clipper";
+			module = <0>;
+			logical = <0>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&vip0_bus &vip0_vde
+				&vip0_sync &vip0_field &vip0_vmclk>;
+			port = <0>;
+			external_sync = <0>;
+			interlace = <0>;
+			status = "okay";
+		};
+
+		decimator_0: decimator0@20400000 {
+			compatible = "nexell,nx-decimator";
+			module = <0>;
+			logical = <0>;
+			status = "okay";
+		};
+
+		scaler: scaler@20410000 {
+			compatible = "nexell,scaler";
+			reg = <0x20410000 0x10000>;
+			clocks = <&cmu CLK_0_SCALER0_APB>,
+				<&cmu CLK_0_SCALER0_AXI>;
+			clock-names = "scaler0_apb", "scaler0_axi";
+			interrupts = <18>;
+			interrupt-parent = <&plic>;
+			status = "okay";
+		};
         };
 
 	pinctrl_0: pinctrl@0x20700000 {
@@ -338,17 +384,6 @@
 		heap_dma@0 {
 			heap-type = "ion_dma";
 		};
-	};
-
-	scaler@20410000 {
-		compatible = "nexell,scaler";
-		reg = <0x20410000 0x00001000>;
-		clocks = <&cmu CLK_0_SCALER0_APB>,
-			<&cmu CLK_0_SCALER0_AXI>;
-		clock-names = "scaler0_apb", "scaler0_axi";
-		interrupts = <18>;
-		interrupt-parent = <&plic>;
-		status = "okay";
 	};
 
 };
