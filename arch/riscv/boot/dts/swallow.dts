@@ -351,6 +351,11 @@
 			interrupt-parent = <&plic>;
 			status = "okay";
 		};
+
+		nx-v4l2 {
+			compatible = "nexell,nx-v4l2";
+			status = "okay";
+		};
         };
 
 	pinctrl_0: pinctrl@0x20700000 {
