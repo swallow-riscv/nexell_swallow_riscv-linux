@@ -138,6 +138,203 @@
 			#pwm-cells = <3>;
 		 };
 
+		i2c0: i2c0@20600000 {
+			compatible = "snps,designware-i2c";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x20600000 0x10000>;
+			clocks = <&cmu CLK_2_I2C0_APB>;
+			clock-names = "i2c0_apb";
+			interrupt-parent = <&plic>;
+			interrupts = <34>;
+			clock-frequency = <1000000>;
+			i2c-sda-hold-time-ns = <300>;
+			i2c-sda-falling-time-ns = <300>;
+			i2c-scl-falling-time-ns = <300>;
+			status = "okay";
+
+			tmp105@64 {
+				compatible = "ti,tmp105";
+				reg = <0x64>;
+			};
+		};
+
+		i2c1: i2c1@20610000 {
+			compatible = "snps,designware-i2c";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x20610000 0x10000>;
+			clocks = <&cmu CLK_2_I2C1_APB>;
+			clock-names = "i2c1_apb";
+			interrupt-parent = <&plic>;
+			interrupts = <35>;
+			clock-frequency = <1000000>;
+			i2c-sda-hold-time-ns = <300>;
+			i2c-sda-falling-time-ns = <300>;
+			i2c-scl-falling-time-ns = <300>;
+			status = "okay";
+		};
+
+		i2c2: i2c2@20620000 {
+			compatible = "snps,designware-i2c";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x20610000 0x10000>;
+			clocks = <&cmu CLK_2_I2C2_APB>;
+			clock-names = "i2c2_apb";
+			interrupt-parent = <&plic>;
+			interrupts = <36>;
+			clock-frequency = <1000000>;
+			i2c-sda-hold-time-ns = <300>;
+			i2c-sda-falling-time-ns = <300>;
+			i2c-scl-falling-time-ns = <300>;
+			status = "okay";
+		};
+
+		i2c3: i2c3@20630000 {
+			compatible = "snps,designware-i2c";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x20610000 0x10000>;
+			clocks = <&cmu CLK_2_I2C3_APB>;
+			clock-names = "i2c3_apb";
+			interrupt-parent = <&plic>;
+			interrupts = <37>;
+			clock-frequency = <1000000>;
+			i2c-sda-hold-time-ns = <300>;
+			i2c-sda-falling-time-ns = <300>;
+			i2c-scl-falling-time-ns = <300>;
+			status = "okay";
+		};
+
+		i2c4: i2c4@20640000 {
+			compatible = "snps,designware-i2c";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x20610000 0x10000>;
+			clocks = <&cmu CLK_2_I2C4_APB>;
+			clock-names = "i2c4_apb";
+			interrupt-parent = <&plic>;
+			interrupts = <38>;
+			clock-frequency = <1000000>;
+			i2c-sda-hold-time-ns = <300>;
+			i2c-sda-falling-time-ns = <300>;
+			i2c-scl-falling-time-ns = <300>;
+			status = "okay";
+		};
+
+		i2c5: i2c5@20650000 {
+			compatible = "snps,designware-i2c";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x20610000 0x10000>;
+			clocks = <&cmu CLK_2_I2C5_APB>;
+			clock-names = "i2c5_apb";
+			interrupt-parent = <&plic>;
+			interrupts = <39>;
+			clock-frequency = <1000000>;
+			i2c-sda-hold-time-ns = <300>;
+			i2c-sda-falling-time-ns = <300>;
+			i2c-scl-falling-time-ns = <300>;
+			status = "okay";
+		};
+
+		i2c6: i2c6@20660000 {
+			compatible = "snps,designware-i2c";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x20610000 0x10000>;
+			clocks = <&cmu CLK_2_I2C6_APB>;
+			clock-names = "i2c6_apb";
+			interrupt-parent = <&plic>;
+			interrupts = <40>;
+			clock-frequency = <1000000>;
+			i2c-sda-hold-time-ns = <300>;
+			i2c-sda-falling-time-ns = <300>;
+			i2c-scl-falling-time-ns = <300>;
+			status = "okay";
+		};
+
+		i2c7: i2c7@20670000 {
+			compatible = "snps,designware-i2c";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x20610000 0x10000>;
+			clocks = <&cmu CLK_2_I2C7_APB>;
+			clock-names = "i2c7_apb";
+			interrupt-parent = <&plic>;
+			interrupts = <41>;
+			clock-frequency = <1000000>;
+			i2c-sda-hold-time-ns = <300>;
+			i2c-sda-falling-time-ns = <300>;
+			i2c-scl-falling-time-ns = <300>;
+			status = "okay";
+		};
+
+		i2c8: i2c8@20680000 {
+			compatible = "snps,designware-i2c";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x20610000 0x10000>;
+			clocks = <&cmu CLK_2_I2C8_APB>;
+			clock-names = "i2c8_apb";
+			interrupt-parent = <&plic>;
+			interrupts = <42>;
+			clock-frequency = <1000000>;
+			i2c-sda-hold-time-ns = <300>;
+			i2c-sda-falling-time-ns = <300>;
+			i2c-scl-falling-time-ns = <300>;
+			status = "okay";
+		};
+
+		i2c9: i2c9@20690000 {
+			compatible = "snps,designware-i2c";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x20610000 0x10000>;
+			clocks = <&cmu CLK_2_I2C9_APB>;
+			clock-names = "i2c9_apb";
+			interrupt-parent = <&plic>;
+			interrupts = <43>;
+			clock-frequency = <1000000>;
+			i2c-sda-hold-time-ns = <300>;
+			i2c-sda-falling-time-ns = <300>;
+			i2c-scl-falling-time-ns = <300>;
+			status = "okay";
+		};
+
+		i2c10: i2c10@206a0000 {
+			compatible = "snps,designware-i2c";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x20610000 0x10000>;
+			clocks = <&cmu CLK_2_I2C10_APB>;
+			clock-names = "i2c10_apb";
+			interrupt-parent = <&plic>;
+			interrupts = <44>;
+			clock-frequency = <1000000>;
+			i2c-sda-hold-time-ns = <300>;
+			i2c-sda-falling-time-ns = <300>;
+			i2c-scl-falling-time-ns = <300>;
+			status = "okay";
+		};
+
+		i2c11: i2c11@206b0000 {
+			compatible = "snps,designware-i2c";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x20610000 0x10000>;
+			clocks = <&cmu CLK_2_I2C11_APB>;
+			clock-names = "i2c11_apb";
+			interrupt-parent = <&plic>;
+			interrupts = <45>;
+			clock-frequency = <1000000>;
+			i2c-sda-hold-time-ns = <300>;
+			i2c-sda-falling-time-ns = <300>;
+			i2c-scl-falling-time-ns = <300>;
+			status = "okay";
+		};
+
                 oscclk: xti {
                         compatible = "fixed-clock";
                         #clock-cells = <0>;
