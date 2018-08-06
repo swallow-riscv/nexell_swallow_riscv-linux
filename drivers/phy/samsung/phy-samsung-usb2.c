@@ -35,12 +35,17 @@ static int samsung_usb2_phy_power_on(struct phy *phy)
 			goto err_regulator;
 	}
 
-	ret = clk_prepare_enable(drv->clk);
-	if (ret)
-		goto err_main_clk;
-	ret = clk_prepare_enable(drv->ref_clk);
-	if (ret)
-		goto err_instance_clk;
+	if (!of_device_is_compatible(drv->dev->of_node,
+					"nexell,nexell-usb2-phy")) {
+		ret = clk_prepare_enable(drv->clk);
+		if (ret)
+			goto err_main_clk;
+
+		ret = clk_prepare_enable(drv->ref_clk);
+		if (ret)
+			goto err_instance_clk;
+	}
+
 	if (inst->cfg->power_on) {
 		spin_lock(&drv->lock);
 		ret = inst->cfg->power_on(inst);
@@ -77,11 +82,14 @@ static int samsung_usb2_phy_power_off(struct phy *phy)
 		if (ret)
 			return ret;
 	}
-	clk_disable_unprepare(drv->ref_clk);
-	clk_disable_unprepare(drv->clk);
-	if (drv->vbus)
-		ret = regulator_disable(drv->vbus);
 
+	if (!of_device_is_compatible(drv->dev->of_node,
+					"nexell,nexell-usb2-phy")) {
+		clk_disable_unprepare(drv->ref_clk);
+		clk_disable_unprepare(drv->clk);
+		if (drv->vbus)
+			ret = regulator_disable(drv->vbus);
+	}
 	return ret;
 }
 
@@ -137,6 +145,12 @@ static const struct of_device_id samsung_usb2_phy_of_match[] = {
 		.data = &s5pv210_usb2_phy_config,
 	},
 #endif
+#ifdef CONFIG_PHY_NX_USB2
+	{
+		.compatible = "nexell,nexell-usb2-phy",
+		.data = &nexell_usb2_phy_config,
+	},
+#endif
 	{ },
 };
 MODULE_DEVICE_TABLE(of, samsung_usb2_phy_of_match);
@@ -178,11 +192,14 @@ static int samsung_usb2_phy_probe(struct platform_device *pdev)
 		return PTR_ERR(drv->reg_phy);
 	}
 
-	drv->reg_pmu = syscon_regmap_lookup_by_phandle(pdev->dev.of_node,
-		"samsung,pmureg-phandle");
-	if (IS_ERR(drv->reg_pmu)) {
-		dev_err(dev, "Failed to map PMU registers (via syscon)\n");
-		return PTR_ERR(drv->reg_pmu);
+	if (!of_device_is_compatible(pdev->dev.of_node,
+					"nexell,nexell-usb2-phy")) {
+		drv->reg_pmu = syscon_regmap_lookup_by_phandle(pdev->dev.of_node,
+			"samsung,pmureg-phandle");
+		if (IS_ERR(drv->reg_pmu)) {
+			dev_err(dev, "Failed to map PMU registers (via syscon)\n");
+			return PTR_ERR(drv->reg_pmu);
+		}
 	}
 
 	if (drv->cfg->has_mode_switch) {
@@ -194,31 +211,35 @@ static int samsung_usb2_phy_probe(struct platform_device *pdev)
 		}
 	}
 
-	drv->clk = devm_clk_get(dev, "phy");
-	if (IS_ERR(drv->clk)) {
-		dev_err(dev, "Failed to get clock of phy controller\n");
-		return PTR_ERR(drv->clk);
-	}
+	if (!of_device_is_compatible(pdev->dev.of_node,
+					"nexell,nexell-usb2-phy")) {
+		drv->clk = devm_clk_get(dev, "phy");
+		if (IS_ERR(drv->clk)) {
+			dev_err(dev, "Failed to get clock of phy controller\n");
+			return PTR_ERR(drv->clk);
+		}
 
-	drv->ref_clk = devm_clk_get(dev, "ref");
-	if (IS_ERR(drv->ref_clk)) {
-		dev_err(dev, "Failed to get reference clock for the phy controller\n");
-		return PTR_ERR(drv->ref_clk);
-	}
+		drv->ref_clk = devm_clk_get(dev, "ref");
+		if (IS_ERR(drv->ref_clk)) {
+			dev_err(dev, "Failed to get reference clock for the phy controller\n");
+			return PTR_ERR(drv->ref_clk);
+		}
 
-	drv->ref_rate = clk_get_rate(drv->ref_clk);
-	if (drv->cfg->rate_to_clk) {
-		ret = drv->cfg->rate_to_clk(drv->ref_rate, &drv->ref_reg_val);
-		if (ret)
-			return ret;
-	}
+		drv->ref_rate = clk_get_rate(drv->ref_clk);
+		if (drv->cfg->rate_to_clk) {
+			ret = drv->cfg->rate_to_clk(drv->ref_rate, &drv->ref_reg_val);
+			if (ret)
+				return ret;
+		}
 
-	drv->vbus = devm_regulator_get(dev, "vbus");
-	if (IS_ERR(drv->vbus)) {
-		ret = PTR_ERR(drv->vbus);
-		if (ret == -EPROBE_DEFER)
-			return ret;
-		drv->vbus = NULL;
+		drv->vbus = devm_regulator_get(dev, "vbus");
+		if (IS_ERR(drv->vbus)) {
+			ret = PTR_ERR(drv->vbus);
+			if (ret == -EPROBE_DEFER)
+				return ret;
+			if (ret)
+				drv->vbus = NULL;
+		}
 	}
 
 	for (i = 0; i < drv->cfg->num_phys; i++) {

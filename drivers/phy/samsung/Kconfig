@@ -66,6 +66,10 @@ config PHY_S5PV210_USB2
 	  particular SoC is compiled in the driver. In case of S5PV210 two phys
 	  are available - device and host.
 
+config PHY_NX_USB2
+	bool "Nexell USB 2.0 PHY driver"
+	depends on PHY_SAMSUNG_USB2
+
 config PHY_EXYNOS5_USBDRD
 	tristate "Exynos5 SoC series USB DRD PHY driver"
 	depends on ARCH_EXYNOS && OF
