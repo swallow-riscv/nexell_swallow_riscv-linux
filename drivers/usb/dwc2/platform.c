@@ -211,16 +211,25 @@ int dwc2_lowlevel_hw_disable(struct dwc2_hsotg *hsotg)
 static int dwc2_lowlevel_hw_init(struct dwc2_hsotg *hsotg)
 {
 	int i, ret;
+	const char *name;
 
-	hsotg->reset = devm_reset_control_get_optional(hsotg->dev, "dwc2");
-	if (IS_ERR(hsotg->reset)) {
-		ret = PTR_ERR(hsotg->reset);
-		dev_err(hsotg->dev, "error getting reset control %d\n", ret);
-		return ret;
+	if (!of_device_is_compatible(hsotg->dev->of_node,
+					    "nexell,nexell-dwc2otg")) {
+		hsotg->reset = devm_reset_control_get_optional
+			(
+			 hsotg->dev,
+			 "dwc2"
+			 );
+		if (IS_ERR(hsotg->reset)) {
+			ret = PTR_ERR(hsotg->reset);
+			dev_err(hsotg->dev,
+					"error getting reset control %d\n",
+					ret);
+			return ret;
+		}
+
+		reset_control_deassert(hsotg->reset);
 	}
-
-	reset_control_deassert(hsotg->reset);
-
 	/* Set default UTMI width */
 	hsotg->phyif = GUSBCFG_PHYIF16;
 
@@ -275,21 +284,29 @@ static int dwc2_lowlevel_hw_init(struct dwc2_hsotg *hsotg)
 	}
 
 	/* Clock */
-	hsotg->clk = devm_clk_get(hsotg->dev, "otg");
+	if (of_property_read_string(hsotg->dev->of_node, "clock-names",
+				&name)) {
+		dev_dbg(hsotg->dev, "cannot get otg clock name\n");
+		return -EINVAL;
+	}
+	hsotg->clk = devm_clk_get(hsotg->dev, name);
 	if (IS_ERR(hsotg->clk)) {
 		hsotg->clk = NULL;
 		dev_dbg(hsotg->dev, "cannot get otg clock\n");
 	}
 
 	/* Regulators */
-	for (i = 0; i < ARRAY_SIZE(hsotg->supplies); i++)
-		hsotg->supplies[i].supply = dwc2_hsotg_supply_names[i];
+	if (!of_device_is_compatible(hsotg->dev->of_node,
+					    "nexell,nexell-dwc2otg")) {
+		for (i = 0; i < ARRAY_SIZE(hsotg->supplies); i++)
+			hsotg->supplies[i].supply = dwc2_hsotg_supply_names[i];
 
-	ret = devm_regulator_bulk_get(hsotg->dev, ARRAY_SIZE(hsotg->supplies),
-				      hsotg->supplies);
-	if (ret) {
-		dev_err(hsotg->dev, "failed to request supplies: %d\n", ret);
-		return ret;
+		ret = devm_regulator_bulk_get(hsotg->dev, ARRAY_SIZE(hsotg->supplies),
+					hsotg->supplies);
+		if (ret) {
+			dev_err(hsotg->dev, "failed to request supplies: %d\n", ret);
+			return ret;
+		}
 	}
 	return 0;
 }
