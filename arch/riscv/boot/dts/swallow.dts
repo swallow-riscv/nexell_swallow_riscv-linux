@@ -269,6 +269,36 @@
 			status = "okay";
 		};
 
+		nexell_usbphy: nexell-usbphy@20040000 {
+			compatible = "nexell,nexell-usb2-phy";
+			reg = <0x20040000 0x1000>;
+			#phy-cells = <1>;
+			status = "okay";
+		};
+
+		dwc2: dwc2otg@20D00000 {
+			compatible = "nexell,nexell-dwc2otg";
+			reg = <0x20d00000 0x10000>;
+			interrupts = <13>;
+			interrupt-parent = <&plic>;
+			clocks = <&cmu CLK_1_USB0_AHB>;
+			clock-names = "usb0_ahb";
+			/*resets = <&nexell_reset RESET_ID_USB20OTG>;
+			reset-names = "dwc2";*/
+			phys = <&nexell_usbphy 0>;
+			phy-names = "usb2-phy";
+			dr_mode = "peripheral";
+			g-use-dma = <1>;
+			/*g-rx-fifo-size = <2332>;
+			g-np-tx-fifo-size = <64>;
+			g-tx-fifo-size = <1024 1024>;*/
+			g-rx-fifo-size = <1024>;
+			g-np-tx-fifo-size = <1024>;
+			g-tx-fifo-size = <1024 1024>;
+			nouse_idcon = <0>;
+			status = "okay";
+		};
+
 		dwmmc_0: dwmmc@20930000 {
 			compatible = "nexell,swallow-dw-mshc";
 			interrupts = <27>;
