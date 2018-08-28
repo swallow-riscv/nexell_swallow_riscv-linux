@@ -616,7 +616,7 @@
 			sensor {
 				type = <NX_CAPTURE_SENSOR_I2C>;
 				i2c_name = "DummySensor";
-				i2c_adapter = <2>;
+				i2c_adapter = <1>;
 				addr = <0x64>;
 			};
 		};
