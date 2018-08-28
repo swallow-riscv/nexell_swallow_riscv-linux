@@ -182,7 +182,7 @@
 			compatible = "snps,designware-i2c";
 			#address-cells = <1>;
 			#size-cells = <0>;
-			reg = <0x20610000 0x10000>;
+			reg = <0x20620000 0x10000>;
 			clocks = <&cmu CLK_2_I2C2_APB>;
 			clock-names = "i2c2_apb";
 			interrupt-parent = <&plic>;
@@ -198,7 +198,7 @@
 			compatible = "snps,designware-i2c";
 			#address-cells = <1>;
 			#size-cells = <0>;
-			reg = <0x20610000 0x10000>;
+			reg = <0x20630000 0x10000>;
 			clocks = <&cmu CLK_2_I2C3_APB>;
 			clock-names = "i2c3_apb";
 			interrupt-parent = <&plic>;
@@ -214,7 +214,7 @@
 			compatible = "snps,designware-i2c";
 			#address-cells = <1>;
 			#size-cells = <0>;
-			reg = <0x20610000 0x10000>;
+			reg = <0x20640000 0x10000>;
 			clocks = <&cmu CLK_2_I2C4_APB>;
 			clock-names = "i2c4_apb";
 			interrupt-parent = <&plic>;
@@ -230,7 +230,7 @@
 			compatible = "snps,designware-i2c";
 			#address-cells = <1>;
 			#size-cells = <0>;
-			reg = <0x20610000 0x10000>;
+			reg = <0x20650000 0x10000>;
 			clocks = <&cmu CLK_2_I2C5_APB>;
 			clock-names = "i2c5_apb";
 			interrupt-parent = <&plic>;
@@ -246,7 +246,7 @@
 			compatible = "snps,designware-i2c";
 			#address-cells = <1>;
 			#size-cells = <0>;
-			reg = <0x20610000 0x10000>;
+			reg = <0x20660000 0x10000>;
 			clocks = <&cmu CLK_2_I2C6_APB>;
 			clock-names = "i2c6_apb";
 			interrupt-parent = <&plic>;
@@ -262,7 +262,7 @@
 			compatible = "snps,designware-i2c";
 			#address-cells = <1>;
 			#size-cells = <0>;
-			reg = <0x20610000 0x10000>;
+			reg = <0x20670000 0x10000>;
 			clocks = <&cmu CLK_2_I2C7_APB>;
 			clock-names = "i2c7_apb";
 			interrupt-parent = <&plic>;
@@ -278,7 +278,7 @@
 			compatible = "snps,designware-i2c";
 			#address-cells = <1>;
 			#size-cells = <0>;
-			reg = <0x20610000 0x10000>;
+			reg = <0x20680000 0x10000>;
 			clocks = <&cmu CLK_2_I2C8_APB>;
 			clock-names = "i2c8_apb";
 			interrupt-parent = <&plic>;
@@ -294,7 +294,7 @@
 			compatible = "snps,designware-i2c";
 			#address-cells = <1>;
 			#size-cells = <0>;
-			reg = <0x20610000 0x10000>;
+			reg = <0x20690000 0x10000>;
 			clocks = <&cmu CLK_2_I2C9_APB>;
 			clock-names = "i2c9_apb";
 			interrupt-parent = <&plic>;
@@ -310,7 +310,7 @@
 			compatible = "snps,designware-i2c";
 			#address-cells = <1>;
 			#size-cells = <0>;
-			reg = <0x20610000 0x10000>;
+			reg = <0x206a0000 0x10000>;
 			clocks = <&cmu CLK_2_I2C10_APB>;
 			clock-names = "i2c10_apb";
 			interrupt-parent = <&plic>;
@@ -326,7 +326,7 @@
 			compatible = "snps,designware-i2c";
 			#address-cells = <1>;
 			#size-cells = <0>;
-			reg = <0x20610000 0x10000>;
+			reg = <0x206b0000 0x10000>;
 			clocks = <&cmu CLK_2_I2C11_APB>;
 			clock-names = "i2c11_apb";
 			interrupt-parent = <&plic>;
