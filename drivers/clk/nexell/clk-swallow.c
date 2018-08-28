@@ -25,22 +25,22 @@ static void __iomem *reg_base;
 
 /* fixed rate clocks */
 static const struct nexell_fixed_rate_clock swallow_fixed_rate_clks[] __initconst = {
-	FRATE(0, "oscclk", NULL, 0,  25000000), //25MHz
-	FRATE(0, "pll0",   NULL, 0, 400000000), //400MHz
-	FRATE(0, "pll1",   NULL, 0, 400000000), //400MHz
-	FRATE(0, "cpu0_core",     NULL, 0, 400000000), //400MHz
-	FRATE(0, "sys0_clk400",   NULL, 0, 400000000), //400MHz
+	/* FRATE(0, "oscclk", NULL, 0,  25000000), //25MHz */
+	/* FRATE(0, "pll0",   NULL, 0, 400000000), //400MHz */
+	/* FRATE(0, "pll1",   NULL, 0, 400000000), //400MHz */
+	FRATE(0, "p_cpu0_core",     NULL, 0, 400000000), //400MHz
+	FRATE(0, "p_sys0_clk400",   NULL, 0, 400000000), //400MHz
 };
 
 /* fixed factor clocks */
 static const struct nexell_fixed_factor_clock swallow_fixed_factor_clks[] __initconst = {
-	FFACTOR(CLK_SYS_DIV_CPU0_CORE,   "div_cpu0_core",  "cpu0_core",   1,  2, 0),
-	FFACTOR(CLK_SYS_DIV_SYS0_AXI   , "div_sys0_axi",   "sys0_clk400", 1,  2, 0),
-	FFACTOR(CLK_SYS_DIV_SYS0_APB   , "div_sys0_apb",   "sys0_clk400", 1,  4, 0),
-	FFACTOR(CLK_SYS_DIV_SYS0_CLK400, "div_sys0_clk400","sys0_clk400", 1,  1, 0),
-	FFACTOR(CLK_SYS_DIV_SYS0_CLK133, "div_sys0_clk133","sys0_clk400", 1,  3, 0),
-	FFACTOR(CLK_SYS_DIV_SYS0_CLK50 , "div_sys0_clk50", "sys0_clk400", 1,  8, 0),
-	FFACTOR(CLK_SYS_DIV_SYS0_CLK40 , "div_sys0_clk40", "sys0_clk400", 1, 10, 0),
+	FFACTOR(CLK_SYS_DIV_CPU0_CORE,   "div_cpu0_core",  "p_cpu0_core",   1,  2, 0),
+	FFACTOR(CLK_SYS_DIV_SYS0_AXI   , "div_sys0_axi",   "p_sys0_clk400", 1,  2, 0),
+	FFACTOR(CLK_SYS_DIV_SYS0_APB   , "div_sys0_apb",   "p_sys0_clk400", 1,  4, 0),
+	FFACTOR(CLK_SYS_DIV_SYS0_CLK400, "div_sys0_clk400","p_sys0_clk400", 1,  1, 0),
+	FFACTOR(CLK_SYS_DIV_SYS0_CLK133, "div_sys0_clk133","p_sys0_clk400", 1,  3, 0),
+	FFACTOR(CLK_SYS_DIV_SYS0_CLK50 , "div_sys0_clk50", "p_sys0_clk400", 1,  8, 0),
+	FFACTOR(CLK_SYS_DIV_SYS0_CLK40 , "div_sys0_clk40", "p_sys0_clk400", 1, 10, 0),
 };
 
 /* gate clocks */
