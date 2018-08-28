@@ -289,6 +289,11 @@ struct media_entity {
 	} info;
 };
 
+static inline u32 media_entity_type(struct media_entity *entity)
+{
+	return entity && entity->obj_type;
+}
+
 /**
  * struct media_interface - A media interface graph object.
  *
@@ -372,6 +377,7 @@ static inline u32 media_gobj_gen_id(enum media_gobj_type type, u64 local_id)
 
 	return id;
 }
+
 
 /**
  * is_media_entity_v4l2_video_device() - Check if the entity is a video_device
