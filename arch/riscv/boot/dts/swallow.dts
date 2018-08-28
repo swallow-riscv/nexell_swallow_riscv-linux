@@ -16,6 +16,9 @@
 		serial3 = &serial3;
 		serial4 = &serial4;
 		serial5 = &serial5;
+		spi0 = &spi_0;
+		spi1 = &spi_1;
+		spi2 = &spi_2;
 	};
 
 	chosen {
@@ -502,6 +505,54 @@
 			pinctrl-0 = <&mmc1_clk &mmc1_cmd &mmc1_bus4>;
 			fifo-depth = <0x20>;
 			status = "okay";
+		};
+
+		spi_0: spi@20800000 {
+			compatible = "nexell,swallow-dw-spi";
+			reg = <0x20800000 0x1000>;
+			interrupts = <48>;
+                        interrupt-parent = <&plic>;
+			clocks = <&cmu CLK_0_SPI0_CORE>,
+				<&cmu CLK_1_SPI0_APB>;
+			clock-names = "core", "apb";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			num-cs = <1>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&spi0_bus>;
+			status = "disabled";
+		};
+
+		spi_1: spi@20810000 {
+			compatible = "nexell,swallow-dw-spi";
+			reg = <0x20810000 0x1000>;
+			interrupts = <49>;
+                        interrupt-parent = <&plic>;
+			clocks = <&cmu CLK_0_SPI1_CORE>,
+				<&cmu CLK_1_SPI1_APB>;
+			clock-names = "core", "apb";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			num-cs = <1>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&spi1_bus>;
+			status = "disabled";
+		};
+
+		spi_2: spi@20820000 {
+			compatible = "nexell,swallow-dw-spi";
+			reg = <0x20820000 0x1000>;
+			interrupts = <50>;
+                        interrupt-parent = <&plic>;
+			clocks = <&cmu CLK_0_SPI2_CORE>,
+				<&cmu CLK_1_SPI2_APB>;
+			clock-names = "core", "apb";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			num-cs = <1>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&spi2_bus>;
+			status = "disabled";
 		};
 
 		vip_0: vip@20400000 {
