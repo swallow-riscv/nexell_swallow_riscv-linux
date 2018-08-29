@@ -489,12 +489,9 @@
 			phy-names = "usb2-phy";
 			dr_mode = "peripheral";
 			g-use-dma = <1>;
-			/*g-rx-fifo-size = <2332>;
-			g-np-tx-fifo-size = <64>;
-			g-tx-fifo-size = <1024 1024>;*/
 			g-rx-fifo-size = <1024>;
-			g-np-tx-fifo-size = <1024>;
-			g-tx-fifo-size = <1024 1024>;
+			g-np-tx-fifo-size = <64>;
+			g-tx-fifo-size = <512 512>;
 			nouse_idcon = <0>;
 			status = "okay";
 		};
