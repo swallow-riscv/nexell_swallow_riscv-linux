@@ -1,9 +1,14 @@
 /dts-v1/;
+#include <dt-bindings/gpio/gpio.h>
 #include "swallow.dtsi"
 
 / {
 	model ="Nexell swallow drone board";
 	compatible = "nexell,swallow-drone", "nexell,swallow";
+
+	aliases {
+		i2c12 = &i2c_gpio;
+	};
 
 	chosen {
 		bootargs = "console=ttyS0,115200";
@@ -24,6 +29,46 @@
 			status = "okay";
 		};
 
+		vip_0: vip@20400000 {
+			status = "okay";
+		};
+
+		clipper_0: clipper0@20400000 {
+			gpios = <&gpio_f 0 GPIO_ACTIVE_LOW &gpio_d 29 GPIO_ACTIVE_HIGH>;
+			pinctrl-0 = <&vip0_bus &vip0_sync &vip0_vmclk>;
+			external_sync = <1>;
+			padclk_sel = <1>; /* pad clock inverting */
+			h_syncpolarity = <1280>; /* HSYNC active high */
+			v_syncpolarity = <720>; /* VSYNC active high */
+			h_frontporch = <7>;
+			h_syncwidth = <1>;
+			h_backporch = <0>;
+			v_frontporch = <0>;
+			v_syncwidth = <1>;
+			v_backporch = <0>;
+			status = "okay";
+
+			sensor {
+				type = <NX_CAPTURE_SENSOR_I2C>;
+				i2c_name = "MT9D111";
+				i2c_adapter = <12>;
+				/* write:0xBA read:0xBB */
+				addr = <0x5D>;
+			};
+		};
+
+		decimator_0: decimator0@20400000 {
+			status = "okay";
+		};
+
+		scaler: scaler@20410000 {
+			status = "okay";
+		};
+
+		nx-v4l2 {
+			status = "okay";
+		};
+
                 adc0: adc0@206c0000 {
                         status = "okay";
                 };
@@ -38,6 +83,18 @@
 
 		i2c_11: i2c11@206b0000 {
 			status = "okay";
+		};
+
+		i2c_gpio: i2c@12 {
+			compatible = "i2c-gpio";
+			gpios = <&gpio_a 18 0 /* sda */
+				&gpio_a 19 0 /* scl */
+				>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&i2c0_bus>;
+			i2c-gpio,delay-us = <100>;
+			#address-cells = <1>;
+			#size-cells = <0>;
 		};
 
 		dwmmc_0: dwmmc@20930000 {
