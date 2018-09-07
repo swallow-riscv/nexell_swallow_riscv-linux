@@ -50,6 +50,18 @@ config ARCH_NEXELL
         bool "Nexell SoCs"
 	def_bool y
 
+if ARCH_NEXELL
+
+config ARCH_SWALLOW_COMMON
+	bool
+
+config ARCH_SWALLOW
+	bool "SWALLOW"
+	select ARCH_SWALLOW_COMMON
+	help
+	  Nexell SWALLOW (RISCV64) Soc based systems
+endif
+
 # even on 32-bit, physical (and DMA) addresses are > 32-bits
 config ARCH_PHYS_ADDR_T_64BIT
 	def_bool y
