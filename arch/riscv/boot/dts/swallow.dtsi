@@ -1,0 +1,789 @@
+/dts-v1/;
+#include <dt-bindings/clock/swallow-clk.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+#include <dt-bindings/media/nexell-vip.h>
+/ {
+	compatible = "nexell,swallow";
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	aliases {
+		pinctrl0 = &pinctrl_0;
+		serial0 = &uart0;
+		serial1 = &uart1;
+		serial2 = &uart2;
+		serial3 = &uart3;
+		serial4 = &uart4;
+		serial5 = &uart5;
+		i2c0 = &i2c_0;
+		i2c1 = &i2c_1;
+		i2c2 = &i2c_2;
+		i2c3 = &i2c_3;
+		i2c4 = &i2c_4;
+		i2c5 = &i2c_5;
+		i2c6 = &i2c_6;
+		i2c7 = &i2c_7;
+		i2c8 = &i2c_8;
+		i2c9 = &i2c_9;
+		i2c10 = &i2c_10;
+		i2c11 = &i2c_11;
+		spi0 = &spi_0;
+		spi1 = &spi_1;
+		spi2 = &spi_2;
+		spi3 = &spi_3;
+		spi4 = &spi_4;
+		spi5 = &spi_5;
+		spi6 = &spi_6;
+		spi7 = &spi_7;
+	};
+
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		cpu@0 {
+			device_type = "cpu";
+			reg = <0>;
+			status = "okay";
+			compatible = "riscv";
+			riscv,isa = "rv64imafdcsu";
+			mmu-type = "riscv,sv39";
+			d-cache-block-size = <64>;
+			d-cache-sets = <64>;
+			d-cache-size = <16384>;
+			d-tlb-sets = <1>;
+			d-tlb-size = <32>;
+			i-cache-block-size = <64>;
+			i-cache-sets = <64>;
+			i-cache-size = <16384>;
+			i-tlb-sets = <1>;
+			i-tlb-size = <32>;
+			next-level-cache = <&memory>;
+			tlb-split;
+			clock-frequency = <2000000000>;
+			timebase-frequency = <1000000>;
+
+			cpu0_intc: interrupt-controller {
+				#interrupt-cells = <1>;
+				interrupt-controller;
+				compatible = "riscv,cpu-intc";
+				linux,phandle = <1>;
+				phandle = <1>;
+			};
+		};
+	};
+
+	soc {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "simple-bus";
+		ranges;
+
+		clint@0x2000000 {
+			compatible = "riscv,clint0";
+			interrupts-extended = <&cpu0_intc 3 &cpu0_intc 7>;
+			reg = <0x02000000 0x00010000>;
+		};
+
+		plic: interrupt-controller@4000000 {
+			#interrupt-cells = <1>;
+			interrupt-controller;
+			compatible = "riscv,plic0";
+			interrupts-extended = <&cpu0_intc 11 &cpu0_intc 9>;
+			reg = <0x0c000000 0x10000000>;
+			reg-names = "control";
+			riscv,max-priority = <7>;
+			riscv,ndev = <128>;
+			linux,phandle = <2>;
+			phandle = <2>;
+		};
+
+                oscclk: xti {
+                        compatible = "fixed-clock";
+                        #clock-cells = <0>;
+                        clock-output-names = "oscclk";
+                        clock-frequency =  <25000000>;
+	        };
+
+                pll_0: pll0 {
+			compatible = "fixed-clock";
+                        reg = <0x20010000 0x1000>;
+			#clock-cells = <0>;
+			clock-output-names = "pll0";
+                        clock-frequency = <400000000>;
+		};
+
+		pll_1: pll1 {
+			compatible = "fixed-clock";
+                        reg = <0x20020000 0x1000>;
+			#clock-cells = <0>;
+			clock-output-names = "pll1";
+                        clock-frequency = <400000000>;
+		};
+
+                cmu: clock-controller@0x20030000 {
+                        compatible = "nexell,swallow-cmu";
+			reg = <0x20030000 0x1000>;
+			#clock-cells = <1>;
+			clock-names = "oscclk",
+                                      "pll0",
+                                      "pll1";
+			clocks = <&oscclk>,
+                                 <&pll_0>,
+                                 <&pll_1>;
+		};
+
+		nexell_usbphy: nexell-usbphy@20040000 {
+			compatible = "nexell,nexell-usb2-phy";
+			reg = <0x20040000 0x1000>;
+			#phy-cells = <1>;
+			status = "disabled";
+		};
+
+		dwc2: dwc2otg@20D00000 {
+			compatible = "nexell,nexell-dwc2otg";
+			reg = <0x20d00000 0x10000>;
+			interrupts = <13>;
+			interrupt-parent = <&plic>;
+			clocks = <&cmu CLK_1_USB0_AHB>;
+			clock-names = "usb0_ahb";
+			/*resets = <&nexell_reset RESET_ID_USB20OTG>;
+			reset-names = "dwc2";*/
+			phys = <&nexell_usbphy 0>;
+			phy-names = "usb2-phy";
+			dr_mode = "peripheral";
+			g-use-dma = <1>;
+			g-rx-fifo-size = <1024>;
+			g-np-tx-fifo-size = <64>;
+			g-tx-fifo-size = <512 512>;
+			nouse_idcon = <0>;
+			status = "disabled";
+		};
+
+		vip_0: vip@20400000 {
+			compatible = "nexell,vip";
+			reg = <0x20400000 0x10000>;
+			clocks = <&cmu CLK_0_VIP0_AXI>,
+				<&cmu CLK_1_VIP0_APB>,
+				<&cmu CLK_1_VIP0_PADOUT0>,
+				<&cmu CLK_1_VIP0_PADOUT1>;
+			clock-names = "vip0_axi", "vip0_apb",
+				"vip0_padout0", "vip0_padout1";
+			module = <0>;
+			interrupts = <14>;
+			interrupt-parent = <&plic>;
+			status = "disabled";
+		};
+
+		clipper_0: clipper0@20400000 {
+			compatible = "nexell,nx-clipper";
+			module = <0>;
+			logical = <0>;
+			interface_type = <NX_CAPTURE_INTERFACE_PARALLEL>;
+			data_order = < NX_VIN_Y0CBY1CR>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&vip0_bus &vip0_vde
+				&vip0_sync &vip0_field &vip0_vmclk>;
+			port = <0>;
+			external_sync = <0>;
+			interlace = <0>;
+			status = "disabled";
+		};
+
+		decimator_0: decimator0@20400000 {
+			compatible = "nexell,nx-decimator";
+			module = <0>;
+			logical = <0>;
+			status = "disabled";
+		};
+
+		scaler: scaler@20410000 {
+			compatible = "nexell,scaler";
+			reg = <0x20410000 0x10000>;
+			clocks = <&cmu CLK_0_SCALER0_APB>,
+				<&cmu CLK_0_SCALER0_AXI>;
+			clock-names = "scaler0_apb", "scaler0_axi";
+			interrupts = <18>;
+			interrupt-parent = <&plic>;
+			status = "disabled";
+		};
+
+		nx-v4l2 {
+			compatible = "nexell,nx-v4l2";
+			status = "disabled";
+		};
+
+		adc0: adc0@206c0000 {
+			compatible = "nexell,swallow-adc";
+			reg = <0x206c0000 0x10000>;
+			interrupt-parent = <&plic>;
+			interrupts = <46>;
+			clocks = <&cmu CLK_2_ADC0_APB>;
+			clock-names = "adc0_apb";
+			sample_rate = <200000>;
+			#io-channel-cells = <1>;
+			status = "disabled";
+		};
+
+		i2c_0: i2c0@20600000 {
+			compatible = "snps,designware-i2c";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x20600000 0x10000>;
+			clocks = <&cmu CLK_2_I2C0_APB>;
+			clock-names = "i2c0_apb";
+			interrupt-parent = <&plic>;
+			interrupts = <34>;
+			clock-frequency = <1000000>;
+			i2c-sda-hold-time-ns = <300>;
+			i2c-sda-falling-time-ns = <300>;
+			i2c-scl-falling-time-ns = <300>;
+			status = "disabled";
+		};
+
+		i2c_1: i2c1@20610000 {
+			compatible = "snps,designware-i2c";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x20610000 0x10000>;
+			clocks = <&cmu CLK_2_I2C1_APB>;
+			clock-names = "i2c1_apb";
+			interrupt-parent = <&plic>;
+			interrupts = <35>;
+			clock-frequency = <1000000>;
+			i2c-sda-hold-time-ns = <300>;
+			i2c-sda-falling-time-ns = <300>;
+			i2c-scl-falling-time-ns = <300>;
+			status = "disabled";
+		};
+
+		i2c_2: i2c2@20620000 {
+			compatible = "snps,designware-i2c";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x20620000 0x10000>;
+			clocks = <&cmu CLK_2_I2C2_APB>;
+			clock-names = "i2c2_apb";
+			interrupt-parent = <&plic>;
+			interrupts = <36>;
+			clock-frequency = <1000000>;
+			i2c-sda-hold-time-ns = <300>;
+			i2c-sda-falling-time-ns = <300>;
+			i2c-scl-falling-time-ns = <300>;
+			status = "disabled";
+		};
+
+		i2c_3: i2c3@20630000 {
+			compatible = "snps,designware-i2c";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x20630000 0x10000>;
+			clocks = <&cmu CLK_2_I2C3_APB>;
+			clock-names = "i2c3_apb";
+			interrupt-parent = <&plic>;
+			interrupts = <37>;
+			clock-frequency = <1000000>;
+			i2c-sda-hold-time-ns = <300>;
+			i2c-sda-falling-time-ns = <300>;
+			i2c-scl-falling-time-ns = <300>;
+			status = "disabled";
+		};
+
+		i2c_4: i2c4@20640000 {
+			compatible = "snps,designware-i2c";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x20640000 0x10000>;
+			clocks = <&cmu CLK_2_I2C4_APB>;
+			clock-names = "i2c4_apb";
+			interrupt-parent = <&plic>;
+			interrupts = <38>;
+			clock-frequency = <1000000>;
+			i2c-sda-hold-time-ns = <300>;
+			i2c-sda-falling-time-ns = <300>;
+			i2c-scl-falling-time-ns = <300>;
+			status = "disabled";
+		};
+
+		i2c_5: i2c5@20650000 {
+			compatible = "snps,designware-i2c";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x20650000 0x10000>;
+			clocks = <&cmu CLK_2_I2C5_APB>;
+			clock-names = "i2c5_apb";
+			interrupt-parent = <&plic>;
+			interrupts = <39>;
+			clock-frequency = <1000000>;
+			i2c-sda-hold-time-ns = <300>;
+			i2c-sda-falling-time-ns = <300>;
+			i2c-scl-falling-time-ns = <300>;
+			status = "disabled";
+		};
+
+		i2c_6: i2c6@20660000 {
+			compatible = "snps,designware-i2c";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x20660000 0x10000>;
+			clocks = <&cmu CLK_2_I2C6_APB>;
+			clock-names = "i2c6_apb";
+			interrupt-parent = <&plic>;
+			interrupts = <40>;
+			clock-frequency = <1000000>;
+			i2c-sda-hold-time-ns = <300>;
+			i2c-sda-falling-time-ns = <300>;
+			i2c-scl-falling-time-ns = <300>;
+			status = "disabled";
+		};
+
+		i2c_7: i2c7@20670000 {
+			compatible = "snps,designware-i2c";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x20670000 0x10000>;
+			clocks = <&cmu CLK_2_I2C7_APB>;
+			clock-names = "i2c7_apb";
+			interrupt-parent = <&plic>;
+			interrupts = <41>;
+			clock-frequency = <1000000>;
+			i2c-sda-hold-time-ns = <300>;
+			i2c-sda-falling-time-ns = <300>;
+			i2c-scl-falling-time-ns = <300>;
+			status = "disabled";
+		};
+
+		i2c_8: i2c8@20680000 {
+			compatible = "snps,designware-i2c";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x20680000 0x10000>;
+			clocks = <&cmu CLK_2_I2C8_APB>;
+			clock-names = "i2c8_apb";
+			interrupt-parent = <&plic>;
+			interrupts = <42>;
+			clock-frequency = <1000000>;
+			i2c-sda-hold-time-ns = <300>;
+			i2c-sda-falling-time-ns = <300>;
+			i2c-scl-falling-time-ns = <300>;
+			status = "disabled";
+		};
+
+		i2c_9: i2c9@20690000 {
+			compatible = "snps,designware-i2c";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x20690000 0x10000>;
+			clocks = <&cmu CLK_2_I2C9_APB>;
+			clock-names = "i2c9_apb";
+			interrupt-parent = <&plic>;
+			interrupts = <43>;
+			clock-frequency = <1000000>;
+			i2c-sda-hold-time-ns = <300>;
+			i2c-sda-falling-time-ns = <300>;
+			i2c-scl-falling-time-ns = <300>;
+			status = "disabled";
+		};
+
+		i2c_10: i2c10@206a0000 {
+			compatible = "snps,designware-i2c";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x206a0000 0x10000>;
+			clocks = <&cmu CLK_2_I2C10_APB>;
+			clock-names = "i2c10_apb";
+			interrupt-parent = <&plic>;
+			interrupts = <44>;
+			clock-frequency = <1000000>;
+			i2c-sda-hold-time-ns = <300>;
+			i2c-sda-falling-time-ns = <300>;
+			i2c-scl-falling-time-ns = <300>;
+			status = "disabled";
+		};
+
+		i2c_11: i2c11@206b0000 {
+			compatible = "snps,designware-i2c";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x206b0000 0x10000>;
+			clocks = <&cmu CLK_2_I2C11_APB>;
+			clock-names = "i2c11_apb";
+			interrupt-parent = <&plic>;
+			interrupts = <45>;
+			clock-frequency = <1000000>;
+			i2c-sda-hold-time-ns = <300>;
+			i2c-sda-falling-time-ns = <300>;
+			i2c-scl-falling-time-ns = <300>;
+			status = "disabled";
+		};
+
+		dwmmc_0: dwmmc@20930000 {
+			compatible = "nexell,swallow-dw-mshc";
+			interrupts = <27>;
+                        interrupt-parent = <&plic>;
+			reg = <0x20930000 0x1000>;
+			assigned-clocks = <&cmu CLK_SYS_DIV_SYS0_CLK400>,
+					  <&pll_0 0>;
+			assigned-clock-parents = <&pll_0 0>;
+			clock-frequency = <400000000>;
+			clock-names = "biu", "ciu";
+			clocks = <&cmu CLK_1_OSDMMC0_AHB>,
+			         <&cmu CLK_0_OSDMMC0_CORE>;
+			bus-width = <4>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&mmc0_clk &mmc0_cmd &mmc0_bus4>;
+			fifo-depth = <0x20>;
+			status = "disabled";
+		};
+
+		dwmmc_1: dwmmc@20940000 {
+			compatible = "nexell,swallow-dw-mshc";
+			interrupts = <28>;
+                        interrupt-parent = <&plic>;
+			reg = <0x20940000 0x1000>;
+			assigned-clocks = <&cmu CLK_SYS_DIV_SYS0_CLK400>,
+					  <&pll_0 0>;
+			assigned-clock-parents = <&pll_0 0>;
+			clock-frequency = <400000000>;
+			clock-names = "biu", "ciu";
+			clocks = <&cmu CLK_1_OSDMMC1_AHB>,
+			         <&cmu CLK_0_OSDMMC1_CORE>;
+			bus-width = <4>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&mmc1_clk &mmc1_cmd &mmc1_bus4>;
+			fifo-depth = <0x20>;
+			status = "disabled";
+		};
+
+
+		spi_0: spi@20800000 {
+			compatible = "nexell,swallow-dw-spi";
+			reg = <0x20800000 0x1000>;
+			interrupts = <48>;
+                        interrupt-parent = <&plic>;
+			clocks = <&cmu CLK_0_SPI0_CORE>,
+				<&cmu CLK_1_SPI0_APB>;
+			clock-names = "core", "apb";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			num-cs = <1>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&spi0_bus>;
+			status = "disabled";
+		};
+
+		spi_1: spi@20810000 {
+			compatible = "nexell,swallow-dw-spi";
+			reg = <0x20810000 0x1000>;
+			interrupts = <49>;
+                        interrupt-parent = <&plic>;
+			clocks = <&cmu CLK_0_SPI1_CORE>,
+				<&cmu CLK_1_SPI1_APB>;
+			clock-names = "core", "apb";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			num-cs = <1>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&spi1_bus>;
+			status = "disabled";
+		};
+
+		spi_2: spi@20820000 {
+			compatible = "nexell,swallow-dw-spi";
+			reg = <0x20820000 0x1000>;
+			interrupts = <50>;
+                        interrupt-parent = <&plic>;
+			clocks = <&cmu CLK_0_SPI2_CORE>,
+				<&cmu CLK_1_SPI2_APB>;
+			clock-names = "core", "apb";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			num-cs = <1>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&spi2_bus>;
+			status = "disabled";
+		};
+
+		spi_3: spi@20830000 {
+			compatible = "nexell,swallow-dw-spi";
+			reg = <0x20830000 0x1000>;
+			interrupts = <51>;
+                        interrupt-parent = <&plic>;
+			clocks = <&cmu CLK_0_QSPI0_CORE>,
+				<&cmu CLK_1_QSPI0_APB>;
+			clock-names = "core", "apb";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			num-cs = <1>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&qspi0_bus>;
+			status = "disabled";
+		};
+
+		spi_4: spi@20840000 {
+			compatible = "nexell,swallow-dw-spi";
+			reg = <0x20840000 0x1000>;
+			interrupts = <52>;
+                        interrupt-parent = <&plic>;
+			clocks = <&cmu CLK_0_QSPI1_CORE>,
+				<&cmu CLK_1_QSPI1_APB>;
+			clock-names = "core", "apb";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			num-cs = <1>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&qspi1_bus>;
+			status = "disabled";
+		};
+
+
+		spi_5: spi@20850000 {
+			compatible = "nexell,swallow-dw-spi";
+			reg = <0x20850000 0x1000>;
+			interrupts = <53>;
+                        interrupt-parent = <&plic>;
+			clocks = <&cmu CLK_0_QSPI2_CORE>,
+				<&cmu CLK_2_QSPI2_APB>;
+			clock-names = "core", "apb";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			num-cs = <1>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&qspi2_bus>;
+			status = "disabled";
+		};
+
+
+		spi_6: spi@20860000 {
+			compatible = "nexell,swallow-dw-spi";
+			reg = <0x20860000 0x1000>;
+			interrupts = <54>;
+                        interrupt-parent = <&plic>;
+			clocks = <&cmu CLK_0_QSPI3_CORE>,
+				<&cmu CLK_2_QSPI3_APB>;
+			clock-names = "core", "apb";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			num-cs = <1>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&qspi3_bus>;
+			status = "disabled";
+		};
+
+
+		spi_7: spi@20870000 {
+			compatible = "nexell,swallow-dw-spi";
+			reg = <0x20870000 0x1000>;
+			interrupts = <55>;
+                        interrupt-parent = <&plic>;
+			clocks = <&cmu CLK_0_QSPI4_CORE>,
+				<&cmu CLK_2_QSPI4_APB>;
+			clock-names = "core", "apb";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			num-cs = <1>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&qspi4_bus>;
+			status = "disabled";
+		};
+
+		uart0:serial0@20880000 {
+			compatible = "snps,dw-apb-uart";
+			reg = <0x20880000 0x00001000>;
+			clock-frequency = <100000000>;
+			interrupts = <56>;
+			interrupt-parent = <&plic>;
+			reg-shift = <2>;
+			reg-io-width = <4>;
+			clocks = <&cmu 33>,
+				 <&cmu 82>;
+			clock-names = "baudclk", "apb_pclk";
+			pinctrl-names = "default";
+			pinctrl-0 = <&uart0_bus>;
+			status = "disabled";
+		};
+
+		uart1:serial1@20890000 {
+			compatible = "snps,dw-apb-uart";
+			reg = <0x20890000 0x00001000>;
+			clock-frequency = <100000000>;
+			interrupts = <57>;
+			interrupt-parent = <&plic>;
+			reg-shift = <2>;
+			reg-io-width = <4>;
+			clocks = <&cmu 34>,
+				 <&cmu 83>;
+			clock-names = "baudclk", "apb_pclk";
+			pinctrl-names = "default";
+			pinctrl-0 = <&uart1_bus>;
+			status = "disabled";
+		};
+
+		uart2:serial2@208a0000 {
+			compatible = "snps,dw-apb-uart";
+			reg = <0x208a0000 0x00001000>;
+			clock-frequency = <100000000>;
+			interrupts = <58>;
+			interrupt-parent = <&plic>;
+			reg-shift = <2>;
+			reg-io-width = <4>;
+			clocks = <&cmu 35>,
+				 <&cmu 84>;
+			clock-names = "baudclk", "apb_pclk";
+			pinctrl-names = "default";
+			pinctrl-0 = <&usart0_bus>;
+			status = "disabled";
+		};
+
+		uart3:serial3@208b0000 {
+			compatible = "snps,dw-apb-uart";
+			reg = <0x208b0000 0x00001000>;
+			clock-frequency = <100000000>;
+			interrupts = <59>;
+			interrupt-parent = <&plic>;
+			reg-shift = <2>;
+			reg-io-width = <4>;
+			clocks = <&cmu 36>,
+				 <&cmu 85>;
+			clock-names = "baudclk", "apb_pclk";
+			pinctrl-names = "default";
+			pinctrl-0 = <&usart1_bus>;
+			status = "disabled";
+		};
+
+		uart4:serial4@208c0000 {
+			compatible = "snps,dw-apb-uart";
+			reg = <0x208c0000 0x00001000>;
+			clock-frequency = <100000000>;
+			interrupts = <60>;
+			interrupt-parent = <&plic>;
+			reg-shift = <2>;
+			reg-io-width = <4>;
+			clocks = <&cmu 37>,
+				 <&cmu 86>;
+			clock-names = "baudclk", "apb_pclk";
+			pinctrl-names = "default";
+			pinctrl-0 = <&usart2_bus>;
+			status = "disabled";
+		};
+
+		uart5:serial5@208d0000 {
+			compatible = "snps,dw-apb-uart";
+			reg = <0x208d0000 0x00001000>;
+			clock-frequency = <100000000>;
+			interrupts = <61>;
+			interrupt-parent = <&plic>;
+			reg-shift = <2>;
+			reg-io-width = <4>;
+			clocks = <&cmu 38>,
+				 <&cmu 87>;
+			clock-names = "baudclk", "apb_pclk";
+			pinctrl-names = "default";
+			pinctrl-0 = <&usart3_bus>;
+			status = "disabled";
+		};
+
+		pwm0: pwm0@208e0000 {
+			compatible = "nexell,swallow-pwm";
+			reg = <0x208e0000 0x10000>;
+			clocks = <&cmu CLK_2_PWM0_APB>,
+				   <&cmu CLK_0_PWM0_TCLK0>,
+				   <&cmu CLK_0_PWM0_TCLK1>,
+				   <&cmu CLK_0_PWM0_TCLK2>,
+				   <&cmu CLK_0_PWM0_TCLK3>;
+			clock-names = "pwm0_apb", "pwm0_tclk0", "pwm0_tclk1",
+				"pwm0_tclk2", "pwm0_tclk3";
+			tclk_freq = <100000000>, <100000000>, <100000000>, <100000000>;
+			nexell,pwm-outputs = <0>, <1>, <2>, <3>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&pwm0_pin &pwm1_pin &pwm2_pin &pwm3_pin>;
+			#pwm-cells = <3>;
+			status = "disabled";
+		};
+
+		pwm1: pwm1@208f0000 {
+			compatible = "nexell,swallo-pwm";
+			reg = <0x208f0000 0x10000>;
+			clocks = <&cmu CLK_2_PWM1_APB>,
+				   <&cmu CLK_0_PWM1_TCLK0>,
+				   <&cmu CLK_1_PWM1_TCLK1>,
+				   <&cmu CLK_1_PWM1_TCLK2>,
+				   <&cmu CLK_1_PWM1_TCLK3>;
+			clock-names = "pwm1_apb", "pwm1_tclk0", "pwm1_tclk1",
+				"pwm1_tclk2", "pwm1_tclk3";
+			tclk_freq = <100000000>, <100000000>, <100000000>, <100000000>;
+			nexell,pwm-outputs = <0>, <1>, <2>, <3>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&pwm4_pin &pwm5_pin &pwm6_pin &pwm7_pin>;
+			#pwm-cells = <3>;
+			status = "disabled";
+		};
+
+		pwm2: pwm2@20900000 {
+			compatible = "nexell,swallow-pwm";
+			reg = <0x20900000 0x10000>;
+			clocks = <&cmu CLK_2_PWM2_APB>,
+				   <&cmu CLK_1_PWM2_TCLK0>,
+				   <&cmu CLK_1_PWM2_TCLK1>,
+				   <&cmu CLK_1_PWM2_TCLK2>,
+				   <&cmu CLK_1_PWM2_TCLK3>;
+			clock-names = "pwm2_apb", "pwm2_tclk0", "pwm2_tclk1",
+				"pwm2_tclk2", "pwm2_tclk3";
+			tclk_freq = <100000000>, <100000000>, <100000000>, <100000000>;
+			nexell,pwm-outputs = <0>, <1>, <2>, <3>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&pwm8_pin &pwm9_pin &pwm10_pin &pwm11_pin>;
+			#pwm-cells = <3>;
+			status = "disabled";
+		};
+
+		watchdog@206d0000 {
+			compatible = "nexell,nexell-wdt";
+			reg = <0x206d0000 0x10000>;
+			interrupt-parent = <&plic>;
+			interrupts = <47>;
+			//resets = <&nexell_reset RESET_ID_WDT>.
+				//<&nexell_reset RESET_ID_WDT_POR>;
+			//reset-names = "wdt-reset","wdt-por-reset";
+			timeout-sec = <32>;
+			clocks = <&cmu CLK_2_WDT0_APB>;
+			clock-names = "wdt0_apb";
+			status = "disabled";
+		};
+        };
+
+	pinctrl_0: pinctrl@0x20700000 {
+		compatible = "nexell,swallow-pinctrl";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		reg = <0x20700000 0x1000
+		       0x20710000 0x1000
+		       0x20720000 0x1000
+		       0x20730000 0x1000
+		       0x20740000 0x1000
+		       0x20750000 0x1000
+		       0x20760000 0x1000
+		       0x20770000 0x1000>;
+		interrupt-parent = <&plic>;
+		interrupts = <82>, <83>, <84>, <85>, <86>, <87>, <88>, <89>;
+		status = "okay";
+	};
+
+	nexell-ion@0 {
+		compatible = "nexell,ion";
+
+		heap_sys_user@0 {
+			heap-type = "ion_system";
+		};
+
+		heap_sys_contig@0 {
+			heap-type = "ion_system_contig";
+		};
+
+		heap_dma@0 {
+			heap-type = "ion_dma";
+		};
+	};
+};
+
+#include "swallow-pinctrl.dtsi"
