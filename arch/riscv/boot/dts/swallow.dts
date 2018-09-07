@@ -92,6 +92,20 @@
 			status = "okay";
 		};
 
+		watchdog@206d0000 {
+			compatible = "nexell,nexell-wdt";
+			reg = <0x206d0000 0x10000>;
+			interrupt-parent = <&plic>;
+			interrupts = <47>;
+			//resets = <&nexell_reset RESET_ID_WDT>.
+				//<&nexell_reset RESET_ID_WDT_POR>;
+			//reset-names = "wdt-reset","wdt-por-reset";
+			timeout-sec = <32>;
+			clocks = <&cmu CLK_2_WDT0_APB>;
+			clock-names = "wdt0_apb";
+			status = "okay";
+		};
+
 		pwm0: pwm0@208e0000	{
 			compatible = "nexell,swallow-pwm";
 			reg = <0x208e0000 0x10000>;
