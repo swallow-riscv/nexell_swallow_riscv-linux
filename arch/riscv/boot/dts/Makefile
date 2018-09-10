@@ -2,7 +2,8 @@
 ifeq ($(CONFIG_OF),y)
 
 dtb-$(CONFIG_ARCH_SWALLOW) += \
-	swallow-qemu.dtb
+	swallow-qemu.dtb \
+	swallow-drone.dtb
 endif
 
 dtstree		:= $(srctree)/$(src)
