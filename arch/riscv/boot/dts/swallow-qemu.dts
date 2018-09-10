@@ -1,0 +1,191 @@
+/dts-v1/;
+#include "swallow.dtsi"
+
+/ {
+	model ="Nexell swallow qemu environment";
+	compatible = "nexell,swallow-qemu", "nexell,swallow";
+
+	chosen {
+		bootargs = "console=ttyS0,115200";
+		stdout-path = "serial0@20880000";
+	};
+
+	memory: memory@80000000 {
+		device_type = "memory";
+		reg = <0x80000000 0x08000000>;
+	};
+
+	soc {
+		nexell_usbphy: nexell-usbphy@20040000 {
+			status = "okay";
+		};
+
+		dwc2: dwc2otg@20D00000 {
+			status = "okay";
+		};
+
+		vip_0: vip@20400000 {
+			status = "okay";
+		};
+
+		clipper_0: clipper0@20400000 {
+			status = "okay";
+
+                        sensor {
+                                type = <NX_CAPTURE_SENSOR_I2C>;
+                                i2c_name = "DummySensor";
+                                i2c_adapter = <1>;
+                                addr = <0x64>;
+                        };
+		};
+
+		decimator_0: decimator0@20400000 {
+			status = "okay";
+		};
+
+		scaler: scaler@20410000 {
+			status = "okay";
+		};
+
+		nx-v4l2 {
+			status = "okay";
+		};
+
+		adc0: adc0@206c0000 {
+			status = "okay";
+		};
+
+		i2c_0: i2c0@20600000 {
+			status = "okay";
+
+                        tmp105@64 {
+                                compatible = "ti,tmp105";
+                                reg = <0x64>;
+                        };
+		};
+
+		i2c_1: i2c1@20610000 {
+			status = "okay";
+		};
+
+		i2c_2: i2c2@20620000 {
+			status = "okay";
+		};
+
+		i2c_3: i2c3@20630000 {
+			status = "okay";
+		};
+
+		i2c_4: i2c4@20640000 {
+			status = "okay";
+		};
+
+		i2c_5: i2c5@20650000 {
+			status = "okay";
+		};
+
+		i2c_6: i2c6@20660000 {
+			status = "okay";
+		};
+
+		i2c_7: i2c7@20670000 {
+			status = "okay";
+		};
+
+		i2c_8: i2c8@20680000 {
+			status = "okay";
+		};
+
+		i2c_9: i2c9@20690000 {
+			status = "okay";
+		};
+
+		i2c_10: i2c10@206a0000 {
+			status = "okay";
+		};
+
+		i2c_11: i2c11@206b0000 {
+			status = "okay";
+		};
+
+		dwmmc_0: dwmmc@20930000 {
+			status = "okay";
+		};
+
+		dwmmc_1: dwmmc@20940000 {
+			status = "okay";
+		};
+
+		spi_0: spi@20800000 {
+			status = "okay";
+		};
+
+		spi_1: spi@20810000 {
+			status = "okay";
+		};
+
+		spi_2: spi@20820000 {
+			status = "okay";
+		};
+
+		spi_3: spi@20830000 {
+			status = "okay";
+		};
+
+		spi_4: spi@20840000 {
+			status = "okay";
+		};
+
+		spi_5: spi@20850000 {
+			status = "okay";
+		};
+
+		spi_6: spi@20860000 {
+			status = "okay";
+		};
+
+		spi_7: spi@20870000 {
+			status = "okay";
+		};
+
+		uart0:serial0@20880000 {
+			status = "okay";
+		};
+
+		uart1:serial1@20890000 {
+			status = "okay";
+		};
+
+		uart2:serial2@208a0000 {
+			status = "okay";
+		};
+
+		uart3:serial3@208b0000 {
+			status = "okay";
+		};
+
+		uart4:serial4@208c0000 {
+			status = "okay";
+		};
+
+		uart5:serial5@208d0000 {
+			status = "okay";
+		};
+
+		pwm0: pwm0@208e0000 {
+			status = "okay";
+		};
+
+		pwm1: pwm1@208f0000 {
+			status = "okay";
+		};
+
+		pwm2: pwm2@20900000 {
+			status = "okay";
+		};
+
+		watchdog@206d0000 {
+			status = "okay";
+		};
+        };
+};

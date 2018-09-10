@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: GPL-2.0
 ifeq ($(CONFIG_OF),y)
 
-dtb-$(CONFIG_RISCV) += \
-	swallow.dtb
+dtb-$(CONFIG_ARCH_SWALLOW) += \
+	swallow-qemu.dtb
 endif
 
 dtstree		:= $(srctree)/$(src)
