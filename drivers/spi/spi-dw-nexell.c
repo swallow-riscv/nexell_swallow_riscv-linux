@@ -338,7 +338,6 @@ static int nx_dw_spi_probe(struct platform_device *pdev)
 
 	dws = &dws_nx->dws;
 
-        pr_err("[SUKER][SPI]1\n");
 	/* Get basic io resource and map it */
 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	dws->regs = devm_ioremap_resource(&pdev->dev, mem);
