@@ -37,7 +37,6 @@ static int dw_mci_nexell_priv_init(struct dw_mci *host)
 {
 	struct dw_mci_nexell_priv_data *priv = host->priv;
 
-        pr_err("[SUKER]DEBUG] %s\n",__func__);
 	mci_writel(host, DRV_PHASE, priv->drv_phase);
 	mci_writel(host, SMP_PHASE, priv->smp_phase);
 
@@ -107,10 +106,8 @@ static int dw_mci_nexell_probe(struct platform_device *pdev)
 	struct dw_mci_nexell_priv_data *priv;
 	int ret;
 
-        pr_err("[SUKER]DEBUG] %s\n",__func__);
 	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
 	match = of_match_node(dw_mci_nexell_match, pdev->dev.of_node);
-        pr_err("[SUKER]DEBUG] %s, %s, %s\n",__func__, match->name, match->compatible);
 	drv_data = match->data;
 
 	pm_runtime_get_noresume(&pdev->dev);
