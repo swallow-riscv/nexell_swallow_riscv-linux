@@ -60,7 +60,7 @@
 			i-tlb-size = <32>;
 			next-level-cache = <&memory>;
 			tlb-split;
-			clock-frequency = <2000000000>;
+			clock-frequency = <200000000>;
 			timebase-frequency = <1000000>;
 
 			cpu0_intc: interrupt-controller {
