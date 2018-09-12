@@ -58,6 +58,7 @@ config ARCH_SWALLOW_COMMON
 config ARCH_SWALLOW
 	bool "SWALLOW"
 	select ARCH_SWALLOW_COMMON
+	select HAVE_S3C2410_WATCHDOG
 	help
 	  Nexell SWALLOW (RISCV64) Soc based systems
 endif
