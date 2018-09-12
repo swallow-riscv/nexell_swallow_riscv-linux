@@ -24,26 +24,6 @@
 			status = "okay";
 		};
 
-		vip_0: vip@20400000 {
-			status = "okay";
-		};
-
-		clipper_0: clipper0@20400000 {
-			status = "okay";
-		};
-
-		decimator_0: decimator0@20400000 {
-			status = "okay";
-		};
-
-		scaler: scaler@20410000 {
-			status = "okay";
-		};
-
-		nx-v4l2 {
-			status = "okay";
-		};
-
                 adc0: adc0@206c0000 {
                         status = "okay";
                 };
