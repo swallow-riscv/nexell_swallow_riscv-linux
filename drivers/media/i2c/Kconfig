@@ -744,6 +744,12 @@ config VIDEO_MT9V032
 	  This is a Video4Linux2 sensor-level driver for the Micron
 	  MT9V032 752x480 CMOS sensor.
 
+config VIDEO_MT9D111
+	tristate "mt9d111 sensor support"
+	depends on I2C && VIDEO_V4L2
+	help
+	  This driver supports MT9D111 cameras from Micron/Aptina
+
 config VIDEO_SR030PC30
 	tristate "Siliconfile SR030PC30 sensor support"
 	depends on I2C && VIDEO_V4L2
