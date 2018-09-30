@@ -33,9 +33,10 @@ struct nx_vip_register_set {
 	u32 vip_fifoctrl;
 	u32 vip_hcount;
 	u32 vip_vcount;
+	u32 __reserved00;
 	u32 vip_padclk_sel;
 	u32 vip_infifoclr;
-	u8  reserved[0x200 - 0x34];
+	u8  reserved[0x200 - 0x38];
 	u32 vip_cdenb;
 	u32 vip_odint;
 	u32 vip_imgwidth;
