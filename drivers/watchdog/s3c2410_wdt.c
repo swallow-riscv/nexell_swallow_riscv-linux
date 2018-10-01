@@ -169,6 +169,10 @@ static const struct s3c2410_wdt_variant drv_data_exynos7 = {
 		  | QUIRK_HAS_WTCLRINT_REG,
 };
 
+static const struct s3c2410_wdt_variant drv_data_nx = {
+	.quirks = 0
+};
+
 static const struct of_device_id s3c2410_wdt_match[] = {
 	{ .compatible = "samsung,s3c2410-wdt",
 	  .data = &drv_data_s3c2410 },
@@ -180,6 +184,8 @@ static const struct of_device_id s3c2410_wdt_match[] = {
 	  .data = &drv_data_exynos5420 },
 	{ .compatible = "samsung,exynos7-wdt",
 	  .data = &drv_data_exynos7 },
+	{ .compatible = "nexell,nexell-wdt",
+	  .data = &drv_data_nx },
 	{},
 };
 MODULE_DEVICE_TABLE(of, s3c2410_wdt_match);
@@ -561,7 +567,7 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
 		goto err;
 	}
 
-	wdt->clock = devm_clk_get(dev, "watchdog");
+	wdt->clock = devm_clk_get(dev, "wdt0_apb");
 	if (IS_ERR(wdt->clock)) {
 		dev_err(dev, "failed to find watchdog clock source\n");
 		ret = PTR_ERR(wdt->clock);
