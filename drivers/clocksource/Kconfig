@@ -583,6 +583,15 @@ config CLKSRC_ST_LPC
 	  Enable this option to use the Low Power controller timer
 	  as clocksource.
 
+config NEXELL_TIMER
+	bool "timer driver for NEXELL SWALLOW"
+	depends on GENERIC_CLOCKEVENTS
+	depends on ARCH_RV64I
+	select TIMER_PROBE
+	select TIMER_OF
+	help
+	  This is a timer driver for NEXELL Swallow.
+
 config RISCV_TIMER
 	bool "Timer for the RISC-V platform" if COMPILE_TEST
 	depends on RISCV
