@@ -25,4 +25,13 @@ extern void ndelay(unsigned long nsecs);
 
 extern void __delay(unsigned long cycles);
 
+#ifndef CONFIG_RISCV_TIMER
+struct delay_timer {
+        unsigned long (*read_current_timer)(void);
+        unsigned long freq;
+};
+
+extern void register_current_timer_delay(const struct delay_timer *timer);
+#endif
+
 #endif /* _ASM_RISCV_DELAY_H */

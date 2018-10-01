@@ -18,6 +18,7 @@
 
 typedef unsigned long cycles_t;
 
+#ifdef CONFIG_RISCV_TIMER
 static inline notrace cycles_t get_cycles_inline(void)
 {
 	cycles_t n;
@@ -56,5 +57,8 @@ static inline int read_current_timer(unsigned long *timer_val)
 	*timer_val = get_cycles();
 	return 0;
 }
+#else
+#define get_cycles()    ({ cycles_t c; read_current_timer(&c) ? 0 : c; })
+#endif
 
 #endif /* _ASM_RISCV_TIMEX_H */
