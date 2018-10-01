@@ -750,6 +750,19 @@
 			clock-names = "wdt0_apb";
 			status = "disabled";
 		};
+
+		timer: timer@20910000 {
+			compatible = "nexell,nexell-timer";
+			reg = <0x20910000 0x10000>;
+			clocks = <&cmu CLK_1_TIMER0_TCLK0>,
+			       <&cmu CLK_1_TIMER0_TCLK1>;
+			clock-names = "timer0_tclk0", "timer0_tclk1";
+			interrupt-parent = <&plic>;
+			interrupts = <74 78>;
+			clksource = <0>;
+			clkevent = <1>;
+			status = "okay";
+		};
         };
 
 	pinctrl_0: pinctrl@0x20700000 {
