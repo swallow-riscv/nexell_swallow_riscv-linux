@@ -304,8 +304,14 @@ static int default_serial_dl_read(struct uart_8250_port *up)
 /* Uart divisor latch write */
 static void default_serial_dl_write(struct uart_8250_port *up, int value)
 {
+	unsigned char lcr;
+
+	value = 54;
+	lcr = serial_port_in(&up->port, UART_LCR);
+	serial_port_out(&up->port, UART_LCR, lcr | UART_LCR_DLAB);
 	serial_out(up, UART_DLL, value & 0xff);
 	serial_out(up, UART_DLM, value >> 8 & 0xff);
+	serial_port_out(&up->port, UART_LCR, lcr);
 }
 
 #ifdef CONFIG_SERIAL_8250_RT288X
@@ -1848,6 +1854,8 @@ int serial8250_handle_irq(struct uart_port *port, unsigned int iir)
 	unsigned long flags;
 	struct uart_8250_port *up = up_to_u8250p(port);
 
+	pr_info("[HSJUNG]%s %d\n", __func__, __LINE__);
+
 	if (iir & UART_IIR_NO_INT)
 		return 0;
 
@@ -3267,6 +3275,7 @@ static unsigned int probe_baud(struct uart_port *port)
 	dll = serial_port_in(port, UART_DLL);
 	dlm = serial_port_in(port, UART_DLM);
 	serial_port_out(port, UART_LCR, lcr);
+	pr_info("[HSJUNG] Divisor latch dll %x dlm %x\n", dll, dlm);
 
 	quot = (dlm << 8) | dll;
 	return (port->uartclk / 16) / quot;

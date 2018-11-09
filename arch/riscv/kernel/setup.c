@@ -235,7 +235,7 @@ void __init setup_arch(char **cmdline_p)
 	paging_init();
 	unflatten_device_tree();
 
-	swiotlb_init(1);
+	//swiotlb_init(1);
 
 #ifdef CONFIG_SMP
 	setup_smp();

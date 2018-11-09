@@ -194,7 +194,6 @@ static unsigned int dw8250_serial_in32be(struct uart_port *p, int offset)
        return dw8250_modify_msr(p, offset, value);
 }
 
-
 static int dw8250_handle_irq(struct uart_port *p)
 {
 	struct uart_8250_port *up = up_to_u8250p(p);
@@ -203,6 +202,7 @@ static int dw8250_handle_irq(struct uart_port *p)
 	unsigned int status;
 	unsigned long flags;
 
+	pr_info("[HSJUNG]%s\n", __func__);
 	/*
 	 * There are ways to get Designware-based UARTs into a state where
 	 * they are asserting UART_IIR_RX_TIMEOUT but there is no actual
@@ -229,10 +229,11 @@ static int dw8250_handle_irq(struct uart_port *p)
 	if ((iir & UART_IIR_BUSY) == UART_IIR_BUSY) {
 		/* Clear the USR */
 		(void)p->serial_in(p, d->usr_reg);
-
+		pr_info("%s %d\n", __func__, __LINE__);
 		return 1;
 	}
 
+	pr_info("%s %d\n", __func__, __LINE__);
 	return 0;
 }
 
@@ -430,6 +431,7 @@ static int dw8250_probe(struct platform_device *pdev)
 		return irq;
 	}
 
+	pr_info("[HSJUNG] irq = %d\n", irq);
 	spin_lock_init(&p->lock);
 	p->mapbase	= regs->start;
 	p->irq		= irq;
@@ -565,6 +567,11 @@ static int dw8250_probe(struct platform_device *pdev)
 	pm_runtime_set_active(dev);
 	pm_runtime_enable(dev);
 
+	pr_info("+++++++++++++++++++++++++++++++++++++++++++\n");
+	pr_info("+++++++++++++++++++++++++++++++++++++++++++\n");
+	pr_info("+++++++++++++++++++++++++++++++++++++++++++\n");
+	pr_info("+++++++++++++++++++++++++++++++++++++++++++\n");
+	pr_info("+++++++++++++++++++++++++++++++++++++++++++\n");
 	return 0;
 
 err_reset:

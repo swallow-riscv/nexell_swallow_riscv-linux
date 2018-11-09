@@ -86,6 +86,9 @@
 #define PRIORITY_BASE		0
 #define PRIORITY_PER_ID		4
 
+#define PENDING_BASE		0x1000
+#define PENDING_PER_ID		4
+
 /*
  * Each hart context has a vector of interupt enable bits associated with it.
  * There's one bit for each interrupt source.
@@ -130,7 +133,8 @@ struct plic_data {
 static inline
 u32 __iomem *plic_enable_vector(struct plic_data *data, int contextid)
 {
-	return data->reg + ENABLE_BASE + contextid * ENABLE_PER_HART;
+	return data->reg + ENABLE_BASE + (contextid -1) * ENABLE_PER_HART;
+	//return data->reg + ENABLE_BASE + contextid * ENABLE_PER_HART;
 }
 
 static inline
@@ -140,15 +144,23 @@ u32 __iomem *plic_priority(struct plic_data *data, int hwirq)
 }
 
 static inline
+u32 __iomem *plic_pending(struct plic_data *data, int hwirq)
+{
+	return data->reg + PENDING_BASE + (hwirq/32) * 4;
+}
+
+static inline
 u32 __iomem *plic_hart_threshold(struct plic_data *data, int contextid)
 {
-	return data->reg + CONTEXT_BASE + CONTEXT_PER_HART * contextid + CONTEXT_THRESHOLD;
+	return data->reg + CONTEXT_BASE + CONTEXT_PER_HART * (contextid - 1) + CONTEXT_THRESHOLD;
+	//return data->reg + CONTEXT_BASE + CONTEXT_PER_HART * contextid + CONTEXT_THRESHOLD;
 }
 
 static inline
 u32 __iomem *plic_hart_claim(struct plic_data *data, int contextid)
 {
-	return data->reg + CONTEXT_BASE + CONTEXT_PER_HART * contextid + CONTEXT_CLAIM;
+	return data->reg + CONTEXT_BASE + CONTEXT_PER_HART * (contextid -1) + CONTEXT_CLAIM;
+	//return data->reg + CONTEXT_BASE + CONTEXT_PER_HART * contextid + CONTEXT_CLAIM;
 }
 
 /*
@@ -173,20 +185,28 @@ void plic_complete(struct plic_data *data, int contextid, u32 claim)
 static void plic_disable(struct plic_data *data, int contextid, int hwirq)
 {
 	u32 __iomem *reg = plic_enable_vector(data, contextid) + (hwirq / 32);
+	u32 __iomem *reg2 = plic_enable_vector(data, contextid+1) + (hwirq / 32);
 	u32 mask = ~(1 << (hwirq % 32));
 
+	pr_info("%s (%x:%x)\n", __func__, reg, mask);
+	pr_info("%s (%x:%x)\n", __func__, reg2, mask);
 	spin_lock(&data->lock);
 	writel(readl(reg) & mask, reg);
+	writel(readl(reg) & mask, reg2);
 	spin_unlock(&data->lock);
 }
 
 static void plic_enable(struct plic_data *data, int contextid, int hwirq)
 {
 	u32 __iomem *reg = plic_enable_vector(data, contextid) + (hwirq / 32);
+	u32 __iomem *reg2 = plic_enable_vector(data, contextid+1) + (hwirq / 32);
 	u32 bit = 1 << (hwirq % 32);
 
+	pr_info("%s (%x:%x)\n", __func__, reg, bit);
+	pr_info("%s (%x:%x)\n", __func__, reg2, bit);
 	spin_lock(&data->lock);
 	writel(readl(reg) | bit, reg);
+	writel(readl(reg) | bit, reg2);
 	spin_unlock(&data->lock);
 }
 
@@ -203,6 +223,7 @@ static void plic_irq_enable(struct irq_data *d)
 	void __iomem *priority = plic_priority(data, d->hwirq);
 	int i;
 
+	pr_info("[HSJUNG]%s %d\n", __func__, d->hwirq);
 	writel(1, priority);
 	for (i = 0; i < data->handlers; ++i)
 		if (data->handler[i].present)
@@ -215,6 +236,7 @@ static void plic_irq_disable(struct irq_data *d)
 	void __iomem *priority = plic_priority(data, d->hwirq);
 	int i;
 
+	pr_info("[HSJUNG]%s %d\n", __func__, d->hwirq);
 	writel(0, priority);
 	for (i = 0; i < data->handlers; ++i)
 		if (data->handler[i].present)
@@ -246,10 +268,16 @@ static void plic_chained_handle_irq(struct irq_desc *desc)
 	struct irq_domain *domain = handler->data->domain;
 	u32 what;
 
+	//void __iomem *pending = plic_pending(handler->data, 57);
+	//pr_info("[HSJUNG1]%s (%x:%x)\n", __func__, pending, readl(pending));
+	//pr_info("[HSJUNG2] %d\n", plic_claim(handler->data, handler->contextid));
 	chained_irq_enter(chip, desc);
 
 	while ((what = plic_claim(handler->data, handler->contextid))) {
-		int irq = irq_find_mapping(domain, what);
+	//if ((what = plic_claim(handler->data, handler->contextid))) {
+		int irq = irq_find_mapping(domain, what -1);
+		//int irq = irq_find_mapping(domain, what);
+		pr_info("[HSJUNG]irq %d what %d\n", irq, what);
 
 		if (irq > 0)
 			generic_handle_irq(irq);
@@ -259,6 +287,7 @@ static void plic_chained_handle_irq(struct irq_desc *desc)
 	}
 
 	chained_irq_exit(chip, desc);
+	//pr_info("[HSJUNG2]%s (%x:%x)\n", __func__, pending, readl(pending));
 }
 
 static int plic_init(struct device_node *node, struct device_node *parent)
@@ -267,6 +296,7 @@ static int plic_init(struct device_node *node, struct device_node *parent)
 	struct resource resource;
 	int i, ok = 0;
 	int out = -1;
+	u32 what;
 
 	data = kzalloc(sizeof(*data), GFP_KERNEL);
 	if (WARN_ON(!data))
@@ -345,6 +375,10 @@ static int plic_init(struct device_node *node, struct device_node *parent)
 
 		for (hwirq = 1; hwirq <= data->ndev; ++hwirq)
 			plic_disable(data, i, hwirq);
+		what = readl(plic_hart_claim(data, handler->contextid));
+		if (what)
+			pr_info("[HSJUNG]###%s %d\n", __func__, what);
+		writel(what, plic_hart_claim(data, handler->contextid));
 		irq_set_chained_handler_and_data(parent_irq, plic_chained_handle_irq, handler);
 		++ok;
 	}

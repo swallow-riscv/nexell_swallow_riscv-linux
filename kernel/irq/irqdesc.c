@@ -600,9 +600,11 @@ void irq_init_desc(unsigned int irq)
 int generic_handle_irq(unsigned int irq)
 {
 	struct irq_desc *desc = irq_to_desc(irq);
+	struct module *owner = desc->owner;
 
 	if (!desc)
 		return -EINVAL;
+	pr_info("[HSJUNG]%s (%d)\n", __func__, irq);
 	generic_handle_irq_desc(desc);
 	return 0;
 }

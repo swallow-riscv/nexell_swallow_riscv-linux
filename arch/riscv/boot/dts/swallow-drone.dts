@@ -5,11 +5,11 @@
 / {
 	model ="Nexell swallow drone board";
 	compatible = "nexell,swallow-drone", "nexell,swallow";
-
+/*
 	aliases {
 		i2c12 = &i2c_gpio;
 	};
-
+*/
 	chosen {
 		bootargs = "console=ttyS0,115200";
 		stdout-path = "serial0@20880000";
@@ -21,6 +21,7 @@
 	};
 
 	soc {
+#if 0
 		nexell_usbphy: nexell-usbphy@20040000 {
 			status = "okay";
 		};
@@ -120,11 +121,11 @@
 		spi_5: spi@20850000 {
 			status = "okay";
 		};
-
+#endif
 		uart0:serial0@20880000 {
 			status = "okay";
 		};
-
+#if 0
 		uart3:serial3@208b0000 {
 			status = "okay";
 		};
@@ -144,5 +145,6 @@
                 watchdog@206d0000 {
                         status = "okay";
                 };
+#endif
         };
 };
