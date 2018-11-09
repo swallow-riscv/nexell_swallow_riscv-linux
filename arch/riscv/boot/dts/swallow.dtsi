@@ -93,7 +93,7 @@
 			reg = <0x0c000000 0x10000000>;
 			reg-names = "control";
 			riscv,max-priority = <7>;
-			riscv,ndev = <128>;
+			riscv,ndev = <90>;
 			linux,phandle = <2>;
 			phandle = <2>;
 		};
@@ -143,7 +143,7 @@
 		dwc2: dwc2otg@20D00000 {
 			compatible = "nexell,nexell-dwc2otg";
 			reg = <0x20d00000 0x10000>;
-			interrupts = <13>;
+			interrupts = <14>;
 			interrupt-parent = <&plic>;
 			clocks = <&cmu CLK_1_USB0_AHB>;
 			clock-names = "usb0_ahb";
@@ -170,7 +170,7 @@
 			clock-names = "vip0_axi", "vip0_apb",
 				"vip0_padout0", "vip0_padout1";
 			module = <0>;
-			interrupts = <14>;
+			interrupts = <15>;
 			interrupt-parent = <&plic>;
 			status = "disabled";
 		};
@@ -203,7 +203,7 @@
 			clocks = <&cmu CLK_0_SCALER0_APB>,
 				<&cmu CLK_0_SCALER0_AXI>;
 			clock-names = "scaler0_apb", "scaler0_axi";
-			interrupts = <18>;
+			interrupts = <19>;
 			interrupt-parent = <&plic>;
 			status = "disabled";
 		};
@@ -217,7 +217,7 @@
 			compatible = "nexell,swallow-adc";
 			reg = <0x206c0000 0x10000>;
 			interrupt-parent = <&plic>;
-			interrupts = <46>;
+			interrupts = <47>;
 			clocks = <&cmu CLK_2_ADC0_APB>;
 			clock-names = "adc0_apb";
 			sample_rate = <200000>;
@@ -233,7 +233,7 @@
 			clocks = <&cmu CLK_2_I2C0_APB>;
 			clock-names = "i2c0_apb";
 			interrupt-parent = <&plic>;
-			interrupts = <34>;
+			interrupts = <35>;
 			clock-frequency = <1000000>;
 			i2c-sda-hold-time-ns = <300>;
 			i2c-sda-falling-time-ns = <300>;
@@ -249,7 +249,7 @@
 			clocks = <&cmu CLK_2_I2C1_APB>;
 			clock-names = "i2c1_apb";
 			interrupt-parent = <&plic>;
-			interrupts = <35>;
+			interrupts = <36>;
 			clock-frequency = <1000000>;
 			i2c-sda-hold-time-ns = <300>;
 			i2c-sda-falling-time-ns = <300>;
@@ -265,7 +265,7 @@
 			clocks = <&cmu CLK_2_I2C2_APB>;
 			clock-names = "i2c2_apb";
 			interrupt-parent = <&plic>;
-			interrupts = <36>;
+			interrupts = <37>;
 			clock-frequency = <1000000>;
 			i2c-sda-hold-time-ns = <300>;
 			i2c-sda-falling-time-ns = <300>;
@@ -281,7 +281,7 @@
 			clocks = <&cmu CLK_2_I2C3_APB>;
 			clock-names = "i2c3_apb";
 			interrupt-parent = <&plic>;
-			interrupts = <37>;
+			interrupts = <38>;
 			clock-frequency = <1000000>;
 			i2c-sda-hold-time-ns = <300>;
 			i2c-sda-falling-time-ns = <300>;
@@ -297,7 +297,7 @@
 			clocks = <&cmu CLK_2_I2C4_APB>;
 			clock-names = "i2c4_apb";
 			interrupt-parent = <&plic>;
-			interrupts = <38>;
+			interrupts = <39>;
 			clock-frequency = <1000000>;
 			i2c-sda-hold-time-ns = <300>;
 			i2c-sda-falling-time-ns = <300>;
@@ -313,7 +313,7 @@
 			clocks = <&cmu CLK_2_I2C5_APB>;
 			clock-names = "i2c5_apb";
 			interrupt-parent = <&plic>;
-			interrupts = <39>;
+			interrupts = <40>;
 			clock-frequency = <1000000>;
 			i2c-sda-hold-time-ns = <300>;
 			i2c-sda-falling-time-ns = <300>;
@@ -329,7 +329,7 @@
 			clocks = <&cmu CLK_2_I2C6_APB>;
 			clock-names = "i2c6_apb";
 			interrupt-parent = <&plic>;
-			interrupts = <40>;
+			interrupts = <41>;
 			clock-frequency = <1000000>;
 			i2c-sda-hold-time-ns = <300>;
 			i2c-sda-falling-time-ns = <300>;
@@ -345,7 +345,7 @@
 			clocks = <&cmu CLK_2_I2C7_APB>;
 			clock-names = "i2c7_apb";
 			interrupt-parent = <&plic>;
-			interrupts = <41>;
+			interrupts = <42>;
 			clock-frequency = <1000000>;
 			i2c-sda-hold-time-ns = <300>;
 			i2c-sda-falling-time-ns = <300>;
@@ -361,7 +361,7 @@
 			clocks = <&cmu CLK_2_I2C8_APB>;
 			clock-names = "i2c8_apb";
 			interrupt-parent = <&plic>;
-			interrupts = <42>;
+			interrupts = <43>;
 			clock-frequency = <1000000>;
 			i2c-sda-hold-time-ns = <300>;
 			i2c-sda-falling-time-ns = <300>;
@@ -377,7 +377,7 @@
 			clocks = <&cmu CLK_2_I2C9_APB>;
 			clock-names = "i2c9_apb";
 			interrupt-parent = <&plic>;
-			interrupts = <43>;
+			interrupts = <44>;
 			clock-frequency = <1000000>;
 			i2c-sda-hold-time-ns = <300>;
 			i2c-sda-falling-time-ns = <300>;
@@ -393,7 +393,7 @@
 			clocks = <&cmu CLK_2_I2C10_APB>;
 			clock-names = "i2c10_apb";
 			interrupt-parent = <&plic>;
-			interrupts = <44>;
+			interrupts = <45>;
 			clock-frequency = <1000000>;
 			i2c-sda-hold-time-ns = <300>;
 			i2c-sda-falling-time-ns = <300>;
@@ -409,7 +409,7 @@
 			clocks = <&cmu CLK_2_I2C11_APB>;
 			clock-names = "i2c11_apb";
 			interrupt-parent = <&plic>;
-			interrupts = <45>;
+			interrupts = <46>;
 			clock-frequency = <1000000>;
 			i2c-sda-hold-time-ns = <300>;
 			i2c-sda-falling-time-ns = <300>;
@@ -419,7 +419,7 @@
 
 		dwmmc_0: dwmmc@20930000 {
 			compatible = "nexell,swallow-dw-mshc";
-			interrupts = <27>;
+			interrupts = <28>;
                         interrupt-parent = <&plic>;
 			reg = <0x20930000 0x1000>;
 			assigned-clocks = <&cmu CLK_SYS_DIV_SYS0_CLK400>,
@@ -438,7 +438,7 @@
 
 		dwmmc_1: dwmmc@20940000 {
 			compatible = "nexell,swallow-dw-mshc";
-			interrupts = <28>;
+			interrupts = <29>;
                         interrupt-parent = <&plic>;
 			reg = <0x20940000 0x1000>;
 			assigned-clocks = <&cmu CLK_SYS_DIV_SYS0_CLK400>,
@@ -459,7 +459,7 @@
 		spi_0: spi@20800000 {
 			compatible = "nexell,swallow-dw-spi";
 			reg = <0x20800000 0x1000>;
-			interrupts = <48>;
+			interrupts = <49>;
                         interrupt-parent = <&plic>;
 			clocks = <&cmu CLK_0_SPI0_CORE>,
 				<&cmu CLK_1_SPI0_APB>;
@@ -475,7 +475,7 @@
 		spi_1: spi@20810000 {
 			compatible = "nexell,swallow-dw-spi";
 			reg = <0x20810000 0x1000>;
-			interrupts = <49>;
+			interrupts = <50>;
                         interrupt-parent = <&plic>;
 			clocks = <&cmu CLK_0_SPI1_CORE>,
 				<&cmu CLK_1_SPI1_APB>;
@@ -491,7 +491,7 @@
 		spi_2: spi@20820000 {
 			compatible = "nexell,swallow-dw-spi";
 			reg = <0x20820000 0x1000>;
-			interrupts = <50>;
+			interrupts = <51>;
                         interrupt-parent = <&plic>;
 			clocks = <&cmu CLK_0_SPI2_CORE>,
 				<&cmu CLK_1_SPI2_APB>;
@@ -507,7 +507,7 @@
 		spi_3: spi@20830000 {
 			compatible = "nexell,swallow-dw-spi";
 			reg = <0x20830000 0x1000>;
-			interrupts = <51>;
+			interrupts = <52>;
                         interrupt-parent = <&plic>;
 			clocks = <&cmu CLK_0_QSPI0_CORE>,
 				<&cmu CLK_1_QSPI0_APB>;
@@ -523,7 +523,7 @@
 		spi_4: spi@20840000 {
 			compatible = "nexell,swallow-dw-spi";
 			reg = <0x20840000 0x1000>;
-			interrupts = <52>;
+			interrupts = <53>;
                         interrupt-parent = <&plic>;
 			clocks = <&cmu CLK_0_QSPI1_CORE>,
 				<&cmu CLK_1_QSPI1_APB>;
@@ -540,7 +540,7 @@
 		spi_5: spi@20850000 {
 			compatible = "nexell,swallow-dw-spi";
 			reg = <0x20850000 0x1000>;
-			interrupts = <53>;
+			interrupts = <54>;
                         interrupt-parent = <&plic>;
 			clocks = <&cmu CLK_0_QSPI2_CORE>,
 				<&cmu CLK_2_QSPI2_APB>;
@@ -557,7 +557,7 @@
 		spi_6: spi@20860000 {
 			compatible = "nexell,swallow-dw-spi";
 			reg = <0x20860000 0x1000>;
-			interrupts = <54>;
+			interrupts = <55>;
                         interrupt-parent = <&plic>;
 			clocks = <&cmu CLK_0_QSPI3_CORE>,
 				<&cmu CLK_2_QSPI3_APB>;
@@ -574,7 +574,7 @@
 		spi_7: spi@20870000 {
 			compatible = "nexell,swallow-dw-spi";
 			reg = <0x20870000 0x1000>;
-			interrupts = <55>;
+			interrupts = <56>;
                         interrupt-parent = <&plic>;
 			clocks = <&cmu CLK_0_QSPI4_CORE>,
 				<&cmu CLK_2_QSPI4_APB>;
@@ -590,8 +590,7 @@
 		uart0:serial0@20880000 {
 			compatible = "snps,dw-apb-uart";
 			reg = <0x20880000 0x00001000>;
-			clock-frequency = <100000000>;
-			interrupts = <56>;
+			interrupts = <57>;
 			interrupt-parent = <&plic>;
 			reg-shift = <2>;
 			reg-io-width = <4>;
@@ -606,8 +605,7 @@
 		uart1:serial1@20890000 {
 			compatible = "snps,dw-apb-uart";
 			reg = <0x20890000 0x00001000>;
-			clock-frequency = <100000000>;
-			interrupts = <57>;
+			interrupts = <58>;
 			interrupt-parent = <&plic>;
 			reg-shift = <2>;
 			reg-io-width = <4>;
@@ -622,8 +620,7 @@
 		uart2:serial2@208a0000 {
 			compatible = "snps,dw-apb-uart";
 			reg = <0x208a0000 0x00001000>;
-			clock-frequency = <100000000>;
-			interrupts = <58>;
+			interrupts = <59>;
 			interrupt-parent = <&plic>;
 			reg-shift = <2>;
 			reg-io-width = <4>;
@@ -638,8 +635,7 @@
 		uart3:serial3@208b0000 {
 			compatible = "snps,dw-apb-uart";
 			reg = <0x208b0000 0x00001000>;
-			clock-frequency = <100000000>;
-			interrupts = <59>;
+			interrupts = <60>;
 			interrupt-parent = <&plic>;
 			reg-shift = <2>;
 			reg-io-width = <4>;
@@ -654,8 +650,7 @@
 		uart4:serial4@208c0000 {
 			compatible = "snps,dw-apb-uart";
 			reg = <0x208c0000 0x00001000>;
-			clock-frequency = <100000000>;
-			interrupts = <60>;
+			interrupts = <61>;
 			interrupt-parent = <&plic>;
 			reg-shift = <2>;
 			reg-io-width = <4>;
@@ -670,8 +665,7 @@
 		uart5:serial5@208d0000 {
 			compatible = "snps,dw-apb-uart";
 			reg = <0x208d0000 0x00001000>;
-			clock-frequency = <100000000>;
-			interrupts = <61>;
+			interrupts = <62>;
 			interrupt-parent = <&plic>;
 			reg-shift = <2>;
 			reg-io-width = <4>;
@@ -741,7 +735,7 @@
 			compatible = "nexell,nexell-wdt";
 			reg = <0x206d0000 0x10000>;
 			interrupt-parent = <&plic>;
-			interrupts = <47>;
+			interrupts = <48>;
 			//resets = <&nexell_reset RESET_ID_WDT>.
 				//<&nexell_reset RESET_ID_WDT_POR>;
 			//reset-names = "wdt-reset","wdt-por-reset";
@@ -758,7 +752,7 @@
 			       <&cmu CLK_1_TIMER0_TCLK1>;
 			clock-names = "timer0_tclk0", "timer0_tclk1";
 			interrupt-parent = <&plic>;
-			interrupts = <74 78>;
+			interrupts = <75 82>;
 			clksource = <0>;
 			clkevent = <1>;
 			status = "okay";
@@ -778,7 +772,7 @@
 		       0x20760000 0x1000
 		       0x20770000 0x1000>;
 		interrupt-parent = <&plic>;
-		interrupts = <82>, <83>, <84>, <85>, <86>, <87>, <88>, <89>;
+		interrupts = <83>, <84>, <85>, <86>, <87>, <88>, <89>, <90>;
 		status = "okay";
 	};
 

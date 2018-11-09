@@ -194,7 +194,6 @@ static unsigned int dw8250_serial_in32be(struct uart_port *p, int offset)
        return dw8250_modify_msr(p, offset, value);
 }
 
-
 static int dw8250_handle_irq(struct uart_port *p)
 {
 	struct uart_8250_port *up = up_to_u8250p(p);
