@@ -84,7 +84,10 @@ static void nx_gpio_set_output_enable(u32 idx, u32 bitnum, bool enable)
 
 	regs = gpio_modules[idx].gpio_regs;
 
-	nx_gpio_setbit(&regs->gpio_outenb, bitnum, enable);
+	if (enable)
+		nx_gpio_setbit(&regs->gpio_outenb, bitnum, 0);
+	else
+		nx_gpio_setbit(&regs->gpio_outenb, bitnum, 1);
 }
 
 static bool nx_gpio_get_output_enable(u32 idx, u32 bitnum)
@@ -120,7 +123,7 @@ static void nx_gpio_set_pad_function(u32 idx, u32 bitnum, int fn)
 
 	regs = gpio_modules[idx].gpio_regs;
 
-	nx_gpio_setbit2(&regs->gpio_altfn[bitnum / 16], bitnum % 16, (u32)fn);
+	nx_gpio_setbit(&regs->gpio_altfn[0], bitnum, (u32)fn);
 }
 
 static int nx_gpio_get_pad_function(u32 idx, u32 bitnum)
@@ -129,8 +132,7 @@ static int nx_gpio_get_pad_function(u32 idx, u32 bitnum)
 
 	regs = gpio_modules[idx].gpio_regs;
 
-	return nx_gpio_getbit2(
-	    readl(&regs->gpio_altfn[bitnum / 16]), bitnum % 16);
+	return nx_gpio_getbit(readl(&regs->gpio_altfn[0]), bitnum);
 }
 
 static void nx_gpio_set_drive_strength(u32 idx, u32 bitnum, int drvstrength)
@@ -312,7 +314,7 @@ int nx_soc_gpio_get_io_dir(unsigned int io)
 	case PAD_GPIO_G:
 	case PAD_GPIO_H:
 		IO_LOCK(grp);
-		dir = nx_gpio_get_output_enable(grp, bit) ? 1 : 0;
+		dir = nx_gpio_get_output_enable(grp, bit) ? 0 : 1;
 		IO_UNLOCK(grp);
 		break;
 	default:
