@@ -126,6 +126,7 @@
 		uart4:serial4@208c0000 {
 			status = "okay";
 		};
+#endif
 
 		pwm0: pwm0@208e0000 {
 			status = "okay";
@@ -134,7 +135,6 @@
 		pwm2: pwm2@20900000 {
 			status = "okay";
 		};
-#endif
                 watchdog@206d0000 {
                         status = "okay";
                 };
