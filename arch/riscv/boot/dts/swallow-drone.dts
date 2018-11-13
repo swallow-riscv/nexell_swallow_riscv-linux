@@ -36,7 +36,7 @@
 		};
 
 		clipper_0: clipper0@20400000 {
-			gpios = <&gpio_f 0 GPIO_ACTIVE_LOW &gpio_d 29 GPIO_ACTIVE_HIGH>;
+			gpios = <&gpio_d 29 GPIO_ACTIVE_LOW &gpio_f 0 GPIO_ACTIVE_LOW>;
 			pinctrl-0 = <&vip0_bus &vip0_sync &vip0_vmclk>;
 			external_sync = <1>;
 			padclk_sel = <1>; /* pad clock inverting */
@@ -56,6 +56,12 @@
 				i2c_adapter = <12>;
 				/* write:0xBA read:0xBB */
 				addr = <0x5D>;
+			};
+			power {
+				enable_seq = <
+				NX_ACTION_START NX_ACTION_TYPE_GPIO 0 0 1 1 NX_ACTION_END
+				NX_ACTION_START NX_ACTION_TYPE_GPIO 1 0 10 1 NX_ACTION_END
+				>;
 			};
 		};
 
