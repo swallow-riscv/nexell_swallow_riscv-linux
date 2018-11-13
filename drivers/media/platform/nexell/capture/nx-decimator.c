@@ -464,8 +464,8 @@ static int nx_decimator_s_stream(struct v4l2_subdev *sd, int enable)
 		}
 	} else {
 		if (NX_ATOMIC_READ(&me->state) & STATE_RUNNING) {
-			nx_vip_stop(module, VIP_DECIMATOR);
 			NX_ATOMIC_SET_MASK(STATE_STOPPING, &me->state);
+			nx_vip_stop(module, VIP_DECIMATOR);
 			wait_for_completion_timeout(&me->stop_done, HZ);
 #ifdef USE_DQ_TIMER
 			del_timer(&me->dq_timer);
