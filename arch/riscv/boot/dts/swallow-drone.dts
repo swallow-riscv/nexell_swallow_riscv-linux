@@ -96,7 +96,7 @@
 		dwmmc_1: dwmmc@20940000 {
 			status = "okay";
 		};
-
+#endif
 		spi_0: spi@20800000 {
 			status = "okay";
 		};
@@ -112,7 +112,7 @@
 		spi_5: spi@20850000 {
 			status = "okay";
 		};
-#endif
+
 		uart0:serial0@20880000 {
 			status = "okay";
 		};
