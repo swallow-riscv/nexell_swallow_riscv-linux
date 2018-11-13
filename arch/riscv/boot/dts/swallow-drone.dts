@@ -5,11 +5,11 @@
 / {
 	model ="Nexell swallow drone board";
 	compatible = "nexell,swallow-drone", "nexell,swallow";
-/*
+
 	aliases {
 		i2c12 = &i2c_gpio;
 	};
-*/
+
 	chosen {
 		// swiotlb = 16MB(early_params:8192)
 		bootargs = "console=ttyS0,115200 swiotlb=8192";
@@ -80,6 +80,7 @@
                 adc0: adc0@206c0000 {
                         status = "okay";
                 };
+#endif
 
 		i2c_0: i2c0@20600000 {
 			status = "okay";
@@ -104,6 +105,7 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 		};
+#if 0
 
 		dwmmc_0: dwmmc@20930000 {
 			status = "okay";
