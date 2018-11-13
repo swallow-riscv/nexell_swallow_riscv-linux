@@ -249,6 +249,8 @@ static int s3c2410wdt_keepalive(struct watchdog_device *wdd)
 	struct s3c2410_wdt *wdt = watchdog_get_drvdata(wdd);
 
 	spin_lock(&wdt->lock);
+	if (of_device_is_compatible(wdt->dev->of_node, "nexell,nexell-wdt"))
+		writel(0, wdt->reg_base + S3C2410_WTCLRINT);
 	writel(wdt->count, wdt->reg_base + S3C2410_WTCNT);
 	spin_unlock(&wdt->lock);
 
@@ -262,6 +264,8 @@ static void __s3c2410wdt_stop(struct s3c2410_wdt *wdt)
 	wtcon = readl(wdt->reg_base + S3C2410_WTCON);
 	wtcon &= ~(S3C2410_WTCON_ENABLE | S3C2410_WTCON_RSTEN);
 	writel(wtcon, wdt->reg_base + S3C2410_WTCON);
+	if (of_device_is_compatible(wdt->dev->of_node, "nexell,nexell-wdt"))
+		writel(0, wdt->reg_base + S3C2410_WTCLRINT);
 }
 
 static int s3c2410wdt_stop(struct watchdog_device *wdd)
@@ -291,7 +295,12 @@ static int s3c2410wdt_start(struct watchdog_device *wdd)
 		wtcon |= S3C2410_WTCON_INTEN;
 		wtcon &= ~S3C2410_WTCON_RSTEN;
 	} else {
-		wtcon &= ~S3C2410_WTCON_INTEN;
+		if (of_device_is_compatible(wdt->dev->of_node,
+					    "nexell,nexell-wdt"))
+			wtcon |= S3C2410_WTCON_INTEN;
+		else
+			wtcon &= ~S3C2410_WTCON_INTEN;
+
 		wtcon |= S3C2410_WTCON_RSTEN;
 	}
 
