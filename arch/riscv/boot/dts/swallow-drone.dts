@@ -134,10 +134,9 @@
 		pwm2: pwm2@20900000 {
 			status = "okay";
 		};
-
+#endif
                 watchdog@206d0000 {
                         status = "okay";
                 };
-#endif
         };
 };
