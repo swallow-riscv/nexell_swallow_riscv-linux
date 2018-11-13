@@ -1178,6 +1178,11 @@ static irqreturn_t nx_clipper_irq_handler(void *data)
 	bool interlace = me->interlace;
 	bool do_process = true;
 
+	if (NX_ATOMIC_READ(&me->state) & STATE_MEM_STOPPING) {
+		process_buffer(me, false);
+		return IRQ_HANDLED;
+	}
+
 	if (interlace) {
 		bool is_odd = nx_vip_get_field_status(me->module);
 
@@ -1421,8 +1426,8 @@ static int nx_clipper_s_stream(struct v4l2_subdev *sd, int enable)
 
 		if (is_host_video &&
 		    (NX_ATOMIC_READ(&me->state) & STATE_MEM_RUNNING)) {
-			nx_vip_stop(module, VIP_CLIPPER);
 			NX_ATOMIC_SET_MASK(STATE_MEM_STOPPING, &me->state);
+			nx_vip_stop(module, VIP_CLIPPER);
 			wait_for_completion_timeout(&me->stop_done, HZ);
 #ifdef USE_DQ_TIMER
 			del_timer(&me->dq_timer);
