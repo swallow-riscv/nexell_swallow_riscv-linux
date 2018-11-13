@@ -72,11 +72,11 @@
 		nx-v4l2 {
 			status = "okay";
 		};
+#endif
 
                 adc0: adc0@206c0000 {
                         status = "okay";
                 };
-#endif
 
 		i2c_0: i2c0@20600000 {
 			status = "okay";
