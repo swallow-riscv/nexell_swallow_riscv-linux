@@ -73,7 +73,6 @@
 			status = "okay";
 		};
 #endif
-
                 adc0: adc0@206c0000 {
                         status = "okay";
                 };
@@ -90,7 +89,6 @@
 			status = "okay";
 		};
 #if 0
-
 		dwmmc_0: dwmmc@20930000 {
 			status = "okay";
 		};
@@ -118,7 +116,7 @@
 		uart0:serial0@20880000 {
 			status = "okay";
 		};
-#if 0
+
 		uart3:serial3@208b0000 {
 			status = "okay";
 		};
@@ -126,7 +124,6 @@
 		uart4:serial4@208c0000 {
 			status = "okay";
 		};
-#endif
 
 		pwm0: pwm0@208e0000 {
 			status = "okay";
