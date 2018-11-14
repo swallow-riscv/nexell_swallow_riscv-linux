@@ -84,10 +84,7 @@ static void nx_gpio_set_output_enable(u32 idx, u32 bitnum, bool enable)
 
 	regs = gpio_modules[idx].gpio_regs;
 
-	if (enable)
-		nx_gpio_setbit(&regs->gpio_outenb, bitnum, 0);
-	else
-		nx_gpio_setbit(&regs->gpio_outenb, bitnum, 1);
+	nx_gpio_setbit(&regs->gpio_outenb, bitnum, enable);
 }
 
 static bool nx_gpio_get_output_enable(u32 idx, u32 bitnum)
