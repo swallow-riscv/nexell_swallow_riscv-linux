@@ -311,7 +311,7 @@ int nx_soc_gpio_get_io_dir(unsigned int io)
 	case PAD_GPIO_G:
 	case PAD_GPIO_H:
 		IO_LOCK(grp);
-		dir = nx_gpio_get_output_enable(grp, bit) ? 0 : 1;
+		dir = nx_gpio_get_output_enable(grp, bit) ? 1 : 0;
 		IO_UNLOCK(grp);
 		break;
 	default:
