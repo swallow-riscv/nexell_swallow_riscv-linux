@@ -99,15 +99,15 @@
 			status = "okay";
 		};
 
-		spi_3: spi@20830000 {
+		qspi_0: qspi@20830000 {
 			status = "okay";
 		};
 
-		spi_4: spi@20840000 {
+		qspi_1: qspi@20840000 {
 			status = "okay";
 		};
 
-		spi_5: spi@20850000 {
+		qspi_2: qspi@20850000 {
 			cs-gpios = <&gpio_e 24 0>;
 			status = "okay";
 			ms5611@0 {
