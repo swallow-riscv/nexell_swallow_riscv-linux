@@ -30,11 +30,11 @@
 		spi0 = &spi_0;
 		spi1 = &spi_1;
 		spi2 = &spi_2;
-		spi3 = &spi_3;
-		spi4 = &spi_4;
-		spi5 = &spi_5;
-		spi6 = &spi_6;
-		spi7 = &spi_7;
+		qspi0 = &qspi_0;
+		qspi1 = &qspi_1;
+		qspi2 = &qspi_2;
+		qspi3 = &qspi_3;
+		qspi4 = &qspi_4;
 	};
 
 	cpus {
@@ -512,7 +512,7 @@
 			status = "disabled";
 		};
 
-		spi_3: spi@20830000 {
+		qspi_0: qspi@20830000 {
 			compatible = "nexell,swallow-dw-spi";
 			reg = <0x20830000 0x1000>;
 			interrupts = <52>;
@@ -528,7 +528,7 @@
 			status = "disabled";
 		};
 
-		spi_4: spi@20840000 {
+		qspi_1: qspi@20840000 {
 			compatible = "nexell,swallow-dw-spi";
 			reg = <0x20840000 0x1000>;
 			interrupts = <53>;
@@ -545,7 +545,7 @@
 		};
 
 
-		spi_5: spi@20850000 {
+		qspi_2: qspi@20850000 {
 			compatible = "nexell,swallow-dw-spi";
 			reg = <0x20850000 0x1000>;
 			interrupts = <54>;
@@ -562,7 +562,7 @@
 		};
 
 
-		spi_6: spi@20860000 {
+		qspi_3: qspi@20860000 {
 			compatible = "nexell,swallow-dw-spi";
 			reg = <0x20860000 0x1000>;
 			interrupts = <55>;
@@ -579,7 +579,7 @@
 		};
 
 
-		spi_7: spi@20870000 {
+		qspi_4: qspi@20870000 {
 			compatible = "nexell,swallow-dw-spi";
 			reg = <0x20870000 0x1000>;
 			interrupts = <56>;
