@@ -147,8 +147,6 @@
 			interrupts = <14>;
 			clocks = <&cmu CLK_1_USB0_AHB>;
 			clock-names = "usb0_ahb";
-			/*resets = <&nexell_reset RESET_ID_USB20OTG>;
-			reset-names = "dwc2";*/
 			phys = <&nexell_usbphy 0>;
 			phy-names = "usb2-phy";
 			dr_mode = "peripheral";
@@ -704,9 +702,6 @@
 			compatible = "nexell,nexell-wdt";
 			reg = <0x206d0000 0x10000>;
 			interrupts = <48>;
-			//resets = <&nexell_reset RESET_ID_WDT>.
-				//<&nexell_reset RESET_ID_WDT_POR>;
-			//reset-names = "wdt-reset","wdt-por-reset";
 			timeout-sec = <32>;
 			clocks = <&cmu CLK_2_WDT0_APB>;
 			clock-names = "wdt0_apb";
