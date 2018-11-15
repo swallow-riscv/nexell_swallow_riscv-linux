@@ -37,7 +37,7 @@ static const struct nexell_fixed_factor_clock swallow_fixed_factor_clks[] __init
 	FFACTOR(CLK_SYS_DIV_CPU0_CORE,   "div_cpu0_core",  "p_cpu0_core",   1,  2, 0),
 	FFACTOR(CLK_SYS_DIV_SYS0_AXI   , "div_sys0_axi",   "p_sys0_clk400", 1,  4, 0), // 100Mhz
 	FFACTOR(CLK_SYS_DIV_SYS0_APB   , "div_sys0_apb",   "p_sys0_clk400", 1,  4, 0),
-	FFACTOR(CLK_SYS_DIV_SYS0_CLK400, "div_sys0_clk400","p_sys0_clk400", 1,  2, 0), // 100Mhz
+	FFACTOR(CLK_SYS_DIV_SYS0_CLK400, "div_sys0_clk400","p_sys0_clk400", 1,  4, 0), // 100Mhz
 	FFACTOR(CLK_SYS_DIV_SYS0_CLK133, "div_sys0_clk133","p_sys0_clk400", 1,  3, 0),
 	FFACTOR(CLK_SYS_DIV_SYS0_CLK50 , "div_sys0_clk50", "p_sys0_clk400", 1,  8, 0),
 	FFACTOR(CLK_SYS_DIV_SYS0_CLK40 , "div_sys0_clk40", "p_sys0_clk400", 1, 10, 0),

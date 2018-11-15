@@ -2915,7 +2915,11 @@ static void dw_mci_init_dma(struct dw_mci *host)
 	* simpler request/acknowledge handshake mechanism and both of them
 	* are regarded as external dma master for dw_mmc.
 	*/
+#ifndef CONFIG_ARCH_SWALLOW
 	host->use_dma = SDMMC_GET_TRANS_MODE(mci_readl(host, HCON));
+#else
+	host->use_dma = DMA_INTERFACE_NODMA;
+#endif
 	if (host->use_dma == DMA_INTERFACE_IDMA) {
 		host->use_dma = TRANS_MODE_IDMAC;
 	} else if (host->use_dma == DMA_INTERFACE_DWDMA ||
