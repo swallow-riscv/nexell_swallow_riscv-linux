@@ -117,15 +117,19 @@
 			};
 		};
 
-		uart0:serial0@20880000 {
+		uart_0:uart0@20880000 {
 			status = "okay";
 		};
 
-		uart3:serial3@208b0000 {
+		usart_1:usart1@208b0000 {
 			status = "okay";
 		};
 
-		uart4:serial4@208c0000 {
+		usart_2:usart2@208c0000 {
+			status = "okay";
+		};
+
+		usart_3:usart3@208d0000 {
 			status = "okay";
 		};
 
