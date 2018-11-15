@@ -671,7 +671,7 @@
 		};
 
 		pwm1: pwm1@208f0000 {
-			compatible = "nexell,swallo-pwm";
+			compatible = "nexell,swallow-pwm";
 			reg = <0x208f0000 0x10000>;
 			clocks = <&cmu CLK_2_PWM1_APB>,
 				   <&cmu CLK_0_PWM1_TCLK0>,
