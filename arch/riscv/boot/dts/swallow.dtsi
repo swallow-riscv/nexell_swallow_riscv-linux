@@ -175,15 +175,9 @@
 		clipper_0: clipper0@20400000 {
 			compatible = "nexell,nx-clipper";
 			module = <0>;
-			logical = <0>;
-			interface_type = <NX_CAPTURE_INTERFACE_PARALLEL>;
-			data_order = < NX_VIN_Y0CBY1CR>;
 			pinctrl-names = "default";
-			pinctrl-0 = <&vip0_bus &vip0_vde
-				&vip0_sync &vip0_field &vip0_vmclk>;
+			pinctrl-0 = <&vip0_bus &vip0_sync>;
 			port = <0>;
-			external_sync = <0>;
-			interlace = <0>;
 			status = "disabled";
 		};
 
