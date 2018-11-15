@@ -23,7 +23,7 @@
 			status = "okay";
 		};
 
-		dwc2: dwc2otg@20D00000 {
+		dwc2: dwc2otg@20d00000 {
 			status = "okay";
 		};
 

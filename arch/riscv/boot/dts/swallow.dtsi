@@ -141,7 +141,7 @@
 			status = "disabled";
 		};
 
-		dwc2: dwc2otg@20D00000 {
+		dwc2: dwc2otg@20d00000 {
 			compatible = "nexell,nexell-dwc2otg";
 			reg = <0x20d00000 0x10000>;
 			interrupts = <14>;
@@ -724,6 +724,7 @@
 			clkevent = <1>;
 			status = "okay";
 		};
+
 		pinctrl_0: pinctrl@0x20700000 {
 			compatible = "nexell,swallow-pinctrl";
 			#address-cells = <1>;
