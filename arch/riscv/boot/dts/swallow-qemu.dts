@@ -128,23 +128,23 @@
 			status = "okay";
 		};
 
-		spi_3: spi@20830000 {
+		qspi_0: qspi@20830000 {
 			status = "okay";
 		};
 
-		spi_4: spi@20840000 {
+		qspi_1: qspi@20840000 {
 			status = "okay";
 		};
 
-		spi_5: spi@20850000 {
+		qspi_2: qspi@20850000 {
 			status = "okay";
 		};
 
-		spi_6: spi@20860000 {
+		qspi_3: qspi@20860000 {
 			status = "okay";
 		};
 
-		spi_7: spi@20870000 {
+		qspi_4: qspi@20870000 {
 			status = "okay";
 		};
 
