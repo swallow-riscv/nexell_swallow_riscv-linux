@@ -757,24 +757,23 @@
 			clkevent = <1>;
 			status = "okay";
 		};
+		pinctrl_0: pinctrl@0x20700000 {
+			compatible = "nexell,swallow-pinctrl";
+			#address-cells = <1>;
+			#size-cells = <1>;
+			reg = <0x20700000 0x1000
+			       0x20710000 0x1000
+			       0x20720000 0x1000
+			       0x20730000 0x1000
+			       0x20740000 0x1000
+			       0x20750000 0x1000
+			       0x20760000 0x1000
+			       0x20770000 0x1000>;
+			interrupt-parent = <&plic>;
+			interrupts = <83>, <84>, <85>, <86>, <87>, <88>, <89>, <90>;
+			status = "okay";
+		};
         };
-
-	pinctrl_0: pinctrl@0x20700000 {
-		compatible = "nexell,swallow-pinctrl";
-		#address-cells = <1>;
-		#size-cells = <1>;
-		reg = <0x20700000 0x1000
-		       0x20710000 0x1000
-		       0x20720000 0x1000
-		       0x20730000 0x1000
-		       0x20740000 0x1000
-		       0x20750000 0x1000
-		       0x20760000 0x1000
-		       0x20770000 0x1000>;
-		interrupt-parent = <&plic>;
-		interrupts = <83>, <84>, <85>, <86>, <87>, <88>, <89>, <90>;
-		status = "okay";
-	};
 
 	nexell-ion@0 {
 		compatible = "nexell,ion";
