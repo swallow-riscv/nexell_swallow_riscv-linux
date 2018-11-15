@@ -88,7 +88,6 @@
 		i2c_11: i2c11@206b0000 {
 			status = "okay";
 		};
-#if 0
 		dwmmc_0: dwmmc@20930000 {
 			status = "okay";
 		};
@@ -96,7 +95,6 @@
 		dwmmc_1: dwmmc@20940000 {
 			status = "okay";
 		};
-#endif
 		spi_0: spi@20800000 {
 			status = "okay";
 		};
