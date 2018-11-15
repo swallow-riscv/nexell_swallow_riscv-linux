@@ -26,7 +26,7 @@
 #define SDMMC_DRV_PHASE			0x408
 #define SDMMC_SMP_PHASE			0x40c
 
-#define DWMMC_PRE_DIV			4
+#define DWMMC_PRE_DIV			1
 
 struct dw_mci_nexell_priv_data {
 	u32	drv_phase;
@@ -69,7 +69,7 @@ static int dw_mci_nexell_parse_dt(struct dw_mci *host)
 		priv->drv_phase = 4;
 
 	if (of_property_read_u32(np, "nexell,sample_shift", &priv->smp_phase))
-		priv->smp_phase = 2;
+		priv->smp_phase = 4;
 
 	host->priv = priv;
 
