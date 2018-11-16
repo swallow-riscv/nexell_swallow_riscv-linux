@@ -226,6 +226,8 @@
 			i2c-sda-hold-time-ns = <300>;
 			i2c-sda-falling-time-ns = <300>;
 			i2c-scl-falling-time-ns = <300>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&i2c0_bus>;
 			status = "disabled";
 		};
 
@@ -241,6 +243,8 @@
 			i2c-sda-hold-time-ns = <300>;
 			i2c-sda-falling-time-ns = <300>;
 			i2c-scl-falling-time-ns = <300>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&i2c1_bus>;
 			status = "disabled";
 		};
 
@@ -256,6 +260,8 @@
 			i2c-sda-hold-time-ns = <300>;
 			i2c-sda-falling-time-ns = <300>;
 			i2c-scl-falling-time-ns = <300>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&i2c2_bus>;
 			status = "disabled";
 		};
 
@@ -271,6 +277,8 @@
 			i2c-sda-hold-time-ns = <300>;
 			i2c-sda-falling-time-ns = <300>;
 			i2c-scl-falling-time-ns = <300>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&i2c3_bus>;
 			status = "disabled";
 		};
 
@@ -286,6 +294,8 @@
 			i2c-sda-hold-time-ns = <300>;
 			i2c-sda-falling-time-ns = <300>;
 			i2c-scl-falling-time-ns = <300>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&i2c4_bus>;
 			status = "disabled";
 		};
 
@@ -301,6 +311,8 @@
 			i2c-sda-hold-time-ns = <300>;
 			i2c-sda-falling-time-ns = <300>;
 			i2c-scl-falling-time-ns = <300>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&i2c5_bus>;
 			status = "disabled";
 		};
 
@@ -316,6 +328,8 @@
 			i2c-sda-hold-time-ns = <300>;
 			i2c-sda-falling-time-ns = <300>;
 			i2c-scl-falling-time-ns = <300>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&i2c6_bus>;
 			status = "disabled";
 		};
 
@@ -331,6 +345,8 @@
 			i2c-sda-hold-time-ns = <300>;
 			i2c-sda-falling-time-ns = <300>;
 			i2c-scl-falling-time-ns = <300>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&i2c7_bus>;
 			status = "disabled";
 		};
 
@@ -346,6 +362,8 @@
 			i2c-sda-hold-time-ns = <300>;
 			i2c-sda-falling-time-ns = <300>;
 			i2c-scl-falling-time-ns = <300>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&i2c8_bus>;
 			status = "disabled";
 		};
 
@@ -361,6 +379,8 @@
 			i2c-sda-hold-time-ns = <300>;
 			i2c-sda-falling-time-ns = <300>;
 			i2c-scl-falling-time-ns = <300>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&i2c9_bus>;
 			status = "disabled";
 		};
 
@@ -376,6 +396,8 @@
 			i2c-sda-hold-time-ns = <300>;
 			i2c-sda-falling-time-ns = <300>;
 			i2c-scl-falling-time-ns = <300>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&i2c10_bus>;
 			status = "disabled";
 		};
 
@@ -391,6 +413,8 @@
 			i2c-sda-hold-time-ns = <300>;
 			i2c-sda-falling-time-ns = <300>;
 			i2c-scl-falling-time-ns = <300>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&i2c11_bus>;
 			status = "disabled";
 		};
 
