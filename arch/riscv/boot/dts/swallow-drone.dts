@@ -80,15 +80,15 @@
                 };
 
 		i2c_0: i2c0@20600000 {
-			status = "okay";
+			status = "disabled";
 		};
 
 		i2c_1: i2c1@20610000 {
-			status = "okay";
+			status = "disabled";
 		};
 
 		i2c_11: i2c11@206b0000 {
-			status = "okay";
+			status = "disabled";
 		};
 
 		i2c_gpio: i2c@12 {
@@ -96,8 +96,26 @@
 			gpios = <&gpio_a 18 0 /* sda */
 				&gpio_a 19 0 /* scl */
 				>;
-			pinctrl-names = "default";
-			pinctrl-0 = <&i2c0_bus>;
+			i2c-gpio,delay-us = <100>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+
+		i2c_gpio: i2c@13 {
+			compatible = "i2c-gpio";
+			gpios = <&gpio_a 20 0 /* sda */
+				&gpio_a 21 0 /* scl */
+				>;
+			i2c-gpio,delay-us = <100>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+
+		i2c_gpio: i2c@14 {
+			compatible = "i2c-gpio";
+			gpios = <&gpio_b 8 0 /* sda */
+				&gpio_b 9 0 /* scl */
+				>;
 			i2c-gpio,delay-us = <100>;
 			#address-cells = <1>;
 			#size-cells = <0>;
