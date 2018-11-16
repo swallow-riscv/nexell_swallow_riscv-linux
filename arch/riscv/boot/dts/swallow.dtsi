@@ -91,7 +91,7 @@
 			interrupt-controller;
 			compatible = "riscv,plic0";
 			interrupts-extended = <&cpu0_intc 11 &cpu0_intc 9>;
-			reg = <0x0c000000 0x10000000>;
+			reg = <0x0c000000 0x300000>;
 			reg-names = "control";
 			riscv,max-priority = <7>;
 			riscv,ndev = <90>;
@@ -108,7 +108,7 @@
 
                 pll_0: pll0 {
 			compatible = "fixed-clock";
-                        reg = <0x20010000 0x1000>;
+                        reg = <0x20010000 0x100>;
 			#clock-cells = <0>;
 			clock-output-names = "pll0";
                         clock-frequency = <400000000>;
@@ -116,7 +116,7 @@
 
 		pll_1: pll1 {
 			compatible = "fixed-clock";
-                        reg = <0x20020000 0x1000>;
+                        reg = <0x20020000 0x100>;
 			#clock-cells = <0>;
 			clock-output-names = "pll1";
                         clock-frequency = <400000000>;
@@ -143,7 +143,7 @@
 
 		dwc2: dwc2otg@20d00000 {
 			compatible = "nexell,nexell-dwc2otg";
-			reg = <0x20d00000 0x10000>;
+			reg = <0x20d00000 0x1000>;
 			interrupts = <14>;
 			clocks = <&cmu CLK_1_USB0_AHB>;
 			clock-names = "usb0_ahb";
@@ -160,7 +160,7 @@
 
 		vip_0: vip@20400000 {
 			compatible = "nexell,vip";
-			reg = <0x20400000 0x10000>;
+			reg = <0x20400000 0x1000>;
 			clocks = <&cmu CLK_0_VIP0_AXI>,
 				<&cmu CLK_1_VIP0_APB>,
 				<&cmu CLK_1_VIP0_PADOUT0>,
@@ -190,7 +190,7 @@
 
 		scaler: scaler@20410000 {
 			compatible = "nexell,scaler";
-			reg = <0x20410000 0x10000>;
+			reg = <0x20410000 0x1000>;
 			clocks = <&cmu CLK_0_SCALER0_APB>,
 				<&cmu CLK_0_SCALER0_AXI>;
 			clock-names = "scaler0_apb", "scaler0_axi";
@@ -205,7 +205,7 @@
 
 		adc0: adc0@206c0000 {
 			compatible = "nexell,swallow-adc";
-			reg = <0x206c0000 0x10000>;
+			reg = <0x206c0000 0x100>;
 			interrupts = <47>;
 			clocks = <&cmu CLK_2_ADC0_APB>;
 			clock-names = "adc0_apb";
@@ -218,7 +218,7 @@
 			compatible = "snps,designware-i2c";
 			#address-cells = <1>;
 			#size-cells = <0>;
-			reg = <0x20600000 0x10000>;
+			reg = <0x20600000 0x100>;
 			clocks = <&cmu CLK_2_I2C0_APB>;
 			clock-names = "i2c0_apb";
 			interrupts = <35>;
@@ -235,7 +235,7 @@
 			compatible = "snps,designware-i2c";
 			#address-cells = <1>;
 			#size-cells = <0>;
-			reg = <0x20610000 0x10000>;
+			reg = <0x20610000 0x100>;
 			clocks = <&cmu CLK_2_I2C1_APB>;
 			clock-names = "i2c1_apb";
 			interrupts = <36>;
@@ -252,7 +252,7 @@
 			compatible = "snps,designware-i2c";
 			#address-cells = <1>;
 			#size-cells = <0>;
-			reg = <0x20620000 0x10000>;
+			reg = <0x20620000 0x100>;
 			clocks = <&cmu CLK_2_I2C2_APB>;
 			clock-names = "i2c2_apb";
 			interrupts = <37>;
@@ -269,7 +269,7 @@
 			compatible = "snps,designware-i2c";
 			#address-cells = <1>;
 			#size-cells = <0>;
-			reg = <0x20630000 0x10000>;
+			reg = <0x20630000 0x100>;
 			clocks = <&cmu CLK_2_I2C3_APB>;
 			clock-names = "i2c3_apb";
 			interrupts = <38>;
@@ -286,7 +286,7 @@
 			compatible = "snps,designware-i2c";
 			#address-cells = <1>;
 			#size-cells = <0>;
-			reg = <0x20640000 0x10000>;
+			reg = <0x20640000 0x100>;
 			clocks = <&cmu CLK_2_I2C4_APB>;
 			clock-names = "i2c4_apb";
 			interrupts = <39>;
@@ -303,7 +303,7 @@
 			compatible = "snps,designware-i2c";
 			#address-cells = <1>;
 			#size-cells = <0>;
-			reg = <0x20650000 0x10000>;
+			reg = <0x20650000 0x100>;
 			clocks = <&cmu CLK_2_I2C5_APB>;
 			clock-names = "i2c5_apb";
 			interrupts = <40>;
@@ -320,7 +320,7 @@
 			compatible = "snps,designware-i2c";
 			#address-cells = <1>;
 			#size-cells = <0>;
-			reg = <0x20660000 0x10000>;
+			reg = <0x20660000 0x100>;
 			clocks = <&cmu CLK_2_I2C6_APB>;
 			clock-names = "i2c6_apb";
 			interrupts = <41>;
@@ -337,7 +337,7 @@
 			compatible = "snps,designware-i2c";
 			#address-cells = <1>;
 			#size-cells = <0>;
-			reg = <0x20670000 0x10000>;
+			reg = <0x20670000 0x100>;
 			clocks = <&cmu CLK_2_I2C7_APB>;
 			clock-names = "i2c7_apb";
 			interrupts = <42>;
@@ -354,7 +354,7 @@
 			compatible = "snps,designware-i2c";
 			#address-cells = <1>;
 			#size-cells = <0>;
-			reg = <0x20680000 0x10000>;
+			reg = <0x20680000 0x100>;
 			clocks = <&cmu CLK_2_I2C8_APB>;
 			clock-names = "i2c8_apb";
 			interrupts = <43>;
@@ -371,7 +371,7 @@
 			compatible = "snps,designware-i2c";
 			#address-cells = <1>;
 			#size-cells = <0>;
-			reg = <0x20690000 0x10000>;
+			reg = <0x20690000 0x100>;
 			clocks = <&cmu CLK_2_I2C9_APB>;
 			clock-names = "i2c9_apb";
 			interrupts = <44>;
@@ -388,7 +388,7 @@
 			compatible = "snps,designware-i2c";
 			#address-cells = <1>;
 			#size-cells = <0>;
-			reg = <0x206a0000 0x10000>;
+			reg = <0x206a0000 0x100>;
 			clocks = <&cmu CLK_2_I2C10_APB>;
 			clock-names = "i2c10_apb";
 			interrupts = <45>;
@@ -405,7 +405,7 @@
 			compatible = "snps,designware-i2c";
 			#address-cells = <1>;
 			#size-cells = <0>;
-			reg = <0x206b0000 0x10000>;
+			reg = <0x206b0000 0x100>;
 			clocks = <&cmu CLK_2_I2C11_APB>;
 			clock-names = "i2c11_apb";
 			interrupts = <46>;
@@ -465,7 +465,7 @@
 
 		spi_0: spi@20800000 {
 			compatible = "nexell,swallow-dw-spi";
-			reg = <0x20800000 0x1000>;
+			reg = <0x20800000 0x100>;
 			interrupts = <49>;
 			clocks = <&cmu CLK_0_SPI0_CORE>,
 				<&cmu CLK_1_SPI0_APB>;
@@ -480,7 +480,7 @@
 
 		spi_1: spi@20810000 {
 			compatible = "nexell,swallow-dw-spi";
-			reg = <0x20810000 0x1000>;
+			reg = <0x20810000 0x100>;
 			interrupts = <50>;
 			clocks = <&cmu CLK_0_SPI1_CORE>,
 				<&cmu CLK_1_SPI1_APB>;
@@ -495,7 +495,7 @@
 
 		spi_2: spi@20820000 {
 			compatible = "nexell,swallow-dw-spi";
-			reg = <0x20820000 0x1000>;
+			reg = <0x20820000 0x100>;
 			interrupts = <51>;
 			clocks = <&cmu CLK_0_SPI2_CORE>,
 				<&cmu CLK_1_SPI2_APB>;
@@ -510,7 +510,7 @@
 
 		qspi_0: qspi@20830000 {
 			compatible = "nexell,swallow-dw-spi";
-			reg = <0x20830000 0x1000>;
+			reg = <0x20830000 0x100>;
 			interrupts = <52>;
 			clocks = <&cmu CLK_0_QSPI0_CORE>,
 				<&cmu CLK_1_QSPI0_APB>;
@@ -525,7 +525,7 @@
 
 		qspi_1: qspi@20840000 {
 			compatible = "nexell,swallow-dw-spi";
-			reg = <0x20840000 0x1000>;
+			reg = <0x20840000 0x100>;
 			interrupts = <53>;
 			clocks = <&cmu CLK_0_QSPI1_CORE>,
 				<&cmu CLK_1_QSPI1_APB>;
@@ -541,7 +541,7 @@
 
 		qspi_2: qspi@20850000 {
 			compatible = "nexell,swallow-dw-spi";
-			reg = <0x20850000 0x1000>;
+			reg = <0x20850000 0x100>;
 			interrupts = <54>;
 			clocks = <&cmu CLK_0_QSPI2_CORE>,
 				<&cmu CLK_2_QSPI2_APB>;
@@ -557,7 +557,7 @@
 
 		qspi_3: qspi@20860000 {
 			compatible = "nexell,swallow-dw-spi";
-			reg = <0x20860000 0x1000>;
+			reg = <0x20860000 0x100>;
 			interrupts = <55>;
 			clocks = <&cmu CLK_0_QSPI3_CORE>,
 				<&cmu CLK_2_QSPI3_APB>;
@@ -573,7 +573,7 @@
 
 		qspi_4: qspi@20870000 {
 			compatible = "nexell,swallow-dw-spi";
-			reg = <0x20870000 0x1000>;
+			reg = <0x20870000 0x100>;
 			interrupts = <56>;
 			clocks = <&cmu CLK_0_QSPI4_CORE>,
 				<&cmu CLK_2_QSPI4_APB>;
@@ -588,7 +588,7 @@
 
 		uart_0:uart0@20880000 {
 			compatible = "snps,dw-apb-uart";
-			reg = <0x20880000 0x00001000>;
+			reg = <0x20880000 0x100>;
 			interrupts = <57>;
 			reg-shift = <2>;
 			reg-io-width = <4>;
@@ -602,7 +602,7 @@
 
 		uart_1:uart1@20890000 {
 			compatible = "snps,dw-apb-uart";
-			reg = <0x20890000 0x00001000>;
+			reg = <0x20890000 0x100>;
 			interrupts = <58>;
 			reg-shift = <2>;
 			reg-io-width = <4>;
@@ -616,7 +616,7 @@
 
 		usart_0:usart0@208a0000 {
 			compatible = "snps,dw-apb-uart";
-			reg = <0x208a0000 0x00001000>;
+			reg = <0x208a0000 0x100>;
 			interrupts = <59>;
 			reg-shift = <2>;
 			reg-io-width = <4>;
@@ -630,7 +630,7 @@
 
 		usart_1:usart1@208b0000 {
 			compatible = "snps,dw-apb-uart";
-			reg = <0x208b0000 0x00001000>;
+			reg = <0x208b0000 0x100>;
 			interrupts = <60>;
 			reg-shift = <2>;
 			reg-io-width = <4>;
@@ -644,7 +644,7 @@
 
 		usart_2:usart2@208c0000 {
 			compatible = "snps,dw-apb-uart";
-			reg = <0x208c0000 0x00001000>;
+			reg = <0x208c0000 0x100>;
 			interrupts = <61>;
 			reg-shift = <2>;
 			reg-io-width = <4>;
@@ -658,7 +658,7 @@
 
 		usart_3:usart3@208d0000 {
 			compatible = "snps,dw-apb-uart";
-			reg = <0x208d0000 0x00001000>;
+			reg = <0x208d0000 0x100>;
 			interrupts = <62>;
 			reg-shift = <2>;
 			reg-io-width = <4>;
@@ -672,7 +672,7 @@
 
 		pwm0: pwm0@208e0000 {
 			compatible = "nexell,swallow-pwm";
-			reg = <0x208e0000 0x10000>;
+			reg = <0x208e0000 0x1000>;
 			clocks = <&cmu CLK_2_PWM0_APB>,
 				   <&cmu CLK_0_PWM0_TCLK0>,
 				   <&cmu CLK_0_PWM0_TCLK1>,
@@ -690,7 +690,7 @@
 
 		pwm1: pwm1@208f0000 {
 			compatible = "nexell,swallow-pwm";
-			reg = <0x208f0000 0x10000>;
+			reg = <0x208f0000 0x1000>;
 			clocks = <&cmu CLK_2_PWM1_APB>,
 				   <&cmu CLK_0_PWM1_TCLK0>,
 				   <&cmu CLK_1_PWM1_TCLK1>,
@@ -708,7 +708,7 @@
 
 		pwm2: pwm2@20900000 {
 			compatible = "nexell,swallow-pwm";
-			reg = <0x20900000 0x10000>;
+			reg = <0x20900000 0x1000>;
 			clocks = <&cmu CLK_2_PWM2_APB>,
 				   <&cmu CLK_1_PWM2_TCLK0>,
 				   <&cmu CLK_1_PWM2_TCLK1>,
@@ -726,7 +726,7 @@
 
 		watchdog@206d0000 {
 			compatible = "nexell,nexell-wdt";
-			reg = <0x206d0000 0x10000>;
+			reg = <0x206d0000 0x10>;
 			interrupts = <48>;
 			timeout-sec = <32>;
 			clocks = <&cmu CLK_2_WDT0_APB>;
@@ -736,7 +736,7 @@
 
 		timer: timer@20910000 {
 			compatible = "nexell,nexell-timer";
-			reg = <0x20910000 0x10000>;
+			reg = <0x20910000 0x1000>;
 			clocks = <&cmu CLK_1_TIMER0_TCLK0>,
 			       <&cmu CLK_1_TIMER0_TCLK1>;
 			clock-names = "timer0_tclk0", "timer0_tclk1";
@@ -750,14 +750,14 @@
 			compatible = "nexell,swallow-pinctrl";
 			#address-cells = <1>;
 			#size-cells = <1>;
-			reg = <0x20700000 0x1000
-			       0x20710000 0x1000
-			       0x20720000 0x1000
-			       0x20730000 0x1000
-			       0x20740000 0x1000
-			       0x20750000 0x1000
-			       0x20760000 0x1000
-			       0x20770000 0x1000>;
+			reg = <0x20700000 0x100
+			       0x20710000 0x100
+			       0x20720000 0x100
+			       0x20730000 0x100
+			       0x20740000 0x100
+			       0x20750000 0x100
+			       0x20760000 0x100
+			       0x20770000 0x100>;
 			interrupts = <83>, <84>, <85>, <86>, <87>, <88>, <89>, <90>;
 			status = "okay";
 		};
