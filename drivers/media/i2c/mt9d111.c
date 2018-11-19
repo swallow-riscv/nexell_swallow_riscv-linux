@@ -394,7 +394,8 @@ static int mt9d111_s_stream(struct v4l2_subdev *sd, int enable)
 		mt9d111_init(sd, enable);
 		mt9d111_set_frame_size(sd, state->mode, state->width,
 				state->height);
-	}
+	} else
+		state->inited = false;
 
 	if(i2c_id==1)
 		dev_info(&client->dev,
@@ -478,6 +479,13 @@ static int mt9d111_probe(struct i2c_client *client,
 		return -ENOENT;
 	}
 
+	ret = mt9d111_init(sd, true);
+	if (ret) {
+		dev_err(&client->dev, "%s: failed to mt9d111_init()\n",
+				__func__);
+		kfree(state);
+		return -EINVAL;
+	}
 	dev_info(&client->dev, "mt9d111 has been probed:%x\n", client->addr);
 	return 0;
 }
