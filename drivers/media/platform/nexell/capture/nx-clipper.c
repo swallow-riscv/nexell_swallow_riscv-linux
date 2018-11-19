@@ -962,6 +962,7 @@ static int enable_sensor_power(struct nx_clipper *me, bool enable)
 
 static int alloc_dma_buffer(struct nx_clipper *me)
 {
+	pr_err("[%s]\n", __func__);
 	if (me->buf.addr == NULL) {
 		struct nx_video_buffer *buf;
 		u32 y_size, cbcr_size;
@@ -992,6 +993,7 @@ static int alloc_dma_buffer(struct nx_clipper *me)
 		me->buf.handle[1] = me->buf.handle[0] + y_size;
 		me->buf.handle[2] = me->buf.handle[1] + cbcr_size;
 	}
+	pr_err("[%s] finish\n", __func__);
 
 	return 0;
 }
@@ -1153,6 +1155,7 @@ static void handle_dq_timeout(struct timer_list *priv)
 
 static void init_buffer_handler(struct nx_clipper *me)
 {
+	pr_err("[%s]\n", __func__);
 	INIT_LIST_HEAD(&me->done_bufs);
 	tasklet_init(&me->work, (void*)handle_buffer_done,
 			(long unsigned int)me);
@@ -2196,6 +2199,10 @@ static int nx_clipper_probe(struct platform_device *pdev)
 	}
 
 	init_me(me);
+
+	ret = enable_sensor_power(me, true);
+	if (ret)
+		return ret;
 
 	ret = init_v4l2_subdev(me);
 	if (ret)
