@@ -2197,6 +2197,10 @@ static int nx_clipper_probe(struct platform_device *pdev)
 
 	init_me(me);
 
+	ret = enable_sensor_power(me, true);
+	if (ret)
+		return ret;
+
 	ret = init_v4l2_subdev(me);
 	if (ret)
 		return ret;
