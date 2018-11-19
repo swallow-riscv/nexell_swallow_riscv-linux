@@ -992,6 +992,7 @@ static int alloc_dma_buffer(struct nx_clipper *me)
 		me->buf.handle[1] = me->buf.handle[0] + y_size;
 		me->buf.handle[2] = me->buf.handle[1] + cbcr_size;
 	}
+	pr_err("[%s] finish\n", __func__);
 
 	return 0;
 }
@@ -2196,6 +2197,10 @@ static int nx_clipper_probe(struct platform_device *pdev)
 	}
 
 	init_me(me);
+
+	ret = enable_sensor_power(me, true);
+	if (ret)
+		return ret;
 
 	ret = init_v4l2_subdev(me);
 	if (ret)
