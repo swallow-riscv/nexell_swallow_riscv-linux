@@ -8,7 +8,7 @@
 
 	chosen {
 		// swiotlb = 16MB(early_params:8192)
-		bootargs = "console=ttyS0,115200 swiotlb=8192";
+		bootargs = "console=ttyS0,115200 swiotlb=8192 root=/dev/mmcblk0p2 rootwait";
 		stdout-path = "serial0@20880000";
 	};
 
