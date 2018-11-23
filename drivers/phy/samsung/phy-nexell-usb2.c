@@ -17,17 +17,15 @@
 
 /* Nexell USBHOST PHY registers */
 
-#define SYSREG_USB0		0x90
-#define SYSREG_USB1		0x94
-#define SYSREG_USB2		0x98
-#define SYSREG_USB3		0x128
+#define SYSREG_USB0			0x90
+#define SYSREG_USB1			0x94
+#define SYSREG_USB2			0x98
+#define SYSREG_USB3			0x128
 
-#define SYSREG_USB2_POR_SHIFT	6
-#define SYSREG_USB3_POR_SHIFT	0
-#define SYSREG_USB3_POR_MASK	0x03
-#define SYSREG_USB3_POR_VAL	0x3
-#define SYSREG_USB2_UTMI_SHIFT	0
-#define SYSREG_USB3_AHB_SHIFT	0
+#define SYSREG_USB2_PORENB_SHIFT	3
+#define SYSREG_USB2_POR_SHIFT		2
+#define SYSREG_USB2_UTMI_SHIFT		0
+#define SYSREG_USB2_AHB_SHIFT		2
 
 enum nx_phy_id {
 	NX_DEVICE,
@@ -41,29 +39,79 @@ static int nx_device_power_on(struct samsung_usb2_phy_instance *inst)
 	struct samsung_usb2_phy_driver *drv = inst->drv;
 	u32 val;
 
+	/* clear POR - 2'b10 */
+	val = readl(drv->reg_phy + SYSREG_USB2);
+	val &= ~(1 << SYSREG_USB2_POR_SHIFT);
+	writel(val, drv->reg_phy + SYSREG_USB2);
+
+	/* set PORENB - 2'b10 */
+	val = readl(drv->reg_phy + SYSREG_USB2);
+	val |= 1 << SYSREG_USB2_PORENB_SHIFT;
+	writel(val, drv->reg_phy + SYSREG_USB2);
+	udelay(1);
+
 	/* set POR - 2'b10 */
 	val = readl(drv->reg_phy + SYSREG_USB2);
 	val |= 1 << SYSREG_USB2_POR_SHIFT;
 	writel(val, drv->reg_phy + SYSREG_USB2);
-	val = readl(drv->reg_phy + SYSREG_USB3);
-	/*val &= ~(SYSREG_USB3_POR_MASK);*/
-	val |= SYSREG_USB3_POR_VAL << SYSREG_USB3_POR_SHIFT;
-	writel(val, drv->reg_phy + SYSREG_USB3);
-	/* wait 40 micro seconds */
-	udelay(40);
+
+	/* set PORENB - 2'b10 */
+	val = readl(drv->reg_phy + SYSREG_USB2);
+	val |= 1 << SYSREG_USB2_PORENB_SHIFT;
+	writel(val, drv->reg_phy + SYSREG_USB2);
+	udelay(1);
+
+	/* clear POR - 2'b10 */
+	val = readl(drv->reg_phy + SYSREG_USB2);
+	val &= ~(1 << SYSREG_USB2_POR_SHIFT);
+	writel(val, drv->reg_phy + SYSREG_USB2);
+
+	/* wait 10 micro seconds */
+	udelay(10);
+
 	/* set utmi reset 1'b1 */
 	val = readl(drv->reg_phy + SYSREG_USB2);
 	val |= 1 << SYSREG_USB2_UTMI_SHIFT;
 	writel(val, drv->reg_phy + SYSREG_USB2);
+	udelay(1);
+
 	/* set ahb reset 1'bl */
 	val = readl(drv->reg_phy + SYSREG_USB3);
-	val |= 1 << SYSREG_USB3_AHB_SHIFT;
+	val |= 1 << SYSREG_USB2_AHB_SHIFT;
 	writel(val, drv->reg_phy + SYSREG_USB3);
+	udelay(1);
+
 	return 0;
 }
 
 static int nx_device_power_off(struct samsung_usb2_phy_instance *inst)
 {
+	struct samsung_usb2_phy_driver *drv = inst->drv;
+	u32 val;
+
+	/* clear ahb reset 1'b0 */
+	val = readl(drv->reg_phy + SYSREG_USB3);
+	val &= ~(1 << SYSREG_USB2_AHB_SHIFT);
+	writel(val, drv->reg_phy + SYSREG_USB3);
+	udelay(10);
+
+	/* clear utmi reset 1'b0 */
+	val = readl(drv->reg_phy + SYSREG_USB2);
+	val &= ~(1 << SYSREG_USB2_UTMI_SHIFT);
+	writel(val, drv->reg_phy + SYSREG_USB2);
+	udelay(10);
+
+	/* set POR - 2'b10 */
+	val = readl(drv->reg_phy + SYSREG_USB2);
+	val |= 1 << SYSREG_USB2_POR_SHIFT;
+	writel(val, drv->reg_phy + SYSREG_USB2);
+
+	/* set PORENB - 2'b10 */
+	val = readl(drv->reg_phy + SYSREG_USB2);
+	val |= 1 << SYSREG_USB2_PORENB_SHIFT;
+	writel(val, drv->reg_phy + SYSREG_USB2);
+	udelay(10);
+
 	return 0;
 }
 
