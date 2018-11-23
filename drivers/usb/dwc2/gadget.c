@@ -4708,6 +4708,16 @@ int dwc2_hsotg_suspend(struct dwc2_hsotg *hsotg)
 	if (hsotg->lx_state != DWC2_L0)
 		return 0;
 
+	if (of_device_is_compatible(hsotg->dev->of_node,
+				    "nexell,nexell-dwc2otg")) {
+		u32 usb_status = readl(hsotg->regs + GOTGCTL);
+
+		if (usb_status & GOTGCTL_BSESVLD) {
+			dev_warn(hsotg->dev, "usb device is still connected\n");
+			return -EBUSY;
+		}
+	}
+
 	if (hsotg->driver) {
 		int ep;
 
