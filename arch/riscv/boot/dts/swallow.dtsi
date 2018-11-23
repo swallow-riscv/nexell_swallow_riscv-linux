@@ -137,20 +137,21 @@
 		nexell_usbphy: nexell-usbphy@20040000 {
 			compatible = "nexell,nexell-usb2-phy";
 			reg = <0x20040000 0x1000>;
+			clocks = <&cmu CLK_1_USB0_AHB>;
+			clock-names = "phy";
 			#phy-cells = <1>;
 			status = "disabled";
 		};
 
 		dwc2: dwc2otg@20d00000 {
 			compatible = "nexell,nexell-dwc2otg";
-			reg = <0x20d00000 0x1000>;
+			reg = <0x20d00000 0x4000>;
 			interrupts = <14>;
 			clocks = <&cmu CLK_1_USB0_AHB>;
 			clock-names = "usb0_ahb";
 			phys = <&nexell_usbphy 0>;
 			phy-names = "usb2-phy";
 			dr_mode = "peripheral";
-			g-use-dma = <1>;
 			g-rx-fifo-size = <1024>;
 			g-np-tx-fifo-size = <64>;
 			g-tx-fifo-size = <512 512>;
