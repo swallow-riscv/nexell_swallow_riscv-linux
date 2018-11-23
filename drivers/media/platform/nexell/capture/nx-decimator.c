@@ -105,8 +105,8 @@ static int register_irq_handler(struct nx_decimator *me);
 static int alloc_dma_buffer(struct nx_decimator *me)
 {
 	if (me->buf.addr == NULL) {
-		int y_size, cbcr_size;
-		struct nx_video_buffer *buf;
+		int y_size = 0, cbcr_size = 0;
+		struct nx_video_buffer *buf = NULL;
 
 		buf = nx_video_get_next_buffer(&me->vbuf_obj, false);
 		if (!buf) {
@@ -116,10 +116,14 @@ static int alloc_dma_buffer(struct nx_decimator *me)
 		if (me->buf.format == MEDIA_BUS_FMT_YVYU12_1X24) {
 			y_size = buf->dma_addr[2] - buf->dma_addr[0];
 			cbcr_size = buf->dma_addr[1] - buf->dma_addr[2];
-		} else {
+		} else if (me->buf.format == MEDIA_BUS_FMT_YVYU12_1X24) {
 			y_size = buf->dma_addr[1] - buf->dma_addr[0];
 			cbcr_size = buf->dma_addr[2] - buf->dma_addr[1];
+		} else if (me->buf.format == MEDIA_BUS_FMT_YUYV8_1X16) {
+			y_size = me->buf.stride[0] * ALIGN(me->height, 16);
+			cbcr_size = 0;
 		}
+
 		me->buf.size = y_size + (cbcr_size * 2);
 		me->buf.addr = dma_alloc_coherent(&me->pdev->dev,
 				me->buf.size,
