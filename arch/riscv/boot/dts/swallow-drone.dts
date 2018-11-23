@@ -35,9 +35,9 @@
 			gpios = <&gpio_f 0 GPIO_ACTIVE_LOW &gpio_d 29 GPIO_ACTIVE_HIGH>;
 			logical = <0>;
 			interface_type = <NX_CAPTURE_INTERFACE_PARALLEL>;
-			data_order = < NX_VIN_Y0CBY1CR>;
-			external_sync = <0>;
+			data_order = < NX_VIN_CBY0CRY1>;
 			interlace = <0>;
+			external_sync = <0>;
 			status = "okay";
 
 			sensor {
@@ -56,10 +56,6 @@
 				pwms = <&pwm0 3 25000000 0>;
 				pwm-names = "pwm-clipper_0-sensor";
 			};
-		};
-
-		decimator_0: decimator0@20400000 {
-			status = "okay";
 		};
 
 		scaler: scaler@20410000 {
