@@ -254,8 +254,6 @@ static int mt9d111_set_fmt(struct v4l2_subdev *sd,
 	state->height = _fmt->height;
 	pr_debug("%s: mode %d, %dx%d\n", __func__,
 			state->mode, state->width, state->height);
-	err = mt9d111_set_frame_size(sd, state->mode, state->width,
-			state->height);
 	return err;
 }
 
@@ -479,13 +477,6 @@ static int mt9d111_probe(struct i2c_client *client,
 		return -ENOENT;
 	}
 
-	ret = mt9d111_init(sd, true);
-	if (ret) {
-		dev_err(&client->dev, "%s: failed to mt9d111_init()\n",
-				__func__);
-		kfree(state);
-		return -EINVAL;
-	}
 	dev_info(&client->dev, "mt9d111 has been probed:%x\n", client->addr);
 	return 0;
 }
