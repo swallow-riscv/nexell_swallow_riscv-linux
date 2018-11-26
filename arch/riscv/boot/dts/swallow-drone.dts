@@ -91,11 +91,15 @@
 		};
 
 		spi_0: spi@20800000 {
+			cs-gpios = <&gpio_c 11 0>;
 			status = "okay";
-			spidev@0 {
-				compatible = "linux,spidev";
-				reg = <0x0>;
-				spi-max-frequency = <100000000>;
+			flash: n25ql01@0 {
+				#address-cells = <1>;
+				#size-cells = <1>;
+				compatible = "spi-nor";
+				reg = <0>;
+				spi-max-frequency = <50000000>;
+				m25p,fast-read;
 			};
 		};
 
@@ -104,7 +108,7 @@
 			spidev@0 {
 				compatible = "linux,spidev";
 				reg = <0x0>;
-				spi-max-frequency = <100000000>;
+				spi-max-frequency = <50000000>;
 			};
 		};
 
@@ -113,7 +117,7 @@
 			spidev@0 {
 				compatible = "linux,spidev";
 				reg = <0x0>;
-				spi-max-frequency = <100000000>;
+				spi-max-frequency = <50000000>;
 			};
 		};
 
