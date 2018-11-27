@@ -41,11 +41,17 @@
 
 #include "nexell_scaler.h"
 
+#define NO_USE_CMD_BUF
+
+#ifndef NO_USE_CMD_BUF
 #define COMMAND_BUFFER_SIZE	PAGE_SIZE
+#define WAIT_TIMEOUT_HZ			(HZ/5) /* 200ms */
+#else
+#define WAIT_TIMEOUT_HZ			(30) /* 30ms */
+#endif
 
 #define PHY_BASEADDR_SCALER_MODULE	0xC0066000
 #define	NUMBER_OF_SCALER_MODULE		1
-#define WAIT_TIMEOUT_HZ			(HZ/5) /* 200ms */
 
 static const char drv_name[] = "scaler";
 
@@ -751,6 +757,47 @@ void nx_scaler_clear_interrupt_pending_all(u32 module_index)
 	writel(regval, &__g_module_variables[module_index].pregister->scintreg);
 }
 
+void nx_scaler_set_src_addr(u32 module_index, u32 addr)
+{
+	writel(addr, &__g_module_variables[module_index].pregister->scsrcaddreg);
+}
+
+void nx_scaler_set_src_stride(u32 module_index, u32 stride)
+{
+	writel(stride, &__g_module_variables[module_index].pregister->scsrcstride);
+}
+
+void nx_scaler_set_src_size(u32 module_index, u32 size)
+{
+	writel(size, &__g_module_variables[module_index].pregister->scsrcsizereg);
+}
+
+void nx_scaler_set_dest_addr(u32 module_index, u32 addr)
+{
+	writel(addr, &__g_module_variables[module_index].pregister->scdestaddreg0);
+}
+
+void nx_scaler_set_dest_stride(u32 module_index, u32 stride)
+{
+	writel(stride, &__g_module_variables[module_index].pregister->scdeststride0);
+}
+
+void nx_scaler_set_dest_size(u32 module_index, u32 size)
+{
+	writel(size, &__g_module_variables[module_index].pregister->scdestsizereg);
+}
+
+void nx_scaler_set_delta(u32 module_index, u32 deltax, u32 deltay)
+{
+	writel(deltax, &__g_module_variables[module_index].pregister->deltaxreg);
+	writel(deltay, &__g_module_variables[module_index].pregister->deltayreg);
+}
+
+void nx_scaler_set_hvsoftreg(u32 module_index, u32 hvsoftreg)
+{
+	writel(hvsoftreg, &__g_module_variables[module_index].pregister->hvsoftreg);
+}
+
 void nx_scaler_set_filter_enable(u32 module_index, int enable)
 {
 	const u32 fenb_mask = (0x03 << 0);
@@ -778,9 +825,9 @@ void nx_scaler_set_mode(u32 module_index, int mode)
 	writel(temp, &__g_module_variables[module_index].pregister->sccfgreg);
 }
 
-void nx_scaler_stop(u32 module_index)
+void nx_scaler_run(u32 module_index, u32 enable)
 {
-	writel(0x00, &__g_module_variables[module_index].pregister->scrunreg);
+	writel(enable, &__g_module_variables[module_index].pregister->scrunreg);
 }
 
 void nx_scaler_set_cmd_buf_addr(u32 module_index, u32 addr)
@@ -791,6 +838,39 @@ void nx_scaler_set_cmd_buf_addr(u32 module_index, u32 addr)
 void nx_scaler_run_cmd_buf(u32 module_index)
 {
 	writel(0x01, &__g_module_variables[module_index].pregister->cmdbufcon);
+}
+
+void nx_scaler_reg_dump(struct nx_scaler *me, u32 module_index)
+{
+	register u32 temp;
+
+	dev_info(&me->pdev->dev, "[%s]\n", __func__);
+	temp = __g_module_variables[module_index].pregister->scrunreg;
+	dev_info(&me->pdev->dev, "scrunreg:0x%x\n", temp);
+	temp = __g_module_variables[module_index].pregister->cmdbufcon;
+	dev_info(&me->pdev->dev, "cmdbufcon:0x%x\n", temp);
+	temp = __g_module_variables[module_index].pregister->scsrcaddreg;
+	dev_info(&me->pdev->dev, "scsrcaddreg:0x%x\n", temp);
+	temp = __g_module_variables[module_index].pregister->scsrcstride;
+	dev_info(&me->pdev->dev, "scsrcstride:%x\n", temp);
+	temp = __g_module_variables[module_index].pregister->scsrcsizereg;
+	dev_info(&me->pdev->dev, "scsrcsize:%x\n", temp);
+	temp = __g_module_variables[module_index].pregister->scdestaddreg0;
+	dev_info(&me->pdev->dev, "scdestaddreg0:0x%x\n", temp);
+	temp = __g_module_variables[module_index].pregister->scdestaddreg1;
+	dev_info(&me->pdev->dev, "scdestaddreg0:0x%x\n", temp);
+	temp = __g_module_variables[module_index].pregister->scdeststride0;
+	dev_info(&me->pdev->dev, "scdeststride0:%x\n", temp);
+	temp = __g_module_variables[module_index].pregister->scdeststride1;
+	dev_info(&me->pdev->dev, "scdeststride1:%x\n", temp);
+	temp = __g_module_variables[module_index].pregister->scdestsizereg;
+	dev_info(&me->pdev->dev, "scdestsizereg:%x\n", temp);
+	temp = __g_module_variables[module_index].pregister->deltaxreg;
+	dev_info(&me->pdev->dev, "deltaxreg:%x\n", temp);
+	temp = __g_module_variables[module_index].pregister->deltayreg;
+	dev_info(&me->pdev->dev, "deltayreg:%x\n", temp);
+	temp = __g_module_variables[module_index].pregister->hvsoftreg;
+	dev_info(&me->pdev->dev, "hvsoftreg:%x\n", temp);
 }
 
 void nx_scaler_set_interrupt_enable(u32 module_index, int32_t int_num,
@@ -834,13 +914,13 @@ static int get_phy_addr_from_fd(struct device *dev, int fd, bool is_src,
 
 	dmabuf = dma_buf_get(fd);
 	if (IS_ERR_OR_NULL(dmabuf)) {
-		pr_err("%s: can't get dambuf : fd{%d}\n", __func__, fd);
+		dev_err(dev, "%s: can't get dambuf : fd{%d}\n", __func__, fd);
 		return -EINVAL;
 	}
 
 	attach = dma_buf_attach(dmabuf, dev);
 	if (IS_ERR(attach)) {
-		pr_err("fail to attach dmabuf\n");
+		dev_err(dev, "fail to attach dmabuf\n");
 		return -EINVAL;
 	}
 
@@ -851,7 +931,7 @@ static int get_phy_addr_from_fd(struct device *dev, int fd, bool is_src,
 
 	sgt = dma_buf_map_attachment(attach, direction);
 	if (IS_ERR(sgt)) {
-		pr_err("Error getting dmabuf scatterlist\n");
+		dev_err(dev, "Error getting dmabuf scatterlist\n");
 		return -EINVAL;
 	}
 
@@ -867,7 +947,6 @@ static int get_phy_addr_from_fd(struct device *dev, int fd, bool is_src,
 static int _hw_init(struct nx_scaler *me)
 {
 	int ret = 0, i = 0;
-	/*struct reset_control *rst;*/
 
 	if (me->pdev == NULL)
 		return 0;
@@ -880,7 +959,7 @@ static int _hw_init(struct nx_scaler *me)
 		if (!IS_ERR(me->clk[i])) {
 			ret = clk_prepare_enable(me->clk[i]);
 			if (ret) {
-				pr_err("scaler[%d] clk failed to enable:%d\n",
+				dev_err(&me->pdev->dev, "scaler[%d] clk failed to enable:%d\n",
 						i, ret);
 				clk_put(me->clk[i]);
 				return ret;
@@ -888,16 +967,6 @@ static int _hw_init(struct nx_scaler *me)
 		}
 	}
 
-	/*
-	rst = devm_reset_control_get(&me->pdev->dev, "scaler-reset");
-	if (!rst) {
-		dev_err(&me->pdev->dev, "failied to get reset control\n");
-		return -EINVAL;
-	}
-
-	if (reset_control_status(rst))
-		reset_control_reset(rst);
-	*/
 	nx_scaler_set_interrupt_enable_all(0, false);
 	nx_scaler_clear_interrupt_pending_all(0);
 	nx_scaler_set_filter_enable(0, true);
@@ -911,7 +980,7 @@ static void _hw_cleanup(struct nx_scaler *me)
 	int i = 0;
 	free_irq(me->irq, me);
 
-	nx_scaler_stop(0);
+	nx_scaler_run(0, 0);
 	nx_scaler_set_interrupt_enable_all(0, false);
 	nx_scaler_clear_interrupt_pending_all(0);
 
@@ -951,12 +1020,152 @@ static irqreturn_t _scaler_irq_handler(int irq, void *param)
 {
 	struct nx_scaler *me = (struct nx_scaler *)param;
 
+#ifndef NO_USE_CMD_BUF
 	nx_scaler_clear_interrupt_pending(0, NX_SCALER_INT_CMD_PROC);
+#else
+	nx_scaler_clear_interrupt_pending(0, NX_SCALER_INT_DONE);
+#endif
 
 	_clear_running(me);
 	wake_up_interruptible(&me->wq_end);
 
 	return IRQ_HANDLED;
+}
+
+static int _do_scaling(struct nx_scaler *me, struct nx_scaler_ioctl_data *data)
+{
+	u32 src_width, src_height, src_code;
+	u32 dst_width, dst_height, dst_code;
+	u32 cb_src_width, cb_src_height, cb_dst_width, cb_dst_height;
+	dma_addr_t src_phy_addr, dst_phy_addr;
+	dma_addr_t src_addr, dst_addr;
+	u32 src_y_pos = 0, src_c_pos = 0;
+
+	src_width = data->src_width;
+	src_height = data->src_height;
+	src_code = data->src_code;
+	dst_width = data->dst_width;
+	dst_height = data->dst_height;
+	dst_code = data->dst_code;
+
+	if ((data->crop.x > 0) || (data->crop.y > 0)) {
+		src_y_pos = ((data->crop.y) * data->src_stride[0])
+			+ data->crop.x;
+		src_c_pos = (((data->crop.y/2)) * data->src_stride[1])
+			+ (data->crop.x/2);
+	}
+
+	if (data->crop.width > 0)
+		src_width = data->crop.width;
+	if (data->crop.height > 0)
+		src_height = data->crop.height;
+
+	if (src_code == MEDIA_BUS_FMT_YUYV8_2X8) {
+		/* 420 */
+		cb_src_width = src_width >> 1;
+		cb_src_height = src_height >> 1;
+	} else if (src_code == MEDIA_BUS_FMT_YUYV8_1_5X8) {
+		/* 420 */
+		cb_src_width = src_width >> 1;
+		cb_src_height = src_height >> 1;
+	} else if (src_code == MEDIA_BUS_FMT_YUYV8_1X16) {
+		/* 422 */
+		cb_src_width = src_width >> 1;
+		cb_src_height = src_height;
+	} else {
+		cb_src_width = src_width;
+		cb_src_height = src_height;
+	}
+
+	if (dst_code == MEDIA_BUS_FMT_YUYV8_2X8) {
+		/* 420 */
+		cb_dst_width = dst_width >> 1;
+		cb_dst_height = dst_height >> 1;
+	} else if (dst_code == MEDIA_BUS_FMT_YUYV8_1_5X8) {
+		/* 420 */
+		cb_dst_width = dst_width >> 1;
+		cb_dst_height = dst_height >> 1;
+	} else if (dst_code == MEDIA_BUS_FMT_YUYV8_1X16) {
+		/* 422 */
+		cb_dst_width = dst_width >> 1;
+		cb_dst_height = dst_height;
+	} else {
+		cb_dst_width = dst_width;
+		cb_dst_height = dst_height;
+	}
+
+	/* Do scaling for Y */
+	get_phy_addr_from_fd(&me->pdev->dev, data->src_fds[0], true,
+				&src_phy_addr);
+	src_addr = src_phy_addr;
+	nx_scaler_set_src_addr(0, src_phy_addr);
+	nx_scaler_set_src_stride(0, data->src_stride[0]);
+	nx_scaler_set_src_size(0, ((src_height - 1) << 16) | (src_width - 1));
+
+	get_phy_addr_from_fd(&me->pdev->dev, data->dst_fds[0], false,
+				&dst_phy_addr);
+	dst_addr = dst_phy_addr;
+	nx_scaler_set_dest_addr(0, dst_phy_addr);
+	nx_scaler_set_dest_stride(0, data->dst_stride[0]);
+	nx_scaler_set_dest_size(0, ((dst_height - 1) << 16) | (dst_width - 1));
+	nx_scaler_set_delta(0, ((src_width << 16) / (dst_width - 1)),
+			((src_height << 16) / (dst_height - 1)));
+	nx_scaler_set_hvsoftreg(0, 0x00080010);
+	nx_scaler_set_interrupt_enable(0, NX_SCALER_INT_DONE, true);
+	nx_scaler_run(0, 1);
+
+	if (!wait_event_interruptible_timeout(me->wq_end, atomic_read(&me->running) == 0,
+			WAIT_TIMEOUT_HZ)) {
+		dev_err(&me->pdev->dev, "scaling timeout for Y\n");
+		return -EFAULT;
+	}
+	nx_scaler_set_interrupt_enable_all(0, false);
+
+	/* Do scaling for CB */
+	_set_running(me);
+	src_addr += (data->src_stride[0] * ALIGN(data->src_height, 16));
+	nx_scaler_set_src_addr(0, src_addr + src_c_pos);
+	nx_scaler_set_src_stride(0, data->src_stride[1]);
+	nx_scaler_set_src_size(0, (((cb_src_height - 1) << 16) | (cb_src_width - 1)));
+	dst_addr += (data->dst_stride[0] * ALIGN(data->dst_height, 16));
+	nx_scaler_set_dest_addr(0, dst_addr);
+	nx_scaler_set_dest_stride(0, data->dst_stride[1]);
+	nx_scaler_set_dest_size(0, ((cb_dst_height - 1) << 16) | (cb_dst_width - 1));
+	nx_scaler_set_delta(0, ((cb_src_width << 16) / (cb_dst_width - 1)),
+			((cb_src_height << 16) / (cb_dst_height - 1)));
+	nx_scaler_set_hvsoftreg(0, 0x00080010);
+	nx_scaler_set_interrupt_enable(0, NX_SCALER_INT_DONE, true);
+	nx_scaler_run(0, 1);
+	if (!wait_event_interruptible_timeout(me->wq_end, atomic_read(&me->running) == 0,
+				WAIT_TIMEOUT_HZ)) {
+		dev_err(&me->pdev->dev, "scaling timeout for CB\n");
+		return -EFAULT;
+	}
+	nx_scaler_set_interrupt_enable_all(0, false);
+
+	/* Do scaling for CR */
+	_set_running(me);
+	src_addr += (data->src_stride[1] * ALIGN(data->src_height >> 1, 16));
+	nx_scaler_set_src_addr(0, src_addr + src_c_pos);
+	nx_scaler_set_src_stride(0, data->src_stride[2]);
+	nx_scaler_set_src_size(0, (((cb_src_height - 1) << 16) | (cb_src_width - 1)));
+
+	dst_addr += (data->dst_stride[1] * ALIGN(data->dst_height >> 1, 16));
+	nx_scaler_set_dest_addr(0, dst_addr);
+	nx_scaler_set_dest_stride(0, data->dst_stride[2]);
+	nx_scaler_set_dest_size(0, ((cb_dst_height - 1) << 16) | (cb_dst_width - 1));
+	nx_scaler_set_delta(0, ((cb_src_width << 16) / (cb_dst_width - 1)),
+			((cb_src_height << 16) / (cb_dst_height - 1)));
+	nx_scaler_set_hvsoftreg(0, 0x00080010);
+	nx_scaler_set_interrupt_enable(0, NX_SCALER_INT_DONE, true);
+	nx_scaler_run(0, 1);
+
+	if (!wait_event_interruptible_timeout(me->wq_end, atomic_read(&me->running) == 0,
+				WAIT_TIMEOUT_HZ)) {
+		dev_err(&me->pdev->dev, "scaling timeout for CR\n");
+		return -EFAULT;
+	}
+	return 0;
 }
 
 static int _make_command_buffer(struct nx_scaler *me,
@@ -1143,7 +1352,6 @@ static int _make_command_buffer(struct nx_scaler *me,
 	cmd_buffer++;
 	*cmd_buffer = 0x00000003;
 	cmd_buffer++;
-
 	return 0;
 }
 
@@ -1155,17 +1363,22 @@ static int _set_and_run(struct nx_scaler *me,
 
 	_set_running(me);
 
+	nx_scaler_set_mode(0, 0);
+
+#ifndef NO_USE_CMD_BUF
 	_make_command_buffer(me, data);
 	nx_scaler_set_cmd_buf_addr(0, me->command_buffer_phy);
 	nx_scaler_set_interrupt_enable(0, NX_SCALER_INT_CMD_PROC, true);
-	nx_scaler_set_mode(0, 0);
 	nx_scaler_run_cmd_buf(0);
-
 	if (!wait_event_interruptible_timeout(me->wq_end,
-		      atomic_read(&me->running) == 0, WAIT_TIMEOUT_HZ)) {
+		      atomic_read(&me->running) == 0, WAIT_TIMEOUT_HZ))
+#else
+	_do_scaling(me, data);
+#endif
+	{
 		_clear_running(me);
 
-		nx_scaler_stop(0);
+		nx_scaler_run(0, 0);
 		nx_scaler_set_interrupt_enable_all(0, false);
 		nx_scaler_clear_interrupt_pending_all(0);
 
@@ -1200,7 +1413,7 @@ static int nx_scaler_open(struct inode *inode, struct file *filp)
 	ret = request_irq(me->irq, _scaler_irq_handler, IRQF_TRIGGER_NONE,
 			  "nx-scaler", me);
 	if (ret < 0) {
-		pr_err("%s: failed to request_irq()\n", __func__);
+		dev_err(&me->pdev->dev, "%s: failed to request_irq()\n", __func__);
 
 		return ret;
 	}
@@ -1271,12 +1484,12 @@ static int nx_scaler_parse_clocks(struct device *dev, struct nx_scaler *me)
 	for (i = 0; i < count; i++) {
 		if (of_property_read_string_index(np, "clock-names", i,
 					&name)) {
-			pr_err("[%s] no clock name for %d\n", __func__, i);
+			dev_err(dev, "[%s] no clock name for %d\n", __func__, i);
 			return -EINVAL;
 		}
 		me->clk[i] = devm_clk_get(dev, name);
 		if (IS_ERR(me->clk[i])) {
-			pr_err("%s: controller clock for %d not found\n",
+			dev_err(dev, "%s: controller clock for %d not found\n",
 				dev_name(dev), i);
 
 			return PTR_ERR(me->clk[i]);
@@ -1318,18 +1531,18 @@ static int nx_scaler_probe(struct platform_device *pdev)
 
 	ret = nx_scaler_parse_clocks(&pdev->dev, me);
 	if (ret) {
-		pr_err("[%s] failed to get clock info\n", __func__);
+		dev_err(&pdev->dev, "[%s] failed to get clock info\n", __func__);
 		kfree(me);
 		return -EINVAL;
 	}
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	me->base = devm_ioremap_resource(&pdev->dev, res);
 	if (IS_ERR(me->base)) {
-		pr_err("[%s] failed to ioremap\n", __func__);
+		dev_err(&pdev->dev, "[%s] failed to ioremap\n", __func__);
 		return PTR_ERR(me->base);
 	}
 
-	pr_debug("%s - base : 0x%p, phy addr : 0x%lX\n", __func__,
+	dev_info(&pdev->dev, "%s - base : 0x%p, phy addr : 0x%lX\n", __func__,
 			me->base, (unsigned long)res->start);
 
 	me->command_buffer_vir = NULL;
@@ -1337,7 +1550,7 @@ static int nx_scaler_probe(struct platform_device *pdev)
 
 	ret = misc_register(&me->miscdev);
 	if (ret) {
-		pr_err("%s: failed to misc_register()\n",
+		dev_err(&pdev->dev, "%s: failed to misc_register()\n",
 		       __func__);
 		kfree(me);
 
@@ -1353,17 +1566,20 @@ static int nx_scaler_probe(struct platform_device *pdev)
 
 	init_waitqueue_head(&me->wq_end);
 
+#ifndef NO_USE_CMD_BUF
 	me->command_buffer_vir = dma_alloc_coherent(
 				    &pdev->dev,
 				    COMMAND_BUFFER_SIZE,
 				    &me->command_buffer_phy,
 				    GFP_KERNEL);
 	if (!me->command_buffer_vir) {
-		pr_err("%s: failed to alloc", __func__);
-		pr_err("command buffer!!\n");
+		dev_err(&pdev->dev, "%s: failed to alloc", __func__);
+		dev_err(&pdev->dev, "command buffer!!\n");
 
 		goto misc_deregister;
 	}
+#endif
+
 	me->pdev = pdev;
 
 	return 0;
@@ -1379,12 +1595,13 @@ static int nx_scaler_remove(struct platform_device *pdev)
 {
 	struct nx_scaler *me = platform_get_drvdata(pdev);
 
+#ifndef NO_USE_CMD_BUF
 	dma_free_coherent(&pdev->dev, COMMAND_BUFFER_SIZE,
 			  me->command_buffer_vir,
 			  me->command_buffer_phy);
 	me->command_buffer_vir = NULL;
 	me->command_buffer_phy = 0;
-
+#endif
 	misc_deregister(&me->miscdev);
 
 	return 0;
@@ -1398,7 +1615,7 @@ static int nx_scaler_suspend(struct platform_device *pdev, pm_message_t state)
 	if (atomic_read(&me->open_count) > 0) {
 		mutex_lock(&me->mutex);
 
-		nx_scaler_stop(0);
+		nx_scaler_run(0, 0);
 		nx_scaler_set_interrupt_enable_all(0, false);
 		nx_scaler_clear_interrupt_pending_all(0);
 
