@@ -181,15 +181,20 @@ static inline u32 rx_max(struct dw_spi *dws)
 static void dw_writer(struct dw_spi *dws)
 {
 	u32 max = tx_max(dws);
-	u16 txw = 0;
+	u32 txw = 0;
+
+	if (dws->chip->tmode == SPI_TMOD_RO)
+		return;
 
 	while (max--) {
 		/* Set the tx word if the transfer's original "tx" is not null */
-		if (dws->tx_end - dws->len) {
+		if (dws->tx && dws->tx_end - dws->len) {
 			if (dws->n_bytes == 1)
 				txw = *(u8 *)(dws->tx);
-			else
+			else if (dws->n_bytes == 2)
 				txw = *(u16 *)(dws->tx);
+			else
+				txw = *(u32 *)(dws->tx);
 		}
 		dw_write_io_reg(dws, DW_SPI_DR, txw);
 		dws->tx += dws->n_bytes;
@@ -199,16 +204,25 @@ static void dw_writer(struct dw_spi *dws)
 static void dw_reader(struct dw_spi *dws)
 {
 	u32 max = rx_max(dws);
-	u16 rxw;
+	u32 rxw;
+
+	if (dws->chip->tmode == SPI_TMOD_TO)
+		return;
 
 	while (max--) {
 		rxw = dw_read_io_reg(dws, DW_SPI_DR);
+		if (!dws->rx) {
+			dws->rx += dws->n_bytes;
+			continue;
+		}
 		/* Care rx only if the transfer's original "rx" is not null */
 		if (dws->rx_end - dws->len) {
 			if (dws->n_bytes == 1)
 				*(u8 *)(dws->rx) = rxw;
-			else
+			else if (dws->n_bytes == 2)
 				*(u16 *)(dws->rx) = rxw;
+			else
+				*(u32 *)(dws->rx) = rxw;
 		}
 		dws->rx += dws->n_bytes;
 	}
@@ -219,32 +233,83 @@ static void int_error_stop(struct dw_spi *dws, const char *msg)
 	spi_reset_chip(dws);
 
 	dev_err(&dws->master->dev, "%s\n", msg);
-	dws->master->cur_msg->status = -EIO;
+	if (dws->master->cur_msg)
+		dws->master->cur_msg->status = -EIO;
 	spi_finalize_current_transfer(dws->master);
 }
 
 static irqreturn_t interrupt_transfer(struct dw_spi *dws)
 {
+	struct chip_data *chip = spi_get_ctldata(dws->spi);
 	u16 irq_status = dw_readl(dws, DW_SPI_ISR);
+	int tx_cnt = 0;
 
-	/* Error handling */
-	if (irq_status & (SPI_INT_TXOI | SPI_INT_RXOI | SPI_INT_RXUI)) {
-		dw_readl(dws, DW_SPI_ICR);
-		int_error_stop(dws, "interrupt_transfer: fifo overrun/underrun");
-		return IRQ_HANDLED;
+	if (!(irq_status & SPI_INT_RXFI)) {
+		/* Error handling */
+
+		if (irq_status & (SPI_INT_TXOI | SPI_INT_RXOI | SPI_INT_RXUI)) {
+			dw_readl(dws, DW_SPI_ICR);
+			int_error_stop(dws, "interrupt_transfer: fifo overrun/underrun");
+
+			return IRQ_HANDLED;
+		}
 	}
 
-	dw_reader(dws);
-	if (dws->rx_end == dws->rx) {
+	if (irq_status & SPI_INT_RXFI) {
+		dw_reader(dws);
+
+		if (chip && (chip->tmode == SPI_TMOD_RO)) {
+			if (!dws->rx) {
+				while(dw_readl(dws, DW_SPI_RXFLR))
+					dw_read_io_reg(dws, DW_SPI_DR);
+			} else if(dws->rx && dws->rx_end == dws->rx) {
+				while(dw_readl(dws, DW_SPI_RXFLR))
+					dw_read_io_reg(dws, DW_SPI_DR);
+			}
+		}
+		dw_readl(dws, DW_SPI_ICR);
+		spi_mask_intr(dws, SPI_INT_RXFI);
+	}
+
+	if (dws->rx && dws->rx_end == dws->rx) {
 		spi_mask_intr(dws, SPI_INT_TXEI);
 		spi_finalize_current_transfer(dws->master);
 		return IRQ_HANDLED;
 	}
+
+	tx_cnt = tx_max(dws);
+
+	if (chip && (chip->tmode == SPI_TMOD_RO)) {
+		spi_mask_intr(dws, SPI_INT_TXEI);
+		spi_mask_intr(dws, SPI_INT_RXFI);
+
+		dw_writel(dws, DW_SPI_RXFLTR, dw_readl(dws, DW_SPI_CTRL1));
+		dw_write_io_reg(dws, DW_SPI_DR, 1);
+
+		spi_umask_intr(dws, SPI_INT_RXFI);
+
+		return IRQ_HANDLED;
+	}
+
 	if (irq_status & SPI_INT_TXEI) {
 		spi_mask_intr(dws, SPI_INT_TXEI);
+		if ((chip && chip->tmode == SPI_TMOD_TO) &&
+		    dws->tx_end == dws->tx) {
+			spi_finalize_current_transfer(dws->master);
+
+			return IRQ_HANDLED;
+		}
 		dw_writer(dws);
 		/* Enable TX irq always, it will be disabled when RX finished */
 		spi_umask_intr(dws, SPI_INT_TXEI);
+	}
+
+	if (chip && chip->tmode == SPI_TMOD_TR) {
+		if (tx_cnt > 0) {
+			spi_mask_intr(dws, SPI_INT_RXFI);
+			dw_writel(dws, DW_SPI_RXFLTR, tx_cnt - 1);
+			spi_umask_intr(dws, SPI_INT_RXFI);
+		}
 	}
 
 	return IRQ_HANDLED;
@@ -259,9 +324,12 @@ static irqreturn_t dw_spi_irq(int irq, void *dev_id)
 	if (!irq_status)
 		return IRQ_NONE;
 
-	if (!master->cur_msg) {
-		spi_mask_intr(dws, SPI_INT_TXEI);
-		return IRQ_HANDLED;
+	if (!(irq_status & (SPI_INT_RXFI | SPI_INT_RXOI))) {
+		if (!master->cur_msg) {
+			spi_mask_intr(dws, SPI_INT_TXEI);
+
+			return IRQ_HANDLED;
+		}
 	}
 
 	return dws->transfer_handler(dws);
@@ -275,6 +343,17 @@ static int poll_transfer(struct dw_spi *dws)
 		dw_reader(dws);
 		cpu_relax();
 	} while (dws->rx_end > dws->rx);
+
+	return 0;
+}
+
+static int dw_spi_prepare_transfer_hardware(struct spi_master *master)
+{
+	struct dw_spi *dws = spi_master_get_devdata(master);
+	struct dw_spi_chip *chip_info = dws->chip_info;
+
+	if (chip_info && chip_info->prefare_transfer)
+		chip_info->prefare_transfer(dws);
 
 	return 0;
 }
@@ -296,6 +375,7 @@ static int dw_spi_transfer_one(struct spi_master *master,
 	dws->rx = transfer->rx_buf;
 	dws->rx_end = dws->rx + transfer->len;
 	dws->len = transfer->len;
+	dws->chip = chip;
 
 	spi_enable_chip(dws, 0);
 
@@ -315,11 +395,14 @@ static int dw_spi_transfer_one(struct spi_master *master,
 	} else if (transfer->bits_per_word == 16) {
 		dws->n_bytes = 2;
 		dws->dma_width = 2;
+	} else if (transfer->bits_per_word == 32) {
+		dws->n_bytes = 4;
+		dws->dma_width = 4;
 	} else {
 		return -EINVAL;
 	}
 	/* Default SPI mode is SCPOL = 0, SCPH = 0 */
-	cr0 = (transfer->bits_per_word - 1)
+	cr0 = ((transfer->bits_per_word - 1) << SPI_DFS_32_OFFSET)
 		| (chip->type << SPI_FRF_OFFSET)
 		| (spi->mode << SPI_MODE_OFFSET)
 		| (chip->tmode << SPI_TMOD_OFFSET);
@@ -345,7 +428,20 @@ static int dw_spi_transfer_one(struct spi_master *master,
 		cr0 |= (dws->spi_mode << SPI_FF_OFFSET);
 	}
 
+	/* slave output enable */
+	if (spi_controller_is_slave(dws->master))
+		cr0 &= ~(1 << SPI_SLVOE_OFFSET);
+
 	dw_writel(dws, DW_SPI_CTRL0, cr0);
+
+	if (chip->tmode == SPI_TMOD_RO) {
+		u32 rx_left = (dws->rx_end - dws->rx) / dws->n_bytes;
+
+		if (rx_left >= dws->fifo_len)
+			dw_writel(dws, DW_SPI_CTRL1, dws->fifo_len - 1);
+		else
+			dw_writel(dws, DW_SPI_CTRL1, rx_left - 1);
+	}
 
 	/* Check if current transfer is a DMA transaction */
 	if (master->can_dma && master->can_dma(master, spi, transfer))
@@ -366,7 +462,12 @@ static int dw_spi_transfer_one(struct spi_master *master,
 		}
 	} else if (!chip->poll_mode) {
 		txlevel = min_t(u16, dws->fifo_len / 2, dws->len / dws->n_bytes);
-		dw_writel(dws, DW_SPI_TXFLTR, txlevel);
+		if (!spi_controller_is_slave(dws->master))
+			dw_writel(dws, DW_SPI_TXFLTR, txlevel);
+		else {
+			dw_writel(dws, DW_SPI_TXFLTR, txlevel - 1);
+			dw_writel(dws, DW_SPI_RXFLTR, txlevel - 1);
+		}
 
 		/* Set the interrupt mask */
 		imask |= SPI_INT_TXEI | SPI_INT_TXOI |
@@ -404,6 +505,7 @@ static void dw_spi_handle_err(struct spi_master *master,
 /* This may be called twice for each spi dev */
 static int dw_spi_setup(struct spi_device *spi)
 {
+	struct dw_spi *dws = spi_master_get_devdata(spi->master);
 	struct dw_spi_chip *chip_info = NULL;
 	struct chip_data *chip;
 	int ret;
@@ -417,11 +519,15 @@ static int dw_spi_setup(struct spi_device *spi)
 		spi_set_ctldata(spi, chip);
 	}
 
+	dws->spi = spi;
+
 	/*
 	 * Protocol drivers may change the chip settings, so...
 	 * if chip_info exists, use it
 	 */
 	chip_info = spi->controller_data;
+	if (!chip_info && dws->chip_info)
+		chip_info = dws->chip_info;
 
 	/* chip_info doesn't always exist */
 	if (chip_info) {
@@ -483,7 +589,11 @@ int dw_spi_add_host(struct device *dev, struct dw_spi *dws)
 
 	BUG_ON(dws == NULL);
 
-	master = spi_alloc_master(dev, 0);
+	if (dws->slave)
+		master = spi_alloc_slave(dev, 0);
+	else
+		master = spi_alloc_master(dev, 0);
+
 	if (!master)
 		return -ENOMEM;
 
@@ -500,12 +610,13 @@ int dw_spi_add_host(struct device *dev, struct dw_spi *dws)
 	}
 
 	master->mode_bits = SPI_CPOL | SPI_CPHA | SPI_LOOP;
-	master->bits_per_word_mask = SPI_BPW_MASK(8) | SPI_BPW_MASK(16);
+	master->bits_per_word_mask = SPI_BPW_MASK(8) | SPI_BPW_MASK(16) | SPI_BPW_MASK(32);
 	master->bus_num = dws->bus_num;
 	master->num_chipselect = dws->num_cs;
 	master->setup = dw_spi_setup;
 	master->cleanup = dw_spi_cleanup;
 	master->set_cs = dw_spi_set_cs;
+	master->prepare_transfer_hardware = dw_spi_prepare_transfer_hardware;
 	master->transfer_one = dw_spi_transfer_one;
 	master->handle_err = dw_spi_handle_err;
 	master->max_speed_hz = dws->max_freq;

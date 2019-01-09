@@ -35,6 +35,7 @@
 
 /* Bit fields in CTRLR0 */
 #define SPI_DFS_OFFSET			0
+#define SPI_DFS_32_OFFSET		16
 
 #define SPI_FF_OFFSET			21
 #define SPI_FF_MASK			(0x3 << SPI_FF_OFFSET)
@@ -104,6 +105,7 @@ struct dw_spi_dma_ops {
 
 struct dw_spi {
 	struct spi_master	*master;
+	struct spi_device	*spi;
 	enum dw_ssi_type	type;
 
 	void __iomem		*regs;
@@ -138,7 +140,10 @@ struct dw_spi {
 	void			*dma_tx;
 	void			*dma_rx;
 	u32			spi_mode;
+	bool			slave;
 
+	struct dw_spi_chip	*chip_info;
+	struct chip_data *chip;
 	/* Bus interface info */
 	void			*priv;
 #ifdef CONFIG_DEBUG_FS
@@ -245,7 +250,9 @@ static inline void spi_shutdown_chip(struct dw_spi *dws)
 struct dw_spi_chip {
 	u8 poll_mode;	/* 1 for controller polling mode */
 	u8 type;	/* SPI/SSP/MicroWire */
+	u8 ssi_max_xfer_size;	/* Max transfer size: 16 or 32 */
 	void (*cs_control)(u32 command);
+	void (*prefare_transfer)(struct dw_spi *dws);
 };
 
 extern int dw_spi_add_host(struct device *dev, struct dw_spi *dws);
