@@ -17,6 +17,10 @@
 #include <linux/of_gpio.h>
 #include <linux/of_platform.h>
 #include <linux/property.h>
+#include <linux/delay.h>
+#include <linux/reset.h>
+#include <linux/regmap.h>
+#include <linux/mfd/syscon.h>
 
 #include <linux/dma-mapping.h>
 #include <linux/dmaengine.h>
@@ -31,27 +35,21 @@
 #define TX_BUSY		1
 
 struct dw_spi_nx {
-	struct dw_spi	dws;
-	struct clk	*clk;
-	struct clk	*pclk;
+	struct dw_spi		dws;
+	struct clk		*clk;
+	struct clk		*pclk;
+	struct reset_control	*rst;
+	struct regmap		*regmap;
+	u32			slave_sel_offset;
+	void			*dummypage;
 };
 
-static struct dw_dma_slave nx_dma_tx = { .dst_id = 1 };
-static struct dw_dma_slave nx_dma_rx = { .src_id = 0 };
-
-static bool nx_spi_dma_chan_filter(struct dma_chan *chan, void *param)
-{
-	struct dw_dma_slave *s = param;
-
-	if (s->dma_dev != chan->device->dev)
-		return false;
-
-	chan->private = s;
-	return true;
-}
+static struct dw_dma_slave nx_dma_tx;
+static struct dw_dma_slave nx_dma_rx;
 
 static int nx_spi_dma_init(struct dw_spi *dws)
 {
+	struct dw_spi_nx *dws_nx = container_of(dws, struct dw_spi_nx, dws);
 	struct dw_dma_slave *tx = dws->dma_tx;
 	struct dw_dma_slave *rx = dws->dma_rx;
 	dma_cap_mask_t mask;
@@ -61,21 +59,29 @@ static int nx_spi_dma_init(struct dw_spi *dws)
 
 	/* 1. Init rx channel */
 	rx->dma_dev = &dws->master->dev;
-	dws->rxchan = dma_request_channel(mask, nx_spi_dma_chan_filter, rx);
+	dws->rxchan = dma_request_slave_channel_compat(mask, NULL, NULL,
+						       rx->dma_dev, "rx");
 	if (!dws->rxchan)
 		goto err_exit;
 	dws->master->dma_rx = dws->rxchan;
 
 	/* 2. Init tx channel */
 	tx->dma_dev = &dws->master->dev;
-	dws->txchan = dma_request_channel(mask, nx_spi_dma_chan_filter, tx);
+	dws->txchan = dma_request_slave_channel_compat(mask, NULL, NULL,
+						       tx->dma_dev, "tx");
 	if (!dws->txchan)
 		goto free_rxchan;
 	dws->master->dma_tx = dws->txchan;
 
 	dws->dma_inited = 1;
-	return 0;
 
+	dws_nx->dummypage = kzalloc(PAGE_SIZE, GFP_KERNEL);
+	if (!dws_nx->dummypage)
+		goto err_no_dummypage;
+
+	return 0;
+err_no_dummypage:
+	dma_release_channel(dws->txchan);
 free_rxchan:
 	dma_release_channel(dws->rxchan);
 err_exit:
@@ -131,6 +137,46 @@ static enum dma_slave_buswidth nx_convert_dma_width(u32 dma_width)
 	return DMA_SLAVE_BUSWIDTH_UNDEFINED;
 }
 
+static void setup_dma_scatter(struct dw_spi *dws, void *buffer,
+		unsigned int length, struct sg_table *sgtab)
+{
+	struct dw_spi_nx *dws_nx = container_of(dws, struct dw_spi_nx, dws);
+	struct scatterlist *sg;
+	int bytesleft	= length;
+	void *bufp	= buffer;
+	int mapbytes;
+	int i;
+
+	if (buffer) {
+		for_each_sg(sgtab->sgl, sg, sgtab->nents, i) {
+			if (bytesleft < (PAGE_SIZE - offset_in_page(bufp)))
+				mapbytes = bytesleft;
+			else
+				mapbytes = PAGE_SIZE - offset_in_page(bufp);
+			sg_set_page(sg, virt_to_page(bufp),
+					mapbytes, offset_in_page(bufp));
+			bufp += mapbytes;
+			bytesleft -= mapbytes;
+			pr_debug("set RX/TX page @ %p, %d bytes, %d left\n",
+					bufp, mapbytes, bytesleft);
+		}
+	} else {
+		for_each_sg(sgtab->sgl, sg, sgtab->nents, i) {
+			if (bytesleft < PAGE_SIZE)
+				mapbytes = bytesleft;
+			else
+				mapbytes = PAGE_SIZE;
+
+			sg_set_page(sg, virt_to_page(dws_nx->dummypage),
+				mapbytes, 0);
+			bytesleft -= mapbytes;
+			pr_debug("set RX/TX page @ %p, %d bytes, %d left\n",
+					bufp, mapbytes, bytesleft);
+		}
+	}
+	WARN_ON(bytesleft);
+}
+
 /*
  * dws->dma_chan_busy is set before the dma transfer starts, callback for tx
  * channel will clear a corresponding bit.
@@ -151,7 +197,12 @@ static struct dma_async_tx_descriptor *nx_dw_spi_dma_prepare_tx(
 	struct dma_slave_config txconf;
 	struct dma_async_tx_descriptor *txdesc;
 
-	if (!xfer->tx_buf)
+	int ret;
+	unsigned int pages;
+	int tx_sglen;
+	void *tx = (void *)xfer->tx_buf;
+
+	if (!dws->txchan)
 		return NULL;
 
 	txconf.direction = DMA_MEM_TO_DEV;
@@ -162,6 +213,20 @@ static struct dma_async_tx_descriptor *nx_dw_spi_dma_prepare_tx(
 	txconf.device_fc = false;
 
 	dmaengine_slave_config(dws->txchan, &txconf);
+
+	if (!xfer->tx_buf) {
+		pages = DIV_ROUND_UP(xfer->len, PAGE_SIZE);
+		ret = sg_alloc_table(&xfer->tx_sg, pages, GFP_KERNEL);
+		if (ret)
+			goto err_alloc_tx_sg;
+		setup_dma_scatter(dws, tx, xfer->len, &xfer->tx_sg);
+		tx_sglen = dma_map_sg(&dws->master->dev, xfer->tx_sg.sgl,
+				xfer->tx_sg.nents, DMA_TO_DEVICE);
+		if (!tx_sglen)
+			goto err_tx_sgmap;
+
+		xfer->tx_sg.nents = tx_sglen;
+	}
 
 	txdesc = dmaengine_prep_slave_sg(dws->txchan,
 				xfer->tx_sg.sgl,
@@ -175,6 +240,15 @@ static struct dma_async_tx_descriptor *nx_dw_spi_dma_prepare_tx(
 	txdesc->callback_param = dws;
 
 	return txdesc;
+
+err_tx_sgmap:
+	dma_unmap_sg(&dws->master->dev, xfer->tx_sg.sgl,
+		xfer->tx_sg.nents, DMA_TO_DEVICE);
+
+err_alloc_tx_sg:
+	sg_free_table(&xfer->tx_sg);
+
+	return NULL;
 }
 
 /*
@@ -291,38 +365,37 @@ static const struct dw_spi_dma_ops nx_dma_ops = {
 	.dma_stop	= nx_spi_dma_stop,
 };
 
-/* HW info for MRST Clk Control Unit, 32b reg per controller */
-#define MRST_SPI_CLK_BASE	100000000	/* 100m */
-#define MRST_CLK_SPI_REG	0xff11d86c
-#define CLK_SPI_BDIV_OFFSET	0
-#define CLK_SPI_BDIV_MASK	0x00000007
-#define CLK_SPI_CDIV_OFFSET	9
-#define CLK_SPI_CDIV_MASK	0x00000e00
-#define CLK_SPI_DISABLE_OFFSET	8
-
 static int nx_dw_spi_dma_init(struct dw_spi *dws)
 {
-	void __iomem *clk_reg;
-	u32 clk_cdiv;
-
-	clk_reg = ioremap_nocache(MRST_CLK_SPI_REG, 16);
-	if (!clk_reg)
-		return -ENOMEM;
-
-	/* Get SPI controller operating freq info */
-	clk_cdiv = readl(clk_reg + dws->bus_num * sizeof(u32));
-	clk_cdiv &= CLK_SPI_CDIV_MASK;
-	clk_cdiv >>= CLK_SPI_CDIV_OFFSET;
-	dws->max_freq = MRST_SPI_CLK_BASE / (clk_cdiv + 1);
-
-	iounmap(clk_reg);
-
 	dws->dma_tx = &nx_dma_tx;
 	dws->dma_rx = &nx_dma_rx;
 	dws->dma_ops = &nx_dma_ops;
 
 	return 0;
 }
+
+static void nx_spi_cs_control(u32 command)
+{
+	/* Dummy callback */
+}
+
+static void nx_spi_prefare_transfer(struct dw_spi *dws)
+{
+	struct dw_spi_nx *dws_nx = container_of(dws, struct dw_spi_nx, dws);
+
+	if (!dws->slave)
+		return;
+
+	reset_control_assert(dws_nx->rst);
+	udelay(1);
+	reset_control_deassert(dws_nx->rst);
+}
+
+static struct dw_spi_chip nx_spi_chip = {
+	.ssi_max_xfer_size = 32,
+	.cs_control = nx_spi_cs_control,
+	.prefare_transfer = nx_spi_prefare_transfer,
+};
 
 static int nx_dw_spi_probe(struct platform_device *pdev)
 {
@@ -346,12 +419,17 @@ static int nx_dw_spi_probe(struct platform_device *pdev)
 		return PTR_ERR(dws->regs);
 	}
 
+	dws->paddr = mem->start;
+
 	dws->irq = platform_get_irq(pdev, 0);
 	if (dws->irq < 0) {
 		dev_err(&pdev->dev, "no irq resource?\n");
 		return dws->irq; /* -ENXIO */
 	}
 
+	/* Optional: Reset control */
+	dws_nx->rst = devm_reset_control_get_optional_exclusive(&pdev->dev,
+								NULL);
 	dws_nx->pclk = devm_clk_get(&pdev->dev, "apb");
 	if (IS_ERR(dws_nx->pclk)) {
 		return PTR_ERR(dws_nx->pclk);
@@ -401,10 +479,34 @@ static int nx_dw_spi_probe(struct platform_device *pdev)
 		}
 	}
 
-	if (of_find_property(pdev->dev.of_node, "support-dma", NULL)) {
-		dws->master->dev = pdev->dev;
+	if (device_property_read_bool(&pdev->dev, "spi-dma"))
 		nx_dw_spi_dma_init(dws);
+
+	if (device_property_read_bool(&pdev->dev, "spi-slave")) {
+		struct device_node *of_node = pdev->dev.of_node;
+
+		dws_nx->regmap = syscon_regmap_lookup_by_phandle(of_node,
+								 "syscon0");
+		if (IS_ERR(dws_nx->regmap)) {
+			dev_err(&pdev->dev, "regmap lookup failed: %ld\n",
+				PTR_ERR(dws_nx->regmap));
+			goto err_clk;
+		}
+
+		if (device_property_read_u32(&pdev->dev, "slave-sel-offset",
+					     &dws_nx->slave_sel_offset)) {
+			dev_err(&pdev->dev, "cannot find slave-sel-offset\n");
+			goto err_clk;
+		}
+
+		/* Set Slave Mode */
+		regmap_update_bits(dws_nx->regmap, dws_nx->slave_sel_offset,
+				   BIT(0), 0x1);
+		dws->slave = true;
 	}
+
+	/* set chip info to support TR/RO/TO mode */
+	/*	dws->chip_info = &nx_spi_chip;	*/
 
 	ret = dw_spi_add_host(&pdev->dev, dws);
 	if (ret)
@@ -414,11 +516,11 @@ static int nx_dw_spi_probe(struct platform_device *pdev)
 
 	return 0;
 
-err_pclk:
-	clk_disable_unprepare(dws_nx->pclk);
-
 err_clk:
 	clk_disable_unprepare(dws_nx->clk);
+
+err_pclk:
+	clk_disable_unprepare(dws_nx->pclk);
 
 	return ret;
 }
@@ -427,9 +529,17 @@ static int nx_dw_spi_remove(struct platform_device *pdev)
 {
 	struct dw_spi_nx *dws_nx = platform_get_drvdata(pdev);
 
+	if (dws_nx->dws.slave) {
+		/* Back to Master Mode */
+		regmap_update_bits(dws_nx->regmap, dws_nx->slave_sel_offset,
+				   BIT(0), 0x0);
+	}
+
 	dw_spi_remove_host(&dws_nx->dws);
-	clk_disable_unprepare(dws_nx->pclk);
 	clk_disable_unprepare(dws_nx->clk);
+	clk_disable_unprepare(dws_nx->pclk);
+
+	kfree(dws_nx->dummypage);
 
 	return 0;
 }
