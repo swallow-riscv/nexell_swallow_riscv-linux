@@ -395,7 +395,7 @@ static int dw_spi_transfer_one(struct spi_master *master,
 	} else if (transfer->bits_per_word == 16) {
 		dws->n_bytes = 2;
 		dws->dma_width = 2;
-	} else if (transfer->bits_per_word == 32) {
+	} else if ((transfer->bits_per_word == 24) || (transfer->bits_per_word == 32)) {
 		dws->n_bytes = 4;
 		dws->dma_width = 4;
 	} else {
@@ -610,7 +610,8 @@ int dw_spi_add_host(struct device *dev, struct dw_spi *dws)
 	}
 
 	master->mode_bits = SPI_CPOL | SPI_CPHA | SPI_LOOP;
-	master->bits_per_word_mask = SPI_BPW_MASK(8) | SPI_BPW_MASK(16) | SPI_BPW_MASK(32);
+	master->bits_per_word_mask = SPI_BPW_MASK(8) | SPI_BPW_MASK(16) | \
+				SPI_BPW_MASK(24) | SPI_BPW_MASK(32);
 	master->bus_num = dws->bus_num;
 	master->num_chipselect = dws->num_cs;
 	master->setup = dw_spi_setup;
