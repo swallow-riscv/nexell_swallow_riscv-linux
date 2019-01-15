@@ -192,9 +192,11 @@ static void dw_writer(struct dw_spi *dws)
 			if (dws->n_bytes == 1)
 				txw = *(u8 *)(dws->tx);
 			else if (dws->n_bytes == 2)
-				txw = *(u16 *)(dws->tx);
-			else
-				txw = *(u32 *)(dws->tx);
+				txw = htons( *(u16 *)(dws->tx));
+			else if (dws->n_bytes == 3) {
+				txw = (htonl(*(u32 *)(dws->tx)) >> 8) & 0xffffff;
+			} else
+				txw = htonl(*(u32 *)(dws->tx));
 		}
 		dw_write_io_reg(dws, DW_SPI_DR, txw);
 		dws->tx += dws->n_bytes;
@@ -395,7 +397,10 @@ static int dw_spi_transfer_one(struct spi_master *master,
 	} else if (transfer->bits_per_word == 16) {
 		dws->n_bytes = 2;
 		dws->dma_width = 2;
-	} else if ((transfer->bits_per_word == 24) || (transfer->bits_per_word == 32)) {
+	} else if (transfer->bits_per_word == 24) {
+		dws->n_bytes = 3;
+		dws->dma_width = 3;
+	} else if (transfer->bits_per_word == 32) {
 		dws->n_bytes = 4;
 		dws->dma_width = 4;
 	} else {
