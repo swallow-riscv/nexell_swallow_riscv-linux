@@ -2838,6 +2838,8 @@ static int __spi_validate(struct spi_device *spi, struct spi_message *message)
 			w_size = 1;
 		else if (xfer->bits_per_word <= 16)
 			w_size = 2;
+		else if (xfer->bits_per_word <= 24)
+			w_size = 3;
 		else
 			w_size = 4;
 
