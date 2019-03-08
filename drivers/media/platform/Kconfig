@@ -653,3 +653,10 @@ config VIDEO_RCAR_DRIF
 	  will be called rcar_drif.
 
 endif # SDR_PLATFORM_DRIVERS
+
+config VIDEO_NEXELL_CODEC
+	tristate "Nexell Video Codec"
+	depends on VIDEO_V4L2
+	default n
+	---help---
+	  This is a v4l2 driver for Nexell Video Codec.
