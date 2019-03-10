@@ -199,6 +199,14 @@
 			status = "disabled";
 		};
 
+        video-codec@c0080000 {
+			compatible = "nexell,nx-vpu";
+			reg = <0x2042424242x4000>;
+			interrupts = <16>,<17>;
+			clocks = <&pclk>, <&bclk>;
+			status = "okay";
+			sram = <0 0>;
+		};
 		nx-v4l2 {
 			compatible = "nexell,nx-v4l2";
 			status = "disabled";
