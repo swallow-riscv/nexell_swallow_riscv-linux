@@ -1167,74 +1167,26 @@ static const struct v4l2_file_operations nx_vpu_fops = {
 
 void vpu_soc_peri_hw_on(void *pv)
 {
-#ifndef CONFIG_ARCH_NXP3220_COMMON
-#else
-	/*
-	struct nx_vpu_v4l2 *dev = (struct nx_vpu_v4l2 *)pv;
-
-	Nothing
-	*/
-#endif
 }
 
 void vpu_soc_peri_hw_off(void *pv)
 {
-#ifndef CONFIG_ARCH_NXP3220_COMMON
-#else
-	/*
-	struct nx_vpu_v4l2 *dev = (struct nx_vpu_v4l2 *)pv;
-
-	Nothing
-	*/
-#endif
 }
 
 void vpu_soc_peri_reset_enter(void *pv)
 {
-#ifndef CONFIG_ARCH_NXP3220_COMMON
-	struct nx_vpu_v4l2 *dev = (struct nx_vpu_v4l2 *)pv;
-
-	reset_control_assert(dev->coda_c);
-	reset_control_assert(dev->coda_a);
-	reset_control_assert(dev->coda_p);
-#else
-#endif
 }
 
 void vpu_soc_peri_reset_exit(void *pv)
 {
-#ifndef CONFIG_ARCH_NXP3220_COMMON
-	struct nx_vpu_v4l2 *dev = (struct nx_vpu_v4l2 *)pv;
-
-	reset_control_deassert(dev->coda_c);
-	reset_control_deassert(dev->coda_a);
-	reset_control_deassert(dev->coda_p);
-#else
-#endif
 }
 
 void vpu_soc_peri_clock_on(void *pv)
 {
-#ifdef CONFIG_ARCH_NXP3220_COMMON
-	struct nx_vpu_v4l2 *dev = (struct nx_vpu_v4l2 *)pv;
-
-	clk_prepare_enable(dev->clk_axi);
-	clk_prepare_enable(dev->clk_apb);
-	clk_prepare_enable(dev->clk_core);
-#else
-#endif
 }
 
 void vpu_soc_peri_clock_off(void *pv)
 {
-#ifdef CONFIG_ARCH_NXP3220_COMMON
-	struct nx_vpu_v4l2 *dev = (struct nx_vpu_v4l2 *)pv;
-
-	clk_disable_unprepare(dev->clk_core);
-	clk_disable_unprepare(dev->clk_apb);
-	clk_disable_unprepare(dev->clk_axi);
-#else
-#endif
 }
 
 #if defined (CONFIG_ARCH_NXP3220_COMMON) &&	\
@@ -1398,44 +1350,6 @@ static int nx_vpu_probe(struct platform_device *pdev)
 		return ret;
 	}
 	init_waitqueue_head(&dev->jpu_wait_queue);
-#endif
-
-#ifdef CONFIG_ARCH_NXP3220_COMMON
-	dev->clk_axi = devm_clk_get(&pdev->dev, "vpu-clk-axi");
-	if (IS_ERR(dev->clk_axi)) {
-		dev_err(&pdev->dev, "failed to get clock of vpu-axi\n");
-		return -ENODEV;
-	}
-
-	dev->clk_apb = devm_clk_get(&pdev->dev, "vpu-clk-apb");
-	if (IS_ERR(dev->clk_apb)) {
-		dev_err(&pdev->dev, "failed to get clock of vpu-apb\n");
-		return -ENODEV;
-	}
-
-	dev->clk_core = devm_clk_get(&pdev->dev, "vpu-clk-core");
-	if (IS_ERR(dev->clk_core)) {
-		dev_err(&pdev->dev, "failed to get clock of vpu-core\n");
-		return -ENODEV;
-	}
-#else
-	dev->coda_c = devm_reset_control_get(&pdev->dev, "vpu-c-reset");
-	if (IS_ERR(dev->coda_c)) {
-		dev_err(&pdev->dev, "failed to get reset control of vpu-c\n");
-		return -ENODEV;
-	}
-
-	dev->coda_a = devm_reset_control_get(&pdev->dev, "vpu-a-reset");
-	if (IS_ERR(dev->coda_a)) {
-		dev_err(&pdev->dev, "failed to get reset control of vpu-c\n");
-		return -ENODEV;
-	}
-
-	dev->coda_p = devm_reset_control_get(&pdev->dev, "vpu-p-reset");
-	if (IS_ERR(dev->coda_p)) {
-		dev_err(&pdev->dev, "failed to get reset control of vpu-c\n");
-		return -ENODEV;
-	}
 #endif
 
 	ret = of_property_read_u32_array(pdev->dev.of_node, "sram", info, 2);
