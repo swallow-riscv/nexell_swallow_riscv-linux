@@ -11,11 +11,7 @@
 #include <linux/kernel.h>
 
 #ifndef CONFIG_ARCH_NXP3220_COMMON
-#define USE_JPEG
 #define USE_ENCODER
-#define USE_DEPRECATED_APIS
-#define USE_DEPRECATED_SYSCALL
-#define USE_DEPRECATED_STRUCTURE
 #endif
 
 /* #define USE_ION_MEMORY */
