@@ -10,8 +10,12 @@
 #include <linux/types.h>
 #include <linux/kernel.h>
 
-#ifndef CONFIG_ARCH_NXP3220_COMMON
+#ifdef CONFIG_ARCH_NXP3220_COMMON
+#endif
+
+#ifdef CONFIG_ARCH_SWALLOW
 #define USE_ENCODER
+//#define USE_DECODER
 #endif
 
 /* #define USE_ION_MEMORY */
