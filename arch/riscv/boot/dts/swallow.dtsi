@@ -201,9 +201,8 @@
 
         video-codec@c0080000 {
 			compatible = "nexell,nx-vpu";
-			reg = <0x2042424242x4000>;
+			reg = <0x20420000 0x4000>;
 			interrupts = <16>,<17>;
-			clocks = <&pclk>, <&bclk>;
 			status = "okay";
 			sram = <0 0>;
 		};
