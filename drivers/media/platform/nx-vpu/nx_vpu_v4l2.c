@@ -1426,6 +1426,7 @@ static int nx_vpu_probe(struct platform_device *pdev)
 	}
 #endif
 
+#ifdef USE_DECODER
 	/* decoder */
 	vfd = video_device_alloc();
 	if (!vfd) {
@@ -1452,6 +1453,7 @@ static int nx_vpu_probe(struct platform_device *pdev)
 		dev_err(&pdev->dev, "Failed to register video device\n");
 		goto err_dec_reg;
 	}
+#endif
 
 	platform_set_drvdata(pdev, dev);
 
@@ -1479,13 +1481,14 @@ err_dec_reg:
 	video_unregister_device(dev->vfd_dec);
 err_dec_alloc:
 	video_device_release(dev->vfd_dec);
+
+err_v4l2_dev_reg:
 #ifdef USE_ENCODER
 err_enc_alloc:
 	video_unregister_device(dev->vfd_enc);
 err_enc_reg:
 	video_device_release(dev->vfd_enc);
 #endif
-err_v4l2_dev_reg:
 	v4l2_device_unregister(&dev->v4l2_dev);
 
 #ifdef USE_DEPRECATED_APIS
@@ -1521,7 +1524,9 @@ static int nx_vpu_remove(struct platform_device *pdev)
 #ifdef USE_ENCODER
 	video_unregister_device(dev->vfd_enc);
 #endif
+#ifdef USE_DECODER
 	video_unregister_device(dev->vfd_dec);
+#endif
 	v4l2_device_unregister(&dev->v4l2_dev);
 
 #ifndef CONFIG_ARCH_NXP3220_COMMON
