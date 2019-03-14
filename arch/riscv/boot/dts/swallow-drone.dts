@@ -31,8 +31,8 @@
 		};
 
 		clipper_0: clipper0@20400000 {
-			/* gpio_f 0 - reset, gpio_d 29 - stand by */
-			gpios = <&gpio_f 0 GPIO_ACTIVE_LOW &gpio_d 29 GPIO_ACTIVE_HIGH>;
+			/* gpio_d 29 - reset, gpio_f 0 - stand by */
+			gpios = <&gpio_d 29 GPIO_ACTIVE_LOW &gpio_f 0 GPIO_ACTIVE_HIGH>;
 			logical = <0>;
 			interface_type = <NX_CAPTURE_INTERFACE_PARALLEL>;
 			data_order = < NX_VIN_CBY0CRY1>;
@@ -53,7 +53,7 @@
 				>;
 			};
 			clock {
-				pwms = <&pwm0 3 25000000 0>;
+				pwms = <&pwm2 3 25000000 0>;
 				pwm-names = "pwm-clipper_0-sensor";
 			};
 		};
@@ -148,6 +148,10 @@
 		};
 
 		pwm0: pwm0@208e0000 {
+			status = "okay";
+		};
+
+		pwm2: pwm2@20900000 {
 			status = "okay";
 		};
 
