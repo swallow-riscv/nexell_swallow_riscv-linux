@@ -10,6 +10,7 @@
 #endif
 
 #include <linux/platform_device.h>
+#include <linux/ctype.h>
 
 #include "vpu_hw_interface.h"           /* Register Access */
 #include "nx_vpu_api.h"
@@ -33,6 +34,52 @@ static int VPU_EncGetHeaderCommand(struct nx_vpu_codec_inst *pInst,
 	unsigned int headerType, void **ptr, int *size);
 static int VPU_EncCloseCommand(struct nx_vpu_codec_inst *pInst,
 	void *vpu_event_present);
+	
+
+static void hexdump(const void *_data, size_t size)
+{ 
+	const uint8_t *data = (const uint8_t *)_data;
+	size_t offset = 0;
+	char tmp[32];
+	unsigned char line[80];
+	int i;
+	while (offset < size)
+	{
+		line[0] = 0;
+		snprintf(tmp, sizeof(tmp), "%08x:  ", (uint32_t)offset);
+
+		for (i = 0; i < 16; ++i)
+		{
+			if (i == 8) {
+				strcat( line, tmp );
+			}
+			if (offset + i >= size) {
+				strcat( line, "   ");
+			} else {
+				snprintf(tmp, sizeof(tmp), "%02x ", data[offset + i]);
+				strcat( line, tmp );
+			}
+		}
+
+		strcat(line, " ");
+
+		for (i = 0; i < 16; ++i) {
+			if (offset + i >= size) {
+				break;
+			}
+
+			if (isprint(data[offset + i])) {
+				strcat(line, (char*)&data[offset + i]);
+			} else {
+				strcat(line, "."); 
+			} 
+		}
+
+		printk("%s", line);
+		offset += 16;
+	}
+}
+
 
 /*----------------------------------------------------------------------------
  *			Encoder APIs
@@ -225,6 +272,9 @@ int NX_VpuEncGetHeader(struct nx_vpu_codec_inst *pInst,
 			NX_ErrMsg("NX_VpuEncGetHeader() SPS_RBSP Error!\n");
 			goto GET_HEADER_EXIT;
 		}
+		/* don't delete this code, this is turn around code for cache problem */
+		printk("hexdump : sps\n");
+		hexdump(ptr, size);
 		NX_DrvMemcpy(pHeader->avcHeader.spsData, ptr, size);
 		pHeader->avcHeader.spsSize = size;
 		/* PPS */
@@ -233,6 +283,9 @@ int NX_VpuEncGetHeader(struct nx_vpu_codec_inst *pInst,
 			NX_ErrMsg("NX_VpuEncGetHeader() PPS_RBSP Error!\n");
 			goto GET_HEADER_EXIT;
 		}
+		/* don't delete this code, this is turn around code for cache problem */
+		printk("hexdump : pps\n");
+		hexdump(ptr, size);
 		NX_DrvMemcpy(pHeader->avcHeader.ppsData, ptr, size);
 		pHeader->avcHeader.ppsSize = size;
 	} else if (MP4_ENC == pInst->codecMode) {
@@ -900,6 +953,8 @@ static int VPU_EncOneFrameCommand(struct nx_vpu_codec_inst *pInst,
 	pRunArg->frameType = picType;
 	pRunArg->outStreamSize = size;
 	pRunArg->outStreamAddr = pEncInfo->strmBufVirAddr;
+	/* don't delete this code, this is turn around code for cache problem */
+	hexdump((char*)pEncInfo->strmBufVirAddr, (size>128)?128:size);
 
 	/*NX_DbgMsg(INFO_MSG, "Encoded Size = %d, PicType = %d, picFlag = %d,
 		sliceNumber = %d\n", size, picType, picFlag, sliceNumber);*/
