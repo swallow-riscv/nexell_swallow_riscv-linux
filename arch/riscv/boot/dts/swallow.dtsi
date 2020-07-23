@@ -230,7 +230,7 @@
 			clocks = <&cmu CLK_2_I2C0_APB>;
 			clock-names = "i2c0_apb";
 			interrupts = <35>;
-			clock-frequency = <1000000>;
+			clock-frequency = <100000>;
 			i2c-sda-hold-time-ns = <300>;
 			i2c-sda-falling-time-ns = <300>;
 			i2c-scl-falling-time-ns = <300>;
@@ -247,7 +247,7 @@
 			clocks = <&cmu CLK_2_I2C1_APB>;
 			clock-names = "i2c1_apb";
 			interrupts = <36>;
-			clock-frequency = <1000000>;
+			clock-frequency = <100000>;
 			i2c-sda-hold-time-ns = <300>;
 			i2c-sda-falling-time-ns = <300>;
 			i2c-scl-falling-time-ns = <300>;
@@ -264,7 +264,7 @@
 			clocks = <&cmu CLK_2_I2C2_APB>;
 			clock-names = "i2c2_apb";
 			interrupts = <37>;
-			clock-frequency = <1000000>;
+			clock-frequency = <100000>;
 			i2c-sda-hold-time-ns = <300>;
 			i2c-sda-falling-time-ns = <300>;
 			i2c-scl-falling-time-ns = <300>;
@@ -281,7 +281,7 @@
 			clocks = <&cmu CLK_2_I2C3_APB>;
 			clock-names = "i2c3_apb";
 			interrupts = <38>;
-			clock-frequency = <1000000>;
+			clock-frequency = <100000>;
 			i2c-sda-hold-time-ns = <300>;
 			i2c-sda-falling-time-ns = <300>;
 			i2c-scl-falling-time-ns = <300>;
@@ -298,7 +298,7 @@
 			clocks = <&cmu CLK_2_I2C4_APB>;
 			clock-names = "i2c4_apb";
 			interrupts = <39>;
-			clock-frequency = <1000000>;
+			clock-frequency = <100000>;
 			i2c-sda-hold-time-ns = <300>;
 			i2c-sda-falling-time-ns = <300>;
 			i2c-scl-falling-time-ns = <300>;
@@ -315,7 +315,7 @@
 			clocks = <&cmu CLK_2_I2C5_APB>;
 			clock-names = "i2c5_apb";
 			interrupts = <40>;
-			clock-frequency = <1000000>;
+			clock-frequency = <100000>;
 			i2c-sda-hold-time-ns = <300>;
 			i2c-sda-falling-time-ns = <300>;
 			i2c-scl-falling-time-ns = <300>;
@@ -332,7 +332,7 @@
 			clocks = <&cmu CLK_2_I2C6_APB>;
 			clock-names = "i2c6_apb";
 			interrupts = <41>;
-			clock-frequency = <1000000>;
+			clock-frequency = <100000>;
 			i2c-sda-hold-time-ns = <300>;
 			i2c-sda-falling-time-ns = <300>;
 			i2c-scl-falling-time-ns = <300>;
@@ -349,7 +349,7 @@
 			clocks = <&cmu CLK_2_I2C7_APB>;
 			clock-names = "i2c7_apb";
 			interrupts = <42>;
-			clock-frequency = <1000000>;
+			clock-frequency = <100000>;
 			i2c-sda-hold-time-ns = <300>;
 			i2c-sda-falling-time-ns = <300>;
 			i2c-scl-falling-time-ns = <300>;
@@ -366,7 +366,7 @@
 			clocks = <&cmu CLK_2_I2C8_APB>;
 			clock-names = "i2c8_apb";
 			interrupts = <43>;
-			clock-frequency = <1000000>;
+			clock-frequency = <100000>;
 			i2c-sda-hold-time-ns = <300>;
 			i2c-sda-falling-time-ns = <300>;
 			i2c-scl-falling-time-ns = <300>;
@@ -383,7 +383,7 @@
 			clocks = <&cmu CLK_2_I2C9_APB>;
 			clock-names = "i2c9_apb";
 			interrupts = <44>;
-			clock-frequency = <1000000>;
+			clock-frequency = <100000>;
 			i2c-sda-hold-time-ns = <300>;
 			i2c-sda-falling-time-ns = <300>;
 			i2c-scl-falling-time-ns = <300>;
@@ -400,7 +400,7 @@
 			clocks = <&cmu CLK_2_I2C10_APB>;
 			clock-names = "i2c10_apb";
 			interrupts = <45>;
-			clock-frequency = <1000000>;
+			clock-frequency = <100000>;
 			i2c-sda-hold-time-ns = <300>;
 			i2c-sda-falling-time-ns = <300>;
 			i2c-scl-falling-time-ns = <300>;
@@ -417,7 +417,7 @@
 			clocks = <&cmu CLK_2_I2C11_APB>;
 			clock-names = "i2c11_apb";
 			interrupts = <46>;
-			clock-frequency = <1000000>;
+			clock-frequency = <100000>;
 			i2c-sda-hold-time-ns = <300>;
 			i2c-sda-falling-time-ns = <300>;
 			i2c-scl-falling-time-ns = <300>;
