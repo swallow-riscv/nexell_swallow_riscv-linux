@@ -687,7 +687,12 @@ static int nx_clipper_parse_dt(struct device *dev, struct nx_clipper *me)
 			me->h_syncwidth = 1;
 			me->h_backporch = 10;
 			me->v_frontporch = 0;
+#define REMOVE_ENABLE_TIMEOUT
+#ifdef REMOVE_ENABLE_TIMEOUT
+			me->v_syncwidth = 0;
+#else
 			me->v_syncwidth = 2;
+#endif
 			me->v_backporch = 3;
 		} else {
 			if (of_property_read_u32(np, "padclk_sel",
