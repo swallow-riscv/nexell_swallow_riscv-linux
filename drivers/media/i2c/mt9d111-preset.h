@@ -25,7 +25,7 @@ static struct reg_val mt9d111_reg_init[] = {
 	{0, 0x08, 0x0077},		/* VBLANK (A) = 119 0x0077   */
 	{0, 0x20, 0x0303},		/* Read Mode (B) = 768,[1:0] flip, rotate  */
 	{0, 0x21, 0x0000},		/* Read Mode (A) = 0 */
-	{0, 0x66, 0x1402},		/* PLL Control 1 = 5122 */
+	{0, 0x66, 0x2004},		/* Fin=25MHz -> Fout=80MHz */
 	{0, 0x67, 0x0500},		/* PLL Control 2 = 1280 */
 	{0, 0x65, 0xA000},		/* Clock CNTRL: PLL ON = 40960 */
 
@@ -358,6 +358,7 @@ static struct reg_val mt9d111_reg_init[] = {
 
 	/*  Y_RGB_OFFSET */
 	{1, 0xBF, 0x0000}, 		/*  Y_RGB_OFFSET */
+	{1, 0x97, 0x0010},
 	{1, 0xF0, 0x0002}, 		/*  Page Register */
 	{1, 0x0D, 0x0407}, 		/*  bypassed PLL (prepare for soft reset */
 
