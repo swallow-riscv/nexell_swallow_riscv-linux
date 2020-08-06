@@ -8,8 +8,8 @@
 #ifndef __MT9D111_NX_H__
 #define __MT9D111_NX_H__
 
-#define I2C_DELAY				0xFE	/* delay (msec) */
-#define I2C_TERM				0xFF	/* end of list entry */
+#define MT_DELAY				0xFE	/* delay (msec) */
+#define MT_TERM					0xFF	/* end of list entry */
 
 #define NUM_CTRLS				7
 
@@ -91,25 +91,6 @@ struct reg_val {
 	u8 page;		/* page number */
 	u8 reg;			/* 8-bit register */
 	u16 val;		/* 16-bit value */
-};
-
-struct mt9d111_state {
-	struct v4l2_subdev sd;
-	struct media_pad pad;
-	struct v4l2_ctrl_handler handler;
-	/* standard */
-	struct v4l2_ctrl *focus;
-	struct v4l2_ctrl *wb;
-	struct v4l2_ctrl *color_effect;
-	struct v4l2_ctrl *exposure;
-
-	bool inited;
-	int width;
-	int height;
-	int mode; /* PREVIEW or CAPTURE */
-
-	/* for zoom */
-	struct v4l2_rect crop;
 };
 
 #endif

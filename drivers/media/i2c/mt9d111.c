@@ -22,20 +22,63 @@
 
 #define MT9D111_CAM_DRIVER_NAME	"MT9D111"
 
+#define	REG_PAGE			(0xF0)
+
+/*****************************************************************************/
+
+struct mt9d111_state {
+	struct v4l2_subdev sd;
+	struct media_pad pad;
+	struct v4l2_ctrl_handler handler;
+	/* standard */
+	struct v4l2_ctrl *focus;
+	struct v4l2_ctrl *wb;
+	struct v4l2_ctrl *color_effect;
+	struct v4l2_ctrl *exposure;
+
+	bool inited;
+	int width;
+	int height;
+	int mode; /* PREVIEW or CAPTURE */
+	int resol;	/* index of supported_resolutions */
+
+	/* for zoom */
+	struct v4l2_rect crop;
+};
+
 struct nx_resolution {
+	const char *name;
 	uint32_t width;
 	uint32_t height;
 	uint32_t interval[2];
+	struct reg_val *regs;
+	size_t reg_size;
 };
+
+/*****************************************************************************/
 
 static struct nx_resolution supported_resolutions[] = {
 	{
+		.name = "1280x720",
 		.width	= 1280,
 		.height = 720,
 		.interval[0] = 15,
 		.interval[1] = 30,
+		.regs = mt9d111_resol_720p,
+		.reg_size = ARRAY_SIZE(mt9d111_resol_720p),
+	},
+	{
+		.name = "640x480",
+		.width	= 640,
+		.height = 480,
+		.interval[0] = 15,
+		.interval[1] = 30,
+		.regs = mt9d111_resol_vga,
+		.reg_size = ARRAY_SIZE(mt9d111_resol_vga),
 	}
 };
+
+/*****************************************************************************/
 
 static inline struct mt9d111_state *to_state(struct v4l2_subdev *sd)
 {
@@ -104,6 +147,8 @@ static int mt9d111_i2c_write_word(struct i2c_client *client,
 	unsigned char buf[4];
 	struct i2c_msg msg = {client->addr, 0, 3, buf};
 
+//	pr_info("[0x%02X]=0x%04X\n", addr, w_data);
+
 	buf[0] = addr;
 	buf[1] = w_data >> 8;
 	buf[2] = w_data & 0xff;
@@ -129,24 +174,34 @@ static int mt9d111_i2c_write_word(struct i2c_client *client,
 }
 
 static int mt9d111_write_regs(struct i2c_client *client,
-		struct reg_val regvals[], int size)
+			      struct reg_val *regs, int size)
 {
 	int i;
-	s32 err = 0;
-	struct reg_val *regval;
+	int ret = 0;
+	int page = -1;
 
 	for (i = 0; i < size ; i++) {
-		regval = &regvals[i];
-		if(regval->page == I2C_TERM)
+		struct reg_val *r = &regs[i];
+
+		if (r->page == MT_TERM)
 			break;
-		else if (regval->page == I2C_DELAY)
-			mdelay(regval->val);
-		else
-			err = mt9d111_i2c_write_word(client,
-					regval->reg, regval->val);
+		else if (r->page == MT_DELAY)
+			mdelay(r->val);
+		else {
+			if (r->page != page) {
+				page = r->page;
+				BUG_ON(page < 0 || page > 2);
+				ret = mt9d111_i2c_write_word(client,
+							     REG_PAGE, page);
+				BUG_ON(ret);
+			}
+			ret = mt9d111_i2c_write_word(client,
+						     r->reg, r->val);
+			BUG_ON(ret);
+		}
 	}
 
-	return err;
+	return ret;
 }
 
 static int mt9d111_set_frame_size(struct v4l2_subdev *sd, int mode,
@@ -240,6 +295,17 @@ static int mt9d111_get_selection(struct v4l2_subdev *sd,
 	return 0;
 }
 
+static int lookup_resolution(int width, int height)
+{
+	int i;
+	for (i = 0; i < ARRAY_SIZE(supported_resolutions); i++) {
+		if (supported_resolutions[i].width == width &&
+		    supported_resolutions[i].height == height)
+			return i;
+	}
+	return -ENOENT;
+}
+
 static int mt9d111_set_fmt(struct v4l2_subdev *sd,
 		struct v4l2_subdev_pad_config *cfg,
 		struct v4l2_subdev_format *fmt)
@@ -254,6 +320,10 @@ static int mt9d111_set_fmt(struct v4l2_subdev *sd,
 	state->height = _fmt->height;
 	pr_debug("%s: mode %d, %dx%d\n", __func__,
 			state->mode, state->width, state->height);
+
+	state->resol = lookup_resolution(_fmt->width, _fmt->height);
+	BUG_ON(state->resol < 0);
+
 	return err;
 }
 
@@ -348,8 +418,10 @@ static int mt9d111_init(struct v4l2_subdev *sd, u32 val)
 			return -1;
 		}
 
-		err = mt9d111_write_regs(client, mt9d111_reg_init,
-				ARRAY_SIZE(mt9d111_reg_init));
+		pr_info("resol=%s\n", supported_resolutions[state->resol].name);
+		err = mt9d111_write_regs(client,
+					 supported_resolutions[state->resol].regs,
+					 supported_resolutions[state->resol].reg_size);
 
 		mdelay(60); /*keun 2015.04.28*/
 
@@ -390,8 +462,10 @@ static int mt9d111_s_stream(struct v4l2_subdev *sd, int enable)
 
 	if (enable) {
 		mt9d111_init(sd, enable);
+#if	0
 		mt9d111_set_frame_size(sd, state->mode, state->width,
 				state->height);
+#endif	/*0*/
 	} else
 		state->inited = false;
 
