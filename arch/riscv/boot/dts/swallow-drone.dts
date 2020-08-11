@@ -135,6 +135,10 @@
 			status = "okay";
 		};
 
+		usart_0:usart0@208a0000 {
+			status = "okay";
+		};
+
 		usart_1:usart1@208b0000 {
 			status = "okay";
 		};
