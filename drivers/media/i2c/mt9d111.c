@@ -41,6 +41,7 @@ struct mt9d111_state {
 	int height;
 	int mode; /* PREVIEW or CAPTURE */
 	int resol;	/* index of supported_resolutions */
+	int fps;
 
 	/* for zoom */
 	struct v4l2_rect crop;
@@ -57,8 +58,14 @@ struct nx_resolution {
 
 /*****************************************************************************/
 
+enum {
+	RESOL_720P,
+	RESOL_VGA,
+	RESOL_COUNT
+};
+
 static struct nx_resolution supported_resolutions[] = {
-	{
+	[RESOL_720P] = {
 		.name = "1280x720",
 		.width	= 1280,
 		.height = 720,
@@ -67,7 +74,7 @@ static struct nx_resolution supported_resolutions[] = {
 		.regs = mt9d111_resol_720p,
 		.reg_size = ARRAY_SIZE(mt9d111_resol_720p),
 	},
-	{
+	[RESOL_VGA] = {
 		.name = "640x480",
 		.width	= 640,
 		.height = 480,
@@ -323,6 +330,7 @@ static int mt9d111_set_fmt(struct v4l2_subdev *sd,
 
 	state->resol = lookup_resolution(_fmt->width, _fmt->height);
 	BUG_ON(state->resol < 0);
+	state->fps = (state->resol == RESOL_VGA ? 15 : 30);
 
 	return err;
 }
@@ -398,6 +406,99 @@ static int mt9d111_connected_check(struct i2c_client *client)
 	return 0;
 }
 
+static int mt9d111_g_frame_interval(struct v4l2_subdev *sd,
+				    struct v4l2_subdev_frame_interval *itv)
+{
+	struct i2c_client *client = v4l2_get_subdevdata(sd);
+	struct mt9d111_state *state = to_state(sd);
+
+	itv->interval.numerator = 1;
+	itv->interval.denominator = state->fps;
+
+	return 0;
+}
+
+static int mt9d111_set_fps(struct v4l2_subdev *sd, int fps)
+{
+	int ret = -EINVAL;
+	struct reg_val *regs;
+	struct i2c_client *client = v4l2_get_subdevdata(sd);
+	struct mt9d111_state *state = to_state(sd);
+
+	static struct reg_val __vga_30fps[] = {
+		{ 0x00, 0x08, 0x000C },
+		{ 0x01, 0xC6, 0x2717 },
+		{ 0x01, 0xC8, 0x01EE },
+		{ 0x01, 0xC6, 0xA20D },
+		{ 0x01, 0xC8, 0x0001 },
+		{ 0x01, 0xC6, 0xA20E },
+		{ 0x01, 0xC8, 0x0004 },
+	};
+
+	static struct reg_val __vga_15fps[] = {
+		{ 0x00, 0x08, 0x03B7 },
+		{ 0x01, 0xC6, 0x2717 },
+		{ 0x01, 0xC8, 0x030C },
+		{ 0x01, 0xC6, 0xA20D },
+		{ 0x01, 0xC8, 0x0005 },
+		{ 0x01, 0xC6, 0xA20E },
+		{ 0x01, 0xC8, 0x0005 },
+	};
+
+	switch (fps) {
+	case 30:
+		if (state->resol == RESOL_VGA)
+			mt9d111_write_regs(client,
+					   __vga_30fps, ARRAY_SIZE(__vga_30fps));
+		ret = 0;
+		break;
+	case 15:
+		if (state->resol == RESOL_VGA)
+			mt9d111_write_regs(client,
+					   __vga_15fps, ARRAY_SIZE(__vga_15fps));
+		ret = 0;
+		break;
+	default:
+		pr_err("%u: don't support fps\n", fps);
+		break;
+	}
+
+	return ret;
+}
+
+static int mt9d111_s_frame_interval(struct v4l2_subdev *sd,
+				    struct v4l2_subdev_frame_interval *itv)
+{
+	int apply = 0;
+	int ret = -EINVAL;
+	struct i2c_client *client = v4l2_get_subdevdata(sd);
+	struct mt9d111_state *state = to_state(sd);
+	int fps = itv->interval.numerator * itv->interval.denominator;
+
+	if (state->resol != RESOL_VGA)
+		return 0;
+
+	switch (fps) {
+	case 30:
+	case 15:
+		if (state->fps != fps) {
+			state->fps = fps;
+			apply = 1;
+		}
+		ret = 0;
+		break;
+	default:
+		pr_err("%u: don't support fps\n", fps);
+		break;
+	}
+
+	// if already streamon, apply immediately
+	if (apply && state->inited)
+		ret = mt9d111_set_fps(sd, state->fps);
+
+	return ret;
+}
+
 static int mt9d111_init(struct v4l2_subdev *sd, u32 val)
 {
 	int err = 0;
@@ -418,10 +519,13 @@ static int mt9d111_init(struct v4l2_subdev *sd, u32 val)
 			return -1;
 		}
 
-		pr_info("resol=%s\n", supported_resolutions[state->resol].name);
+		pr_info("resol=%s, fps=%d\n",
+			supported_resolutions[state->resol].name, state->fps);
+
 		err = mt9d111_write_regs(client,
 					 supported_resolutions[state->resol].regs,
 					 supported_resolutions[state->resol].reg_size);
+		mt9d111_set_fps(sd, state->fps);
 
 		mdelay(60); /*keun 2015.04.28*/
 
@@ -495,6 +599,8 @@ static const struct v4l2_subdev_pad_ops mt9d111_pad_ops = {
 
 static const struct v4l2_subdev_video_ops mt9d111_video_ops = {
 	.s_stream = mt9d111_s_stream,
+	.g_frame_interval = mt9d111_g_frame_interval,
+	.s_frame_interval = mt9d111_s_frame_interval,
 };
 
 static const struct v4l2_subdev_ops mt9d111_ops = {
