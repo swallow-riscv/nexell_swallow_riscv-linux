@@ -36,6 +36,16 @@ static int VPU_EncCloseCommand(struct nx_vpu_codec_inst *pInst,
 	void *vpu_event_present);
 
 
+
+/*------------------------------------------------------------------------------- 
+  hexdump data format :
+          1         2         3         4         5         6         7         8
+012345678901234567890123456789012345678901234567890123456789012345678901234567890
+
+01234567:  01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f  ................
+
+ */
+
 static void hexdump(const void *_data, size_t size)
 {
 	const uint8_t *data = (const uint8_t *)_data;
@@ -62,19 +72,20 @@ static void hexdump(const void *_data, size_t size)
 		}
 
 		strcat(line, " ");
-
 		for (i = 0; i < 16; ++i) {
 			if (offset + i >= size) {
 				break;
 			}
-
+#if 0
 			if (isprint(data[offset + i])) {
 				strcat(line, (char*)&data[offset + i]);
 			} else {
 				strcat(line, ".");
 			}
+#else
+			strcat(line, ".");
+#endif
 		}
-
 		printk("%s", line);
 		offset += 16;
 	}
@@ -273,9 +284,9 @@ int NX_VpuEncGetHeader(struct nx_vpu_codec_inst *pInst,
 			goto GET_HEADER_EXIT;
 		}
 		/* don't delete this code, this is turn around code for cache problem */
+		NX_DrvMemcpy(pHeader->avcHeader.spsData, ptr, size);
 		printk("hexdump : sps\n");
 		hexdump(ptr, size);
-		NX_DrvMemcpy(pHeader->avcHeader.spsData, ptr, size);
 		pHeader->avcHeader.spsSize = size;
 		/* PPS */
 		ret = VPU_EncGetHeaderCommand(pInst, PPS_RBSP, &ptr, &size);
@@ -284,9 +295,9 @@ int NX_VpuEncGetHeader(struct nx_vpu_codec_inst *pInst,
 			goto GET_HEADER_EXIT;
 		}
 		/* don't delete this code, this is turn around code for cache problem */
+		NX_DrvMemcpy(pHeader->avcHeader.ppsData, ptr, size);
 		printk("hexdump : pps\n");
 		hexdump(ptr, size);
-		NX_DrvMemcpy(pHeader->avcHeader.ppsData, ptr, size);
 		pHeader->avcHeader.ppsSize = size;
 	} else if (MP4_ENC == pInst->codecMode) {
 		ret = VPU_EncGetHeaderCommand(pInst, VOS_HEADER, &ptr, &size);
