@@ -1,0 +1,9 @@
+#
+# Condor configuration
+#
+
+config CONDOR
+	tristate "Condor device driver"
+	default y
+	help
+		This is the driver for the KETI Condor
