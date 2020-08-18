@@ -75,7 +75,6 @@ static int condor_probe(struct platform_device *pdev)
     struct condor_netdev *cndev;
     struct net_device *ndev;
     // dev_info(&pdev->dev, "Probing condor\n");
-    printk("Probing condor\n");
 
     /*
    * 네트워크 디바이스를 초기화한다.
@@ -153,7 +152,6 @@ static int condor_probe(struct platform_device *pdev)
         goto map_err;
     }
     // dev_info(&pdev->dev, "Success to request_irq(%d)\n", pdata->irq);
-    printk("condor : Success to request_irq(%d)\n", pdata->irq);
 
     /*
    * 네트워크 디바이스를 커널에 등록한다.
@@ -172,7 +170,6 @@ static int condor_probe(struct platform_device *pdev)
     init_condor_threads();
 
     // dev_info(&pdev->dev, "Success to probe\n");
-    printk("condor : Success to probe\n");
     return 0;
 
 map_err:
@@ -203,7 +200,6 @@ static int condor_probe(struct platform_device *pdev)
     struct device_node *node = pdev->dev.of_node;
 
     // dev_info(&pdev->dev, "Probing condor\n");
-    printk("~~~~~~~~~~~~~~~~~~~~~~~~ Probing condor 2\n");
 
     // Searching matched device
     match = of_match_device(condor_match_table, &pdev->dev);
@@ -596,8 +592,6 @@ static int __init condor_of_to_pdev(void)
  */
 static int __init condor_init(void)
 {
-    printk(KERN_INFO "Loading %s\n", condor_driver.driver.name);
-
 #if LINUX_VERSION_CODE < KERNEL_VERSION(3, 0, 0)
 
     if (condor_of_to_pdev())
