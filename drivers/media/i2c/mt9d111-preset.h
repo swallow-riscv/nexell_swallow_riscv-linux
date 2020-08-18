@@ -211,7 +211,7 @@ static struct reg_val mt9d111_resol_720p[] = {
 	{0, 0x08, 0x0077},		/* VBLANK (A) = 119 0x0077   */
 	{0, 0x20, 0x0303},		/* Read Mode (B) = 768,[1:0] flip, rotate  */
 	{0, 0x21, 0x0000},		/* Read Mode (A) = 0 */
-	{0, 0x66, 0x2004},		/* Fin=25MHz -> Fout=80MHz */
+	{0, 0x66, 0x1402},		/* PLL Control 1 = 5122 */
 	{0, 0x67, 0x0500},		/* PLL Control 2 = 1280 */
 	{0, 0x65, 0xA000},		/* Clock CNTRL: PLL ON = 40960 */
 
