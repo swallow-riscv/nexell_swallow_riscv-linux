@@ -769,7 +769,19 @@
 			interrupts = <83>, <84>, <85>, <86>, <87>, <88>, <89>, <90>;
 			status = "okay";
 		};
-        };
+		//Modified by KETI skjin
+		c2dl@20C00000 {
+				compatible = "keti,keti-c2dl";
+				reg = <0x20C00000 0x10000>;
+				interrupts = <27>;
+				clocks = <&cmu CLK_1_C2DL0_AHB>,
+					     <&cmu CLK_3_C2DL0_CORE>;
+				clock-names = "c2dl0_ahb", "c2dl0_core";
+				pinctrl-names = "default";
+				pinctrl-0 = <&c2dl_gps_pps &c2dl_rxena &c2dl_txena &c2dl_rf_hp &c2dl_ext_agc &c2dl_rf_bus &c2dl_rf_cca &c2dl_ext_tx_i &c2dl_ext_tx_q &c2dl_ext_rx_i &c2dl_ext_rx_q>;
+				status = "okay";
+		};
+	};
 
 	nexell-ion@0 {
 		compatible = "nexell,ion";
