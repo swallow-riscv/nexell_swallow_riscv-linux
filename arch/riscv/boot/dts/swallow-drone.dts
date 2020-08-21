@@ -52,10 +52,6 @@
 				NX_ACTION_START NX_ACTION_TYPE_GPIO 0 0 1 1 1 NX_ACTION_END
 				>;
 			};
-			clock {
-				pwms = <&pwm2 3 25000000 0>;
-				pwm-names = "pwm-clipper_0-sensor";
-			};
 		};
 
 		scaler: scaler@20410000 {
@@ -155,14 +151,10 @@
 			status = "okay";
 		};
 
-		pwm2: pwm2@20900000 {
+		watchdog@206d0000 {
 			status = "okay";
 		};
-
-                watchdog@206d0000 {
-                        status = "okay";
-                };
-        };
+	};
 
 	spi0_wp: regulator-fix@0 {
 		compatible = "regulator-fixed";
