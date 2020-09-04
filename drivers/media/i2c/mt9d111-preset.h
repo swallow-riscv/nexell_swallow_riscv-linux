@@ -3,6 +3,196 @@
 
 #include "mt9d111.h"
 
+static struct reg_val mt9d111_resol_640x360[] = {
+
+#if 1
+	{ 0, 0x65, 0xA000},	/*  bypassed PLL (prepare for soft reset */
+	{ 1, 0xC3, 0x0501},	/*  MCU_BOOT_MODE (MCU reset) */
+	{ 0, 0x0D, 0x0021},	/*  RESET_REG (enable soft reset) */
+	{ MT_DELAY, 0, 250},	/*  DELAY=1 */
+	{ 0, 0x0D, 0x0000},	/*  RESET_REG (disable soft reset) */
+	{ MT_DELAY, 0, 250},	/*  DELAY=100 */
+#endif
+
+	{ 0, 0x05, 0x011E },        //HBLANK (B) = 286
+	{ 0, 0x06, 0x00C7 },        //VBLANK (B) = 199
+	{ 0, 0x07, 0x011E },        //HBLANK (A) = 286
+	{ 0, 0x08, 0x000C },        //VBLANK (A) = 12
+	{ 0, 0x20, 0x0300 },        //Read Mode (B) = 768
+	{ 0, 0x21, 0x0000 },        //Read Mode (A) = 0
+
+	{ 0, 0x66, 0x1402 },        //PLL Control 1 = 5122
+	{ 0, 0x67, 0x0500 },        //PLL Control 2 = 1280
+	{ 0, 0x65, 0xA000 },        //Clock CNTRL: PLL ON = 40960
+
+	{ MT_DELAY, 0x00, 250 },
+	{ 0, 0x65, 0x2000 },        //Clock CNTRL: USE PLL = 8192
+	{ MT_DELAY, 0x00, 250 },
+
+	{ 1, 0xC6, 0x2703 },        //Output Width (A)
+	{ 1, 0xC8, 0x0280 },        //      = 640
+	{ 1, 0xC6, 0x2705 },        //Output Height (A)
+	{ 1, 0xC8, 0x0168 },        //      = 360
+	{ 1, 0xC6, 0x2707 },        //Output Width (B)
+	{ 1, 0xC8, 0x0280 },        //      = 640
+	{ 1, 0xC6, 0x2709 },        //Output Height (B)
+	{ 1, 0xC8, 0x0168 },        //      = 360
+	{ 1, 0xC6, 0x270B },        //mode_config
+	{ 1, 0xC8, 0x0030 },        //      = 48
+	{ 1, 0xC6, 0x270F },        //Row Start (A)
+	{ 1, 0xC8, 0x00D0 },        //      = 28+180
+	{ 1, 0xC6, 0x2711 },        //Column Start (A)
+	{ 1, 0xC8, 0x00E6 },        //      = 60+170
+	{ 1, 0xC6, 0x2713 },        //Row Height (A)
+	{ 1, 0xC8, 0x0348 },        //      = 840
+	{ 1, 0xC6, 0x2715 },        //Column Width (A)
+	{ 1, 0xC8, 0x04EC },        //      = 1260
+	{ 1, 0xC6, 0x2717 },        //Extra Delay (A)
+	{ 1, 0xC8, 0x009B },        //      = 155
+	{ 1, 0xC6, 0x2719 },        //Row Speed (A)
+	{ 1, 0xC8, 0x0011 },        //      = 17
+	{ 1, 0xC6, 0x271B },        //Row Start (B)
+	{ 1, 0xC8, 0x00D0 },        //      = 28+180
+	{ 1, 0xC6, 0x271D },        //Column Start (B)
+	{ 1, 0xC8, 0x00E6 },        //      = 60+170
+	{ 1, 0xC6, 0x271F },        //Row Height (B)
+	{ 1, 0xC8, 0x0348 },        //      = 840
+	{ 1, 0xC6, 0x2721 },        //Column Width (B)
+	{ 1, 0xC8, 0x04EC },        //      = 1260
+	{ 1, 0xC6, 0x2723 },        //Extra Delay (B)
+	{ 1, 0xC8, 0x01EE },        //      = 494
+	{ 1, 0xC6, 0x2725 },        //Row Speed (B)
+	{ 1, 0xC8, 0x0011 },        //      = 17
+	{ 1, 0xC6, 0x2727 },        //Crop_X0 (A)
+	{ 1, 0xC8, 0x0000 },        //      = 0
+	{ 1, 0xC6, 0x2729 },        //Crop_X1 (A)
+	{ 1, 0xC8, 0x04EC },        //      = 1260
+	{ 1, 0xC6, 0x272B },        //Crop_Y0 (A)
+	{ 1, 0xC8, 0x0000 },        //      = 0
+	{ 1, 0xC6, 0x272D },        //Crop_Y1 (A)
+	{ 1, 0xC8, 0x0348 },        //      = 840
+	{ 1, 0xC6, 0x2735 },        //Crop_X0 (B)
+	{ 1, 0xC8, 0x0000 },        //      = 0
+	{ 1, 0xC6, 0x2737 },        //Crop_X1 (B)
+	{ 1, 0xC8, 0x04EC },        //      = 1260
+	{ 1, 0xC6, 0x2739 },        //Crop_Y0 (B)
+	{ 1, 0xC8, 0x0000 },        //      = 0
+	{ 1, 0xC6, 0x273B },        //Crop_Y1 (B)
+	{ 1, 0xC8, 0x0348 },        //      = 840
+	{ 1, 0xC6, 0xA743 },        //Gamma and Contrast Settings (A)
+	{ 1, 0xC8, 0x0002 },        //      = 2
+	{ 1, 0xC6, 0xA744 },        //Gamma and Contrast Settings (B)
+	{ 1, 0xC8, 0x0002 },        //      = 2
+
+	// gamma=0.45, black:6, contrast=1.25
+
+	{ 1, 0xC6, 0xA745 },    // MCU_ADDRESS [MODE_GAM_TABLE_A_0]
+	{ 1, 0xC8, 0x0000 },    // MCU_DATA_0
+	{ 1, 0xC6, 0xA746 },    // MCU_ADDRESS [MODE_GAM_TABLE_A_1]
+	{ 1, 0xC8, 0x0008 },    // MCU_DATA_0
+	{ 1, 0xC6, 0xA747 },    // MCU_ADDRESS [MODE_GAM_TABLE_A_2]
+	{ 1, 0xC8, 0x0019 },    // MCU_DATA_0
+	{ 1, 0xC6, 0xA748 },    // MCU_ADDRESS [MODE_GAM_TABLE_A_3]
+	{ 1, 0xC8, 0x0035 },    // MCU_DATA_0
+	{ 1, 0xC6, 0xA749 },    // MCU_ADDRESS [MODE_GAM_TABLE_A_4]
+	{ 1, 0xC8, 0x0056 },    // MCU_DATA_0
+	{ 1, 0xC6, 0xA74A },    // MCU_ADDRESS [MODE_GAM_TABLE_A_5]
+	{ 1, 0xC8, 0x006F },    // MCU_DATA_0
+	{ 1, 0xC6, 0xA74B },    // MCU_ADDRESS [MODE_GAM_TABLE_A_6]
+	{ 1, 0xC8, 0x0085 },    // MCU_DATA_0
+	{ 1, 0xC6, 0xA74C },    // MCU_ADDRESS [MODE_GAM_TABLE_A_7]
+	{ 1, 0xC8, 0x0098 },    // MCU_DATA_0
+	{ 1, 0xC6, 0xA74D },    // MCU_ADDRESS [MODE_GAM_TABLE_A_8]
+	{ 1, 0xC8, 0x00A7 },    // MCU_DATA_0
+	{ 1, 0xC6, 0xA74E },    // MCU_ADDRESS [MODE_GAM_TABLE_A_9]
+	{ 1, 0xC8, 0x00B4 },    // MCU_DATA_0
+	{ 1, 0xC6, 0xA74F },    // MCU_ADDRESS [MODE_GAM_TABLE_A_10]
+	{ 1, 0xC8, 0x00C0 },    // MCU_DATA_0
+	{ 1, 0xC6, 0xA750 },    // MCU_ADDRESS [MODE_GAM_TABLE_A_11]
+	{ 1, 0xC8, 0x00CA },    // MCU_DATA_0
+	{ 1, 0xC6, 0xA751 },    // MCU_ADDRESS [MODE_GAM_TABLE_A_12]
+	{ 1, 0xC8, 0x00D4 },    // MCU_DATA_0
+	{ 1, 0xC6, 0xA752 },    // MCU_ADDRESS [MODE_GAM_TABLE_A_13]
+	{ 1, 0xC8, 0x00DC },    // MCU_DATA_0
+	{ 1, 0xC6, 0xA753 },    // MCU_ADDRESS [MODE_GAM_TABLE_A_14]
+	{ 1, 0xC8, 0x00E4 },    // MCU_DATA_0
+	{ 1, 0xC6, 0xA754 },    // MCU_ADDRESS [MODE_GAM_TABLE_A_15]
+	{ 1, 0xC8, 0x00EC },    // MCU_DATA_0
+	{ 1, 0xC6, 0xA755 },    // MCU_ADDRESS [MODE_GAM_TABLE_A_16]
+	{ 1, 0xC8, 0x00F3 },    // MCU_DATA_0
+	{ 1, 0xC6, 0xA756 },    // MCU_ADDRESS [MODE_GAM_TABLE_A_17]
+	{ 1, 0xC8, 0x00F9 },    // MCU_DATA_0
+	{ 1, 0xC6, 0xA757 },    // MCU_ADDRESS [MODE_GAM_TABLE_A_18]
+	{ 1, 0xC8, 0x00FF },    // MCU_DATA_0
+	{ 1, 0xC6, 0xA743 },    // MCU_ADDRESS [MODE_GAM_CONT_A]
+	{ 1, 0xC8, 0x0003 },    // MCU_DATA_0
+
+	{ 1, 0xC6, 0x276D },       //FIFO_Conf1 (A)
+	{ 1, 0xC8, 0xE0E1 },       //      = 57569
+	{ 1, 0xC6, 0xA76F },       //FIFO_Conf2 (A)
+	{ 1, 0xC8, 0x00E1 },       //      = 225
+	{ 1, 0xC6, 0x2774 },       //FIFO_Conf1 (B)
+	{ 1, 0xC8, 0xE0E1 },       //      = 57569
+	{ 1, 0xC6, 0xA776 },       //FIFO_Conf2 (B)
+	{ 1, 0xC8, 0x00E1 },       //      = 225
+	{ 1, 0xC6, 0x220B },       //Max R12 (B)(Shutter Delay)
+	{ 1, 0xC8, 0x0445 },       //      = 1093
+
+	// AE Target, Stability
+	{ 1, 0xC6, 0xA206 },    // MCU_ADDRESS [AE_TARGET]
+	{ 1, 0xC8, 0x0041 },    // MCU_DATA_0
+	{ 1, 0xC6, 0xA207 },    // MCU_ADDRESS [AE_GATE]
+	{ 1, 0xC8, 0x000A },    // MCU_DATA_0
+	{ 1, 0xC6, 0xA20D },   // MCU_ADDRESS [AE_MIN_INDEX]
+	{ 1, 0xC8, 0x0001 },   // MCU_DATA_0
+	{ 1, 0xC6, 0xA20E },   // MCU_ADDRESS [AE_MAX_INDEX]
+	{ 1, 0xC8, 0x0004 },   // MCU_DATA_0
+	{ 1, 0xC6, 0xA217 },       //IndexTH23
+	{ 1, 0xC8, 0x0008 },       //      = 8
+	{ 1, 0xC6, 0x2228 },       //RowTime (msclk per)/4
+	{ 1, 0xC8, 0x0182 },       //      = 386
+	{ 1, 0xC6, 0x222F },       //R9 Step
+	{ 1, 0xC8, 0x00D6 },       //      = 214
+	{ 1, 0xC6, 0xA408 },       //search_f1_50
+	{ 1, 0xC8, 0x0032 },       //      = 50
+	{ 1, 0xC6, 0xA409 },       //search_f2_50
+	{ 1, 0xC8, 0x0034 },       //      = 52
+	{ 1, 0xC6, 0xA40A },       //search_f1_60
+	{ 1, 0xC8, 0x0029 },       //      = 41
+	{ 1, 0xC6, 0xA40B },       //search_f2_60
+	{ 1, 0xC8, 0x002B },       //      = 43
+	{ 1, 0xC6, 0x2411 },       //R9_Step_60
+	{ 1, 0xC8, 0x00D6 },       //      = 214
+	{ 1, 0xC6, 0x2413 },       //R9_Step_50
+	{ 1, 0xC8, 0x0101 },       //      = 257
+
+	{ 1, 0xC6, 0xA103 },       //Refresh Sequencer
+	{ 1, 0xC8, 0x0005 },        //      = 5
+
+	{ MT_DELAY, 0x00, 250 },
+
+	{ 1, 0xC6, 0xA103 },        //Refresh Sequencer Mode
+	{ 1, 0xC8, 0x0006 },        //      = 6
+
+	{ MT_DELAY, 0x00, 250 },
+
+	{ 1, 0xC6, 0xA103 },        //Refresh Sequencer
+	{ 1, 0xC8, 0x0005 },        //      = 5
+
+	{ MT_DELAY, 0x00, 250 },
+
+	{ 1, 0xC6, 0xA115 },     // MCU_ADDRESS [SEQ_LLMODE]
+	{ 1, 0xC8, 0x0062 },     // MCU_DATA_0
+	{ 1, 0xC6, 0xA20A },     // MCU_ADDRESS [AE_LUMA_BUFFER_SPEED]
+	{ 1, 0xC8, 0x0020 },     // MCU_DATA_0
+	{ 1, 0x36, 0x1608 },     // APERTURE_PARAMETERS 3.0
+
+	{ 1, 0x97, 0x0010 },	// Use BT601 code when bypassing FIFO
+	{ 2, 0x0D, 0x0407 },	// Enable spoof BT601 codes
+
+	{ MT_TERM, 0, 0 },
+};
+
 static struct reg_val mt9d111_resol_vga[] = {
 
 #if 1
@@ -192,6 +382,197 @@ static struct reg_val mt9d111_resol_vga[] = {
 
 	{ MT_TERM, 0, 0 },
 };
+
+static struct reg_val mt9d111_resol_800x450[] = {
+
+#if 1
+	{ 0, 0x65, 0xA000},	/*  bypassed PLL (prepare for soft reset */
+	{ 1, 0xC3, 0x0501},	/*  MCU_BOOT_MODE (MCU reset) */
+	{ 0, 0x0D, 0x0021},	/*  RESET_REG (enable soft reset) */
+	{ MT_DELAY, 0, 250},	/*  DELAY=1 */
+	{ 0, 0x0D, 0x0000},	/*  RESET_REG (disable soft reset) */
+	{ MT_DELAY, 0, 250},	/*  DELAY=100 */
+#endif
+
+	{ 0, 0x05, 0x011E },        //HBLANK (B) = 286
+	{ 0, 0x06, 0x00C7 },        //VBLANK (B) = 199
+	{ 0, 0x07, 0x011E },        //HBLANK (A) = 286
+	{ 0, 0x08, 0x000C },        //VBLANK (A) = 12
+	{ 0, 0x20, 0x0300 },        //Read Mode (B) = 768
+	{ 0, 0x21, 0x0000 },        //Read Mode (A) = 0
+
+	{ 0, 0x66, 0x1402 },        //PLL Control 1 = 5122
+	{ 0, 0x67, 0x0500 },        //PLL Control 2 = 1280
+	{ 0, 0x65, 0xA000 },        //Clock CNTRL: PLL ON = 40960
+
+	{ MT_DELAY, 0x00, 250 },
+	{ 0, 0x65, 0x2000 },        //Clock CNTRL: USE PLL = 8192
+	{ MT_DELAY, 0x00, 250 },
+
+	{ 1, 0xC6, 0x2703 },        //Output Width (A)
+	{ 1, 0xC8, 0x0320 },        //      = 800
+	{ 1, 0xC6, 0x2705 },        //Output Height (A)
+	{ 1, 0xC8, 0x01C2 },        //      = 450
+	{ 1, 0xC6, 0x2707 },        //Output Width (B)
+	{ 1, 0xC8, 0x0320 },        //      = 800
+	{ 1, 0xC6, 0x2709 },        //Output Height (B)
+	{ 1, 0xC8, 0x01C2 },        //      = 450
+	{ 1, 0xC6, 0x270B },        //mode_config
+	{ 1, 0xC8, 0x0030 },        //      = 48
+	{ 1, 0xC6, 0x270F },        //Row Start (A)
+	{ 1, 0xC8, 0x00D0 },        //      = 28+180
+	{ 1, 0xC6, 0x2711 },        //Column Start (A)
+	{ 1, 0xC8, 0x00E6 },        //      = 60+170
+	{ 1, 0xC6, 0x2713 },        //Row Height (A)
+	{ 1, 0xC8, 0x0348 },        //      = 840
+	{ 1, 0xC6, 0x2715 },        //Column Width (A)
+	{ 1, 0xC8, 0x04EC },        //      = 1260
+	{ 1, 0xC6, 0x2717 },        //Extra Delay (A)
+	{ 1, 0xC8, 0x009B },        //      = 155
+	{ 1, 0xC6, 0x2719 },        //Row Speed (A)
+	{ 1, 0xC8, 0x0011 },        //      = 17
+	{ 1, 0xC6, 0x271B },        //Row Start (B)
+	{ 1, 0xC8, 0x00D0 },        //      = 28+180
+	{ 1, 0xC6, 0x271D },        //Column Start (B)
+	{ 1, 0xC8, 0x00E6 },        //      = 60+170
+	{ 1, 0xC6, 0x271F },        //Row Height (B)
+	{ 1, 0xC8, 0x0348 },        //      = 840
+	{ 1, 0xC6, 0x2721 },        //Column Width (B)
+	{ 1, 0xC8, 0x04EC },        //      = 1260
+	{ 1, 0xC6, 0x2723 },        //Extra Delay (B)
+	{ 1, 0xC8, 0x01EE },        //      = 494
+	{ 1, 0xC6, 0x2725 },        //Row Speed (B)
+	{ 1, 0xC8, 0x0011 },        //      = 17
+	{ 1, 0xC6, 0x2727 },        //Crop_X0 (A)
+	{ 1, 0xC8, 0x0000 },        //      = 0
+	{ 1, 0xC6, 0x2729 },        //Crop_X1 (A)
+	{ 1, 0xC8, 0x04EC },        //      = 1260
+	{ 1, 0xC6, 0x272B },        //Crop_Y0 (A)
+	{ 1, 0xC8, 0x0000 },        //      = 0
+	{ 1, 0xC6, 0x272D },        //Crop_Y1 (A)
+	{ 1, 0xC8, 0x0348 },        //      = 840
+	{ 1, 0xC6, 0x2735 },        //Crop_X0 (B)
+	{ 1, 0xC8, 0x0000 },        //      = 0
+	{ 1, 0xC6, 0x2737 },        //Crop_X1 (B)
+	{ 1, 0xC8, 0x04EC },        //      = 1260
+	{ 1, 0xC6, 0x2739 },        //Crop_Y0 (B)
+	{ 1, 0xC8, 0x0000 },        //      = 0
+	{ 1, 0xC6, 0x273B },        //Crop_Y1 (B)
+	{ 1, 0xC8, 0x0348 },        //      = 840
+	{ 1, 0xC6, 0xA743 },        //Gamma and Contrast Settings (A)
+	{ 1, 0xC8, 0x0002 },        //      = 2
+	{ 1, 0xC6, 0xA744 },        //Gamma and Contrast Settings (B)
+	{ 1, 0xC8, 0x0002 },        //      = 2
+
+	// gamma=0.45, black:6, contrast=1.25
+
+	{ 1, 0xC6, 0xA745 },    // MCU_ADDRESS [MODE_GAM_TABLE_A_0]
+	{ 1, 0xC8, 0x0000 },    // MCU_DATA_0
+	{ 1, 0xC6, 0xA746 },    // MCU_ADDRESS [MODE_GAM_TABLE_A_1]
+	{ 1, 0xC8, 0x0008 },    // MCU_DATA_0
+	{ 1, 0xC6, 0xA747 },    // MCU_ADDRESS [MODE_GAM_TABLE_A_2]
+	{ 1, 0xC8, 0x0019 },    // MCU_DATA_0
+	{ 1, 0xC6, 0xA748 },    // MCU_ADDRESS [MODE_GAM_TABLE_A_3]
+	{ 1, 0xC8, 0x0035 },    // MCU_DATA_0
+	{ 1, 0xC6, 0xA749 },    // MCU_ADDRESS [MODE_GAM_TABLE_A_4]
+	{ 1, 0xC8, 0x0056 },    // MCU_DATA_0
+	{ 1, 0xC6, 0xA74A },    // MCU_ADDRESS [MODE_GAM_TABLE_A_5]
+	{ 1, 0xC8, 0x006F },    // MCU_DATA_0
+	{ 1, 0xC6, 0xA74B },    // MCU_ADDRESS [MODE_GAM_TABLE_A_6]
+	{ 1, 0xC8, 0x0085 },    // MCU_DATA_0
+	{ 1, 0xC6, 0xA74C },    // MCU_ADDRESS [MODE_GAM_TABLE_A_7]
+	{ 1, 0xC8, 0x0098 },    // MCU_DATA_0
+	{ 1, 0xC6, 0xA74D },    // MCU_ADDRESS [MODE_GAM_TABLE_A_8]
+	{ 1, 0xC8, 0x00A7 },    // MCU_DATA_0
+	{ 1, 0xC6, 0xA74E },    // MCU_ADDRESS [MODE_GAM_TABLE_A_9]
+	{ 1, 0xC8, 0x00B4 },    // MCU_DATA_0
+	{ 1, 0xC6, 0xA74F },    // MCU_ADDRESS [MODE_GAM_TABLE_A_10]
+	{ 1, 0xC8, 0x00C0 },    // MCU_DATA_0
+	{ 1, 0xC6, 0xA750 },    // MCU_ADDRESS [MODE_GAM_TABLE_A_11]
+	{ 1, 0xC8, 0x00CA },    // MCU_DATA_0
+	{ 1, 0xC6, 0xA751 },    // MCU_ADDRESS [MODE_GAM_TABLE_A_12]
+	{ 1, 0xC8, 0x00D4 },    // MCU_DATA_0
+	{ 1, 0xC6, 0xA752 },    // MCU_ADDRESS [MODE_GAM_TABLE_A_13]
+	{ 1, 0xC8, 0x00DC },    // MCU_DATA_0
+	{ 1, 0xC6, 0xA753 },    // MCU_ADDRESS [MODE_GAM_TABLE_A_14]
+	{ 1, 0xC8, 0x00E4 },    // MCU_DATA_0
+	{ 1, 0xC6, 0xA754 },    // MCU_ADDRESS [MODE_GAM_TABLE_A_15]
+	{ 1, 0xC8, 0x00EC },    // MCU_DATA_0
+	{ 1, 0xC6, 0xA755 },    // MCU_ADDRESS [MODE_GAM_TABLE_A_16]
+	{ 1, 0xC8, 0x00F3 },    // MCU_DATA_0
+	{ 1, 0xC6, 0xA756 },    // MCU_ADDRESS [MODE_GAM_TABLE_A_17]
+	{ 1, 0xC8, 0x00F9 },    // MCU_DATA_0
+	{ 1, 0xC6, 0xA757 },    // MCU_ADDRESS [MODE_GAM_TABLE_A_18]
+	{ 1, 0xC8, 0x00FF },    // MCU_DATA_0
+	{ 1, 0xC6, 0xA743 },    // MCU_ADDRESS [MODE_GAM_CONT_A]
+	{ 1, 0xC8, 0x0003 },    // MCU_DATA_0
+
+	{ 1, 0xC6, 0x276D },       //FIFO_Conf1 (A)
+	{ 1, 0xC8, 0xE0E1 },       //      = 57569
+	{ 1, 0xC6, 0xA76F },       //FIFO_Conf2 (A)
+	{ 1, 0xC8, 0x00E1 },       //      = 225
+	{ 1, 0xC6, 0x2774 },       //FIFO_Conf1 (B)
+	{ 1, 0xC8, 0xE0E1 },       //      = 57569
+	{ 1, 0xC6, 0xA776 },       //FIFO_Conf2 (B)
+	{ 1, 0xC8, 0x00E1 },       //      = 225
+	{ 1, 0xC6, 0x220B },       //Max R12 (B)(Shutter Delay)
+	{ 1, 0xC8, 0x0445 },       //      = 1093
+
+	// AE Target, Stability
+	{ 1, 0xC6, 0xA206 },    // MCU_ADDRESS [AE_TARGET]
+	{ 1, 0xC8, 0x0041 },    // MCU_DATA_0
+	{ 1, 0xC6, 0xA207 },    // MCU_ADDRESS [AE_GATE]
+	{ 1, 0xC8, 0x000A },    // MCU_DATA_0
+	{ 1, 0xC6, 0xA20D },   // MCU_ADDRESS [AE_MIN_INDEX]
+	{ 1, 0xC8, 0x0001 },   // MCU_DATA_0
+	{ 1, 0xC6, 0xA20E },   // MCU_ADDRESS [AE_MAX_INDEX]
+	{ 1, 0xC8, 0x0004 },   // MCU_DATA_0
+	{ 1, 0xC6, 0xA217 },       //IndexTH23
+	{ 1, 0xC8, 0x0008 },       //      = 8
+	{ 1, 0xC6, 0x2228 },       //RowTime (msclk per)/4
+	{ 1, 0xC8, 0x0182 },       //      = 386
+	{ 1, 0xC6, 0x222F },       //R9 Step
+	{ 1, 0xC8, 0x00D6 },       //      = 214
+	{ 1, 0xC6, 0xA408 },       //search_f1_50
+	{ 1, 0xC8, 0x0032 },       //      = 50
+	{ 1, 0xC6, 0xA409 },       //search_f2_50
+	{ 1, 0xC8, 0x0034 },       //      = 52
+	{ 1, 0xC6, 0xA40A },       //search_f1_60
+	{ 1, 0xC8, 0x0029 },       //      = 41
+	{ 1, 0xC6, 0xA40B },       //search_f2_60
+	{ 1, 0xC8, 0x002B },       //      = 43
+	{ 1, 0xC6, 0x2411 },       //R9_Step_60
+	{ 1, 0xC8, 0x00D6 },       //      = 214
+	{ 1, 0xC6, 0x2413 },       //R9_Step_50
+	{ 1, 0xC8, 0x0101 },       //      = 257
+
+	{ 1, 0xC6, 0xA103 },       //Refresh Sequencer
+	{ 1, 0xC8, 0x0005 },        //      = 5
+
+	{ MT_DELAY, 0x00, 250 },
+
+	{ 1, 0xC6, 0xA103 },        //Refresh Sequencer Mode
+	{ 1, 0xC8, 0x0006 },        //      = 6
+
+	{ MT_DELAY, 0x00, 250 },
+
+	{ 1, 0xC6, 0xA103 },        //Refresh Sequencer
+	{ 1, 0xC8, 0x0005 },        //      = 5
+
+	{ MT_DELAY, 0x00, 250 },
+
+	{ 1, 0xC6, 0xA115 },     // MCU_ADDRESS [SEQ_LLMODE]
+	{ 1, 0xC8, 0x0062 },     // MCU_DATA_0
+	{ 1, 0xC6, 0xA20A },     // MCU_ADDRESS [AE_LUMA_BUFFER_SPEED]
+	{ 1, 0xC8, 0x0020 },     // MCU_DATA_0
+	{ 1, 0x36, 0x1608 },     // APERTURE_PARAMETERS 3.0
+
+	{ 1, 0x97, 0x0010 },	// Use BT601 code when bypassing FIFO
+	{ 2, 0x0D, 0x0407 },	// Enable spoof BT601 codes
+
+	{ MT_TERM, 0, 0 },
+};
+
 
 static struct reg_val mt9d111_resol_960x540[] = {
 
