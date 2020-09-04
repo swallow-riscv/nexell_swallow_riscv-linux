@@ -86,7 +86,7 @@ static struct nx_resolution supported_resolutions[] = {
 		.regs = mt9d111_resol_960x540,
 		.reg_size = ARRAY_SIZE(mt9d111_resol_960x540),
 	},
-	[RESOL_960x540] = {
+	[RESOL_800x450] = {
 		.name = "800x450",
 		.width	= 800,
 		.height = 450,
