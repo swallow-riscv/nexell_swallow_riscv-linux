@@ -61,7 +61,9 @@ struct nx_resolution {
 enum {
 	RESOL_720P,
 	RESOL_960x540,
+	RESOL_800x450,
 	RESOL_VGA,
+	RESOL_640x360,
 	RESOL_COUNT
 };
 
@@ -84,6 +86,15 @@ static struct nx_resolution supported_resolutions[] = {
 		.regs = mt9d111_resol_960x540,
 		.reg_size = ARRAY_SIZE(mt9d111_resol_960x540),
 	},
+	[RESOL_960x540] = {
+		.name = "800x450",
+		.width	= 800,
+		.height = 450,
+		.interval[0] = 15,
+		.interval[1] = 30,
+		.regs = mt9d111_resol_800x450,
+		.reg_size = ARRAY_SIZE(mt9d111_resol_800x450),
+	},
 	[RESOL_VGA] = {
 		.name = "640x480",
 		.width	= 640,
@@ -92,7 +103,16 @@ static struct nx_resolution supported_resolutions[] = {
 		.interval[1] = 30,
 		.regs = mt9d111_resol_vga,
 		.reg_size = ARRAY_SIZE(mt9d111_resol_vga),
-	}
+	},
+	[RESOL_640x360] = {
+		.name = "640x360",
+		.width	= 640,
+		.height = 360,
+		.interval[0] = 15,
+		.interval[1] = 30,
+		.regs = mt9d111_resol_640x360,
+		.reg_size = ARRAY_SIZE(mt9d111_resol_640x360),
+	},
 };
 
 /*****************************************************************************/
